@@ -1,5 +1,4 @@
 var ws = require('ws');
-var colors = require("colors");
 var GET = require('./get');
 var HAM = require('./ham');
 var Dup = require('./dup'), dup = Dup();

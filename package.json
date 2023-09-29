@@ -1,17 +1,17 @@
 {
     "scripts": {
-      "start": "node ./src/serve.js",
-      "serve": "node ./src/index.js",
-      "init": "node ./src/init.js"
+        "start": "node ./src/serve.js",
+        "serve": "node ./src/index.js",
+        "init": "node ./src/init.js"
     },
     "devDependencies": {
-      "@types/node": "^20.7.1",
-      "tsc": "^2.0.4",
-      "typescript": "^5.2.2"
+        "@types/node": "^20.7.1",
+        "tsc": "^2.0.4",
+        "typescript": "^5.2.2"
     },
     "dependencies": {
-      "@huggingface/inference": "^2.6.1",
-      "ws": "^8.14.2"
+        "@huggingface/inference": "^2.6.1",
+        "colors": "^1.4.0",
+        "ws": "^8.14.2"
     }
-  }
-  
+}

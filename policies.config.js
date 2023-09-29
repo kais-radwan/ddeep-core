@@ -5,7 +5,7 @@ module.exports = [
         name: "auth_policy",
         operations: ["read", "write"],
         type: "check",
-        graph: "people/kais",
+        graph: ["people/kais"],
 
         check(instance, data) {
 
