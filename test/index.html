@@ -1,4 +1,15 @@
+
+<style>
+    * {
+        background: #000
+    }
+</style>
+
+<script src="../src/dup.js"></script>
+
 <script>
+
+    let dup = Dup();
 
     var peer = new WebSocket('ws://localhost:9999');
     peer.onopen = function(o){ 

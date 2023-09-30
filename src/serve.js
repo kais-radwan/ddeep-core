@@ -5,6 +5,8 @@ var Dup = require('./dup'), dup = Dup();
 var store = require('./storage/store');
 var opt = require("../ddeep.config");
 var policies = require("../policies.config");
+var SCANNER = require("./policies/scanner");
+const { getLeadingCommentRanges } = require('typescript');
 
 var peers = [];
 var graph = {};
@@ -37,16 +39,27 @@ wss.on('connection', function (peer) {
 
     });
 });
+
 var getData = function (msg) {
+
+    let allowed;
+    var soul = msg?.get["#"];
+    var prop = msg?.get["."];
+    if (soul) soul = soul.split("/");
+    if (prop) soul.push(prop);
+
     var ack = GET(msg.get, graph);
+
+    if (ack) allowed = SCANNER(soul, "read", policies, ack);
+
     if (ack) {
-        if (ack) console.log(ack.green);
         emit(JSON.stringify({
             '#': dup.track(Dup.random()),
             '@': msg['#'],
             put: ack
         }));
     }
+    
     else {
         store.get(msg.get, function (err, ack) {
             if (err && logs) console.log(err.red);
@@ -58,6 +71,7 @@ var getData = function (msg) {
             }));
         });
     }
+
 };
 var putData = function (msg) {
 

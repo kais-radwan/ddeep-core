@@ -7,6 +7,9 @@ module.exports = {
     "port": 9999,
 
     // set logs to false if you don't want to see real-tiem logs in your peer
-    "logs": true
+    "logs": true,
+
+    // Add your huggingFace token to be used with AI smart policies
+    "hf": null
 
 }
