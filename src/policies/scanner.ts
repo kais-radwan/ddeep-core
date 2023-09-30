@@ -21,11 +21,12 @@ export async function scanPolicies (nodes:Array<string>, operation:string, polic
     if (!policies) policies = {};
 
     // Loop over policies and process them
-    policies.forEach( async (policy:policySchema) => {
+    for (let policy in policies) {
 
         // Define the policy values
-        let policyOperations = policy.operations;
-        let policyNodes = policy.graph;
+        let policiyValue = policies[policy];
+        let policyOperations = policiyValue.operations;
+        let policyNodes = policiyValue.graph;
 
         // if the policiy's operation and current operation and the parent nodes match then process the nodes
         if (policyOperations.indexOf(operation) > -1 && policyNodes[0] === nodes[0]) {
@@ -33,46 +34,31 @@ export async function scanPolicies (nodes:Array<string>, operation:string, polic
             let isAppiled:true|false = false;
             let mappingNodes:Array<string> = [];
 
-            if (nodes.length > policyNodes.length) mappingNodes = nodes;
-            if (nodes.length < policyNodes.length) mappingNodes = policyNodes;
-            if (nodes.length === policyNodes.length) mappingNodes = nodes;
+            mappingNodes = (nodes.length > policyNodes.length) ? nodes 
+                : (nodes.length < policyNodes.length) ? policyNodes 
+                : nodes;
 
             for (let node in mappingNodes) {
 
                 let nodeValue = nodes[node];
                 let polNodeValue = policyNodes[node];
 
-                // if the policy node is not found so the root of the current node is applied -> policy applied
-                if (!polNodeValue) {
-                    isAppiled = true;
-                }
-
-                // if the policy node match the operation node so the policy is applied
-                else if (polNodeValue === nodeValue) {
-                    isAppiled = true;
-                }
+                isAppiled = (!polNodeValue)
+                ? true : (polNodeValue === nodeValue) ? true : false;
 
                 // if the policy is found and does not match the operation node so the policy is not applied
-                else {
-                    isAppiled = false;
-                    break;
-                }
+                if (polNodeValue && polNodeValue !== nodeValue) break;
 
-                if (nodeValue === processedPolicies[node] && processedPolicies.length < mappingNodes.length) {
-                    isAppiled = false;
-                }
-
-                else {
-                    processedPolicies[node] = nodeValue;
-                }
+                (nodeValue === processedPolicies[node] && processedPolicies.length < mappingNodes.length)
+                ? isAppiled = false : processedPolicies[node] = nodeValue;
 
             }
 
-            if (isAppiled === true) res = await processPolicy(policy, data);
+            if (isAppiled === true) res = await processPolicy(policiyValue, data);
 
         }
 
-    })
+    }
 
     // Throw error if res is not a valid (true || false)
     if (res !== true && res !== false)

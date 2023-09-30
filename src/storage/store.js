@@ -18,7 +18,7 @@ function Store(opt) {
 	};
 
 	store.get = function (file, cb) {
-		fs.readFile(opt.file + '/' + file, function (err, data) {
+		fs.readFile(opt.file + '/' + file, (err, data) => {
 			if (err) {
 				if ('ENOENT' === (err.code || '').toUpperCase()) {
 					return cb();

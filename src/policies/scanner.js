@@ -41,68 +41,61 @@ var processPolicy = require("./processor");
 // scan policies for a specific node path and operation and process valid policies
 function scanPolicies(nodes, operation, policies, data) {
     return __awaiter(this, void 0, void 0, function () {
-        var res, processedPolicies;
-        var _this = this;
-        return __generator(this, function (_a) {
-            res = true;
-            processedPolicies = [];
-            // Make policies an empty object if no policies exist
-            if (!policies)
-                policies = {};
-            // Loop over policies and process them
-            policies.forEach(function (policy) { return __awaiter(_this, void 0, void 0, function () {
-                var policyOperations, policyNodes, isAppiled, mappingNodes, node, nodeValue, polNodeValue;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            policyOperations = policy.operations;
-                            policyNodes = policy.graph;
-                            if (!(policyOperations.indexOf(operation) > -1 && policyNodes[0] === nodes[0])) return [3 /*break*/, 2];
-                            isAppiled = false;
-                            mappingNodes = [];
-                            if (nodes.length > policyNodes.length)
-                                mappingNodes = nodes;
-                            if (nodes.length < policyNodes.length)
-                                mappingNodes = policyNodes;
-                            if (nodes.length === policyNodes.length)
-                                mappingNodes = nodes;
-                            for (node in mappingNodes) {
-                                nodeValue = nodes[node];
-                                polNodeValue = policyNodes[node];
-                                // if the policy node is not found so the root of the current node is applied -> policy applied
-                                if (!polNodeValue) {
-                                    isAppiled = true;
-                                }
-                                // if the policy node match the operation node so the policy is applied
-                                else if (polNodeValue === nodeValue) {
-                                    isAppiled = true;
-                                }
-                                // if the policy is found and does not match the operation node so the policy is not applied
-                                else {
-                                    isAppiled = false;
-                                    break;
-                                }
-                                if (nodeValue === processedPolicies[node] && processedPolicies.length < mappingNodes.length) {
-                                    isAppiled = false;
-                                }
-                                else {
-                                    processedPolicies[node] = nodeValue;
-                                }
-                            }
-                            if (!(isAppiled === true)) return [3 /*break*/, 2];
-                            return [4 /*yield*/, processPolicy(policy, data)];
-                        case 1:
-                            res = _a.sent();
-                            _a.label = 2;
-                        case 2: return [2 /*return*/];
+        var res, processedPolicies, _a, _b, _c, _i, policy, policiyValue, policyOperations, policyNodes, isAppiled, mappingNodes, node, nodeValue, polNodeValue;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
+                case 0:
+                    res = true;
+                    processedPolicies = [];
+                    // Make policies an empty object if no policies exist
+                    if (!policies)
+                        policies = {};
+                    _a = policies;
+                    _b = [];
+                    for (_c in _a)
+                        _b.push(_c);
+                    _i = 0;
+                    _d.label = 1;
+                case 1:
+                    if (!(_i < _b.length)) return [3 /*break*/, 4];
+                    _c = _b[_i];
+                    if (!(_c in _a)) return [3 /*break*/, 3];
+                    policy = _c;
+                    policiyValue = policies[policy];
+                    policyOperations = policiyValue.operations;
+                    policyNodes = policiyValue.graph;
+                    if (!(policyOperations.indexOf(operation) > -1 && policyNodes[0] === nodes[0])) return [3 /*break*/, 3];
+                    isAppiled = false;
+                    mappingNodes = [];
+                    mappingNodes = (nodes.length > policyNodes.length) ? nodes
+                        : (nodes.length < policyNodes.length) ? policyNodes
+                            : nodes;
+                    for (node in mappingNodes) {
+                        nodeValue = nodes[node];
+                        polNodeValue = policyNodes[node];
+                        isAppiled = (!polNodeValue)
+                            ? true : (polNodeValue === nodeValue) ? true : false;
+                        // if the policy is found and does not match the operation node so the policy is not applied
+                        if (polNodeValue && polNodeValue !== nodeValue)
+                            break;
+                        (nodeValue === processedPolicies[node] && processedPolicies.length < mappingNodes.length)
+                            ? isAppiled = false : processedPolicies[node] = nodeValue;
                     }
-                });
-            }); });
-            // Throw error if res is not a valid (true || false)
-            if (res !== true && res !== false)
-                throw new Error("Error processing policy. you are not returning a valid true|false as a check");
-            // Return the result
-            return [2 /*return*/, res];
+                    if (!(isAppiled === true)) return [3 /*break*/, 3];
+                    return [4 /*yield*/, processPolicy(policiyValue, data)];
+                case 2:
+                    res = _d.sent();
+                    _d.label = 3;
+                case 3:
+                    _i++;
+                    return [3 /*break*/, 1];
+                case 4:
+                    // Throw error if res is not a valid (true || false)
+                    if (res !== true && res !== false)
+                        throw new Error("Error processing policy. you are not returning a valid true|false as a check");
+                    // Return the result
+                    return [2 /*return*/, res];
+            }
         });
     });
 }

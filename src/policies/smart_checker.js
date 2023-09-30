@@ -5,7 +5,7 @@ exports.smartChecker = void 0;
 function smartChecker(data, rules) {
     // Define main vars
     var res;
-    var ao = ["<", ">", "=", "!"];
+    var ao = ["<", ">"];
     // Throw error if data is invalid as it should be an object
     if (!data || typeof data !== "object")
         throw new Error("Data is not valid in smart check");
@@ -30,14 +30,9 @@ function smartChecker(data, rules) {
         if (!ruleClassScore)
             throw new Error("Rule label '".concat(ruleLabel, "' is not valid. valid labels:").concat(JSON.stringify(Object.keys(data))));
         // Process the rule operation
-        if (ruleScoreOperator === "<" && Number(ruleClassScore) < Number(ruleScore))
-            res = ruleRes;
-        if (ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore))
-            res = ruleRes;
-        if (ruleScoreOperator === "=" && Number(ruleClassScore) === Number(ruleScore))
-            res = ruleRes;
-        if (ruleScoreOperator === "!" && Number(ruleClassScore) !== Number(ruleScore))
-            res = ruleRes;
+        (ruleScoreOperator === "<" && Number(ruleClassScore) < Number(ruleScore)) ? res = ruleScore
+            : (ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore)) ? res = ruleRes
+                : null;
     }
     if (res !== true && res !== false)
         throw new Error("Error processing a smart check. you are not returning a valid true|false");

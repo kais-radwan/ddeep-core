@@ -27,7 +27,7 @@ async function processPolicy (policy:policySchema, data:any) {
 
     if (type === "check" || !type) {
 
-        let result:true|false = await check(data);
+        var result:true|false = await check(data);
 
         res = result;
 
@@ -37,10 +37,10 @@ async function processPolicy (policy:policySchema, data:any) {
 
         if (!data) throw new Error(`The data to process is undefined in smart policy ${name}`);
 
-        let classes = await getAIClasses(data);
+        var classes = await getAIClasses(data);
         if (!classes || typeof classes !== "object") throw new Error("Unable to process data classes");
 
-        let result:true|false = await check(classes);
+        var result:true|false = await check(classes);
 
         res = result;
 
@@ -49,3 +49,5 @@ async function processPolicy (policy:policySchema, data:any) {
     return res;
 
 }
+
+module.exports = processPolicy;

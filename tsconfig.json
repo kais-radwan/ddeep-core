@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "CommonJS",
+
+        "strict": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "sourceMap": false,
+
+        "moduleResolution": "Node",
+        "outDir": "dist"
+    }
+}

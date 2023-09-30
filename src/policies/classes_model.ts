@@ -1,6 +1,6 @@
 
 import { HfInference } from "@huggingface/inference";
-import * as opt from "../../ddeep.config";
+const opt = require("../../ddeep.config");
 
 // Process AI text classification
 async function getAIClasses (data:any) {

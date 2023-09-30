@@ -7,7 +7,7 @@ export function smartChecker (data:any, rules:Array<any>) {
 
     // Define main vars
     let res;
-    let ao = ["<", ">", "=", "!"];
+    let ao = ["<", ">"];
 
     // Throw error if data is invalid as it should be an object
     if (!data || typeof data !== "object") throw new Error("Data is not valid in smart check");
@@ -41,10 +41,9 @@ export function smartChecker (data:any, rules:Array<any>) {
             (`Rule label '${ruleLabel}' is not valid. valid labels:${JSON.stringify(Object.keys(data))}`);
 
         // Process the rule operation
-        if (ruleScoreOperator === "<" && Number(ruleClassScore) < Number(ruleScore)) res = ruleRes;
-        if (ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore)) res = ruleRes;
-        if (ruleScoreOperator === "=" && Number(ruleClassScore) === Number(ruleScore)) res = ruleRes;
-        if (ruleScoreOperator === "!" && Number(ruleClassScore) !== Number(ruleScore)) res = ruleRes;
+        (ruleScoreOperator === "<" && Number(ruleClassScore) < Number(ruleScore)) ? res = ruleScore
+        : (ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore)) ? res = ruleRes
+        : null;
 
     }
 

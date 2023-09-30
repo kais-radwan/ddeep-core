@@ -6,7 +6,6 @@ var store = require('./storage/store');
 var opt = require("../ddeep.config");
 var policies = require("../policies.config");
 var SCANNER = require("./policies/scanner");
-const { getLeadingCommentRanges } = require('typescript');
 
 var peers = [];
 var graph = {};
@@ -30,8 +29,6 @@ wss.on('connection', function (peer) {
             return;
         dup.track(msg['#']);
 
-        if (logs) console.log(msg);
-
         if (msg.put && storage) putData(msg);
         if (msg.put) HAM.mix(msg.put, graph);
 
@@ -40,9 +37,8 @@ wss.on('connection', function (peer) {
     });
 });
 
-var getData = function (msg) {
+var getData = async function (msg) {
 
-    let allowed;
     var soul = msg?.get["#"];
     var prop = msg?.get["."];
     if (soul) soul = soul.split("/");
@@ -50,26 +46,52 @@ var getData = function (msg) {
 
     var ack = GET(msg.get, graph);
 
-    if (ack) allowed = SCANNER(soul, "read", policies, ack);
-
     if (ack) {
+
+        var err;
+
+        var allowed = await SCANNER(soul, "read", policies, {
+            data: ack,
+            instance: msg
+        });
+
+        if (!allowed){
+            ack = null;
+            err = "Access denied";
+        }
+
         emit(JSON.stringify({
             '#': dup.track(Dup.random()),
             '@': msg['#'],
-            put: ack
+            put: ack,
+            err: err
         }));
+
     }
-    
-    else {
-        store.get(msg.get, function (err, ack) {
-            if (err && logs) console.log(err.red);
+
+    if (!ack) {
+
+        store.get(msg.get, async function (err, ack) {
+
+            var allowed = await SCANNER(soul, "read", policies, {
+                data: ack,
+                instance: msg
+            });
+
+            if (!allowed){
+                ack = null;
+                err = "Access denied";
+            }
+
             emit(JSON.stringify({
                 '#': dup.track(Dup.random()),
                 '@': msg['#'],
                 put: ack,
-                err: err,
+                err: err
             }));
+
         });
+
     }
 
 };

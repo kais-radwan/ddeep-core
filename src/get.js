@@ -19,7 +19,6 @@ const GET = (lex, graph) => {
 
     }
 
-    console.log(soul);
     ack[soul] = node;
     return ack;
 

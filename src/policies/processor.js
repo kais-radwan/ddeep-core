@@ -75,3 +75,4 @@ function processPolicy(policy, data) {
         });
     });
 }
+module.exports = processPolicy;
