@@ -7,19 +7,17 @@ var ddeepExt = require("./src/ext/require");
 var policies = [
 
     {
-        name: "auth_policy",
+        name: "example_policy",
         operations: ["read", "write"],
         type: "check",
         graph: ["people", "kais"],
 
         check(args) {
 
-            var check = ddeepExt.load("check");
-
             var instance = args.instance;
             var data = args.data;
 
-            return check( [typeof data, "string"] );
+            return (typeof instance === "object") ? true : false;
 
         }
 

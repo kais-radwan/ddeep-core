@@ -1,2 +1,3 @@
-# ddeep-peer
-Advanced secure protocol for syncing and saving decentralized graph data with AI policies
+# ddeep-core
+
+Real-time peer-to-peer decentralized advanced protocol
