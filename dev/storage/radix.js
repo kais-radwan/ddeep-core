@@ -1,12 +1,16 @@
+/*
+    This file was not modified. for license see https://github.com/amark/gun/blob/master/LICENSE.md
+*/
 ; (function () {
 
 	function Radix() {
 		var radix = function (key, val, t) {
 			radix.unit = 0;
-			if (!t && u !== val) {
-				radix.last = ('' + key < radix.last) ? radix.last : '' + key;
-				delete (radix.$ || {})[_];
-			}
+			// if (!t && u !== val) {
+			// 	radix.last = ('' + key < radix.last) ? radix.last : '' + key;
+			// 	delete (radix.$ || {})[_];
+			// }
+			(!t && u !== val) ? radix.last = ('' + key < radix.last) ? radix.last : '' + key && delete (radix.$ || {})[_] : null; 
 			t = t || radix.$ || (radix.$ = {});
 			if (!key && Object.keys(t).length) { return t }
 			key = '' + key;
@@ -26,38 +30,31 @@
 						if (u === val) {
 							if (ii <= l) { return }
 							(tmp || (tmp = {}))[s.slice(ii)] = r;
-							//(tmp[_] = function $(){ $.sort = Object.keys(tmp).sort(); return $ }()); // get rid of this one, cause it is on read?
 							return r;
 						}
 						var __ = {};
 						__[s.slice(ii)] = r;
 						ii = key.slice(ii);
 						('' === ii) ? (__[''] = val) : ((__[ii] = {})[''] = val);
-						//(__[_] = function $(){ $.sort = Object.keys(__).sort(); return $ }());
 						t[kk] = __;
 						if (Radix.debug && 'undefined' === '' + kk) { console.log(0, kk); debugger }
 						delete t[s];
-						//(t[_] = function $(){ $.sort = Object.keys(t).sort(); return $ }());
 						return true;
 					}
 				})) {
 					if (u === val) { return; }
 					(t[k] || (t[k] = {}))[''] = val;
 					if (Radix.debug && 'undefined' === '' + k) { console.log(1, k); debugger }
-					//(t[_] = function $(){ $.sort = Object.keys(t).sort(); return $ }());
 				}
 				if (u === val) {
 					return tmp;
 				}
 			} else
 				if (i == l) {
-					//if(u === val){ return (u === (tmp = at['']))? at : tmp } // THIS CODE IS CORRECT, below is
 					if (u === val) { return (u === (tmp = at[''])) ? at : ((radix.unit = 1) && tmp) } // temporary help??
 					at[''] = val;
-					//(at[_] = function $(){ $.sort = Object.keys(at).sort(); return $ }());
 				} else {
-					if (u !== val) { delete at[_] }
-					//at && (at[_] = function $(){ $.sort = Object.keys(at).sort(); return $ }());
+					(u !== val) ? delete at[_] : null;
 					return radix(key.slice(++i), val, at || (at = {}));
 				}
 		}

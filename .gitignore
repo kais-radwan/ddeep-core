@@ -1,6 +1,3 @@
 **/node_modules
 **/ddeep_data
-**/src/*.ts
-**/src/**/*.ts
-**/dev
 **/recovery

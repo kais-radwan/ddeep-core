@@ -1,3 +1,6 @@
+/*
+    This file was not modified. for license see https://github.com/amark/gun/blob/master/LICENSE.md
+*/
 ; (function () {
     // JSON: JavaScript Object Notation
     // YSON: Yielding javaScript Object Notation
@@ -6,8 +9,6 @@
     yson.parseAsync = function (text, done, revive, M) {
         if ('string' != typeof text) { try { done(u, JSON.parse(text)) } catch (e) { done(e) } return }
         var ctx = { i: 0, text: text, done: done, l: text.length, up: [] };
-        //M = 1024 * 1024 * 100;
-        //M = M || 1024 * 64;
         M = M || 1024 * 32;
         parse();
         function parse() {
@@ -59,11 +60,8 @@
                             if (ctx.a || ctx.at instanceof Array) {
                                 if (tmp = s.slice(ctx.ai, i - 1)) {
                                     if (u !== (tmp = value(tmp))) {
-                                        if (ctx.at instanceof Array) {
-                                            ctx.at.push(tmp);
-                                        } else {
-                                            ctx.at[ctx.s] = tmp;
-                                        }
+                                        (ctx.at instanceof Array) ? ctx.at.push(tmp)
+                                        : ctx.at[ctx.s] = tmp;
                                     }
                                 }
                             }
@@ -162,7 +160,6 @@
     }
 
     yson.stringifyAsync = function (data, done, replacer, space, ctx) {
-        //try{done(u, JSON.stringify(data, replacer, space))}catch(e){done(e)}return;
         ctx = ctx || {};
         ctx.text = ctx.text || "";
         ctx.up = [ctx.at = { d: data }];

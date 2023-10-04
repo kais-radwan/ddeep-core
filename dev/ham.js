@@ -1,3 +1,6 @@
+/* 
+    This file was not modified, for license see https://github.com/amark/gun/blob/master/LICENSE.md
+*/
 function HAM(machineState, incomingState, currentState, incomingValue, currentValue) {
 
     if (machineState < incomingState) return { defer: true };
@@ -6,12 +9,17 @@ function HAM(machineState, incomingState, currentState, incomingValue, currentVa
 
     if (incomingState === currentState) {
 
+        var res;
+
         incomingValue = JSON.stringify(incomingValue) || "";
         currentValue = JSON.stringify(currentValue) || "";
 
-        if (incomingValue === currentValue) return { state: true };
-        if (incomingValue < currentValue) return { converge: true, current: true };
-        if (currentValue < incomingValue) return { converge: true, incoming: true };
+        (incomingValue === currentValue) ? res = { state: true }
+        : (incomingValue < currentValue) ? res = { converge: true, current: true }
+        : (currentValue < incomingValue) ? res = { converge: true, incoming: true }
+        : res = false;
+
+        if (res) { return res };
 
     }
 
@@ -51,6 +59,7 @@ HAM.mix = (change, graph) => {
 
     });
 
+    process.graph = diff;
     return diff;
 
 }

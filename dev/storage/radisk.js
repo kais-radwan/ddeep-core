@@ -1,10 +1,13 @@
+/*
+    This file was modified. for license see https://github.com/amark/gun/blob/master/LICENSE.md
+*/
 ; (function () {
 
 	function Radisk(opt) {
 
 		opt = opt || {};
 		opt.log = opt.log || console.log;
-		opt.file = String(opt.file || 'radata');
+		opt.file = String(opt.file || 'ddeep_data');
 		var has = (Radisk.has || (Radisk.has = {}))[opt.file];
 		if (has) { return has }
 
@@ -15,7 +18,6 @@
 		opt.code = opt.code || {};
 		opt.code.from = opt.code.from || '!';
 		opt.jsonify = true;
-
 
 		function ename(t) { return encodeURIComponent(t).replace(/\*/g, '%2A') } // TODO: Hash this also, but allow migration!
 		function atomic(v) { return u !== v && (!v || 'object' != typeof v) }
@@ -34,7 +36,7 @@
 			return opt.log("ERROR: Radisk needs `store.get` interface with `(file, cb)`!");
 		}
 		if (!opt.store.list) {
-			//opt.log("WARNING: `store.list` interface might be needed!");
+			// opt.log("WARNING: `store.list` interface might be needed!");
 		}
 
 		if ('' + u != typeof require) { require('./yson') }
@@ -52,8 +54,6 @@
 				r.read(key, cb, o, DBG || tag);
 				return;
 			}
-			//var tmp = (tmp = r.batch = r.batch || {})[key] = tmp[key] || {};
-			//var tmp = (tmp = r.batch = r.batch || {})[key] = data;
 			r.save(key, data, cb, tag, DBG);
 		}
 		r.save = function (key, data, cb, tag, DBG) {
@@ -63,7 +63,6 @@
 				s.file = file || (file = opt.code.from);
 				DBG && (DBG = DBG[file] = DBG[file] || {});
 				DBG && (DBG.sf = DBG.sf || +new Date);
-				//console.only.i && console.log('found', file);
 				if (tmp = r.disk[file]) { s.mix(u, tmp); return }
 				r.parse(file, s.mix, u, DBG);
 			}

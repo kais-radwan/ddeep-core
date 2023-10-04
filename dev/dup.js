@@ -1,3 +1,6 @@
+/* 
+    This file was not modified, for license see https://github.com/amark/gun/blob/master/LICENSE.md
+*/
 function Dup() {
     var dup = { s: {} }, opt = { max: 1000, age: 1000 * 9 };
     dup.check = function (id) {
@@ -23,4 +26,4 @@ Dup.random = function () { return Math.random().toString(36).slice(-6); };
 try {
     module.exports = Dup;
 }
-catch (e) { }
+catch (e) { };

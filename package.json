@@ -1,17 +1,21 @@
 {
     "scripts": {
-        "start": "node ./src/serve.js",
-        "serve": "node ./src/index.js",
-        "init": "node ./src/init.js"
+        "start": "node ./dist/build.js",
+        "serve": "node ./dev/serve.js",
+        "build": "./node_modules/.bin/esbuild dev/serve.js --bundle --outfile=dist/build.js --platform=node"
     },
     "devDependencies": {
         "@types/node": "^20.7.1",
+        "benchmark": "^2.1.4",
         "tsc": "^2.0.4",
         "typescript": "^5.2.2"
     },
     "dependencies": {
+        "@fastify/websocket": "^8.2.0",
         "@huggingface/inference": "^2.6.1",
         "colors": "^1.4.0",
-        "ws": "^8.14.2"
+        "esbuild": "^0.19.4",
+        "events": "^3.3.0",
+        "fastify": "^4.23.2"
     }
 }

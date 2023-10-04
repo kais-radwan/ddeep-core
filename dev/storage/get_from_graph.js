@@ -1,16 +1,15 @@
-const GET = (lex, graph) => {
+var get_from_graph = (lex, graph) => {
 
     var soul = lex['#'];
     var key = lex['.'];
     var node = graph[soul];
     var ack = {};
-    var tmp;
 
     if (!node) return;
 
     if (key) {
 
-        tmp = node[key];
+        var tmp = node[key];
         if (!tmp) return;
 
         (node = { _: node._ })[key] = tmp;
@@ -24,4 +23,4 @@ const GET = (lex, graph) => {
 
 }
 
-try { module.exports = GET } catch (e) { }
+module.exports = get_from_graph;

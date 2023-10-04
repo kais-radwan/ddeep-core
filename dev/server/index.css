@@ -1,0 +1,10 @@
+
+body {
+    background-color: black;
+    color: aliceblue;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}

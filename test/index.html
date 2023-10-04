@@ -11,21 +11,20 @@
 
     let dup = Dup();
 
-    var peer = new WebSocket('ws://localhost:9999');
-    peer.onopen = function(o){ 
-        console.log('open', o);
-        var msg = {
-        '#': dup.track(Dup.random()),
-        get: {'#': 'people'},//, '.': 'species'},
-                auth: true
-        }
-        peer.send(JSON.stringify(msg));
-    //},2000);
+    // var peer = new WebSocket('ws://localhost:9999');
+    // peer.onopen = function(o){ 
+    //     console.log('open', o);
+    //     var msg = {
+    //     '#': dup.track(Dup.random()),
+    //     get: {'#': 'people'},//, '.': 'species'},
+    //             auth: true
+    //     }
+    //     peer.send(JSON.stringify(msg));
     
-    }
-    peer.onmessage = (data) => {
-        console.log(data);
-    }
+    // }
+    // peer.onmessage = (data) => {
+    //     console.log(data);
+    // }
 
 
 </script>

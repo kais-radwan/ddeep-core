@@ -1,3 +1,6 @@
+/*
+    This file was modified. for license see https://github.com/amark/gun/blob/master/LICENSE.md
+*/
 var Radix = require('./radix');
 var Radisk = require('./radisk');
 var fs = require('fs');
