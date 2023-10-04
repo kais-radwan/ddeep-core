@@ -22,7 +22,7 @@ We recommend you clone this repository and run `npm install`.
 
 Using npm, you can install ddeep-core globally:
 ```bash
-npm install -g @ddeep/core
+npm install -g ddeep-core
 ```
 Now create a directory for your project and run:
 ```bash
