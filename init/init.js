@@ -1,6 +1,6 @@
-var { exec } = require('child_process');
+#!/usr/bin/env node
+var exec = require('child_process').exec;
 var colors = require('colors');
-var program = require('commander');
 
 console.log(`\nBuilding ddeep-core`);
 console.log(`Cloning...`);

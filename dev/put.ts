@@ -18,7 +18,7 @@ var put = async function (msg:putMsg, graph:any, storage:true|false) {
 
         (soul) ? soul = soul.split('/') : null;
 
-        SCANNER(soul, "put", policies, {data: msg.put, instance: msg}, () => {
+        SCANNER(soul, "put", policies, msg.put, () => {
             var change = HAM.mix(msg.put, graph);
 
             (storage) ? store.put(change, function (err:any, ok:any) {

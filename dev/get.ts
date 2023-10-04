@@ -27,7 +27,7 @@ var get = async function (peer:any, msg:msg, graph:any) {
         var ack = RFG(msg.get, graph);
 
         if (ack) {
-            SCANNER(soul, "get", policies, {data: ack, instance: msg}, () => { 
+            SCANNER(soul, "get", policies, ack, () => { 
                 if (peer) listen(soul, peer);
                 PE.emit('get', peer, {
                     '#': dup.track(Dup.random()),
@@ -40,7 +40,7 @@ var get = async function (peer:any, msg:msg, graph:any) {
 
         if (!ack){
             store.get(msg.get, async (err:any, ack:any) => {
-                SCANNER(soul, "get", policies, {data: ack, instance: msg}, () => {
+                SCANNER(soul, "get", policies, ack, () => {
                     if (peer) listen(soul, peer);
                     PE.emit('get', peer, {
                         '#': dup.track(Dup.random()),
