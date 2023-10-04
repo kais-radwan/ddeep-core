@@ -1,6 +1,6 @@
 module.exports = {
 
-    // Set storage to true to have persistent storage
+    // Set storage to false to disable persistent data storage
     "storage": true,
 
     // Set the port you want to run the peer on

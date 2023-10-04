@@ -40,7 +40,7 @@ fastify.register (async function (fastify) {
             if (dup.check(msg['#'])) return;
             dup.track(msg['#']);
     
-            (msg.put) ? PUT(msg, graph)
+            (msg.put) ? PUT(msg, graph, storage)
             : (msg.get) ? GET(peer, msg, graph)
             : null;
     

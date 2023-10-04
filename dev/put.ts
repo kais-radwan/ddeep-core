@@ -10,7 +10,7 @@ type putMsg = {
     'put': any
 }
 
-var put = async function (msg:putMsg, graph:any) {
+var put = async function (msg:putMsg, graph:any, storage:true|false) {
 
     try {
 
@@ -18,10 +18,10 @@ var put = async function (msg:putMsg, graph:any) {
 
         (soul) ? soul = soul.split('/') : null;
 
-        SCANNER(soul, "write", policies, {data: msg.put, instance: msg}, () => {
+        SCANNER(soul, "put", policies, {data: msg.put, instance: msg}, () => {
             var change = HAM.mix(msg.put, graph);
 
-            store.put(change, function (err:any, ok:any) {
+            (storage) ? store.put(change, function (err:any, ok:any) {
 
                 (err) ? console.log(err.red) : null;
 
@@ -33,7 +33,7 @@ var put = async function (msg:putMsg, graph:any) {
                     put: msg.put
                 });
 
-            });
+            }) : null;
         });
 
     } catch (err) {};
