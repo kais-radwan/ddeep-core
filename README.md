@@ -1,5 +1,7 @@
 # ddeep-core `beta`
 
+> This is a beta version !
+
 🚀 Decentralized real-time peer-to-peer data network to run your database, peer, and relay all at once.
 
 ddeep-core is used to run a back-end environment to save and sync decentralized graph data across peers, powered with flexible extensions, real-time connections, AI-powered policies, and more....
