@@ -1,7 +1,7 @@
 
 # ddeep-core
 
-![Static Badge](https://img.shields.io/badge/beta_release-current?style=flat&color=slateblue) [![Socket Badge](https://socket.dev/api/badge/npm/package/ddeep-core)](https://socket.dev/npm/package/ddeep-core) ![NPM Downloads](https://img.shields.io/npm/dm/ddeep-core) ![NPM License](https://img.shields.io/npm/l/ddeep-core) ![GitHub issues](https://img.shields.io/github/issues/kais-radwan/ddeep-core) ![npm dev dependency version (scoped)](https://img.shields.io/npm/dependency-version/ddeep-core/dev/typescript) ![npm (prod) dependency version (scoped)](https://img.shields.io/npm/dependency-version/ddeep-core/esbuild) ![Snyk](https://scrutinizer-ci.com/g/kais-radwan/ddeep-core/badges/build.png?b=main)
+![Static Badge](https://img.shields.io/badge/beta_release-current?style=flat&color=slateblue) [![Socket Badge](https://socket.dev/api/badge/npm/package/ddeep-core)](https://socket.dev/npm/package/ddeep-core) ![NPM Downloads](https://img.shields.io/npm/dm/ddeep-core) ![NPM License](https://img.shields.io/npm/l/ddeep-core) ![GitHub issues](https://img.shields.io/github/issues/kais-radwan/ddeep-core) ![npm dev dependency version (scoped)](https://img.shields.io/npm/dependency-version/ddeep-core/dev/typescript) ![npm (prod) dependency version (scoped)](https://img.shields.io/npm/dependency-version/ddeep-core/esbuild) ![Snyk](https://scrutinizer-ci.com/g/kais-radwan/ddeep-core/badges/build.png?b=main) ![Code score](https://scrutinizer-ci.com/g/kais-radwan/ddeep-core/badges/quality-score.png?b=main)
 
 > This is a beta version !
 
