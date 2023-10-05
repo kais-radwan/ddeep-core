@@ -1,7 +1,20 @@
+<h1 align="center">ddeep-core</h1>
+<p align="center">Decentralized real-time peer-to-peer data network</p>
 
-# ddeep-core
+<div align="center">
 
-![Static Badge](https://img.shields.io/badge/beta_release-current?style=flat&color=slateblue) [![Socket Badge](https://socket.dev/api/badge/npm/package/ddeep-core)](https://socket.dev/npm/package/ddeep-core) ![NPM Downloads](https://img.shields.io/npm/dm/ddeep-core) ![NPM License](https://img.shields.io/npm/l/ddeep-core) ![GitHub issues](https://img.shields.io/github/issues/kais-radwan/ddeep-core) ![npm dev dependency version (scoped)](https://img.shields.io/npm/dependency-version/ddeep-core/dev/typescript) ![npm (prod) dependency version (scoped)](https://img.shields.io/npm/dependency-version/ddeep-core/esbuild) ![Snyk](https://scrutinizer-ci.com/g/kais-radwan/ddeep-core/badges/build.png?b=main) ![Code score](https://scrutinizer-ci.com/g/kais-radwan/ddeep-core/badges/quality-score.png?b=main)
+![Static Badge](https://img.shields.io/badge/beta_release-current?style=flat-square&color=slateblue) 
+![NPM Downloads](https://img.shields.io/npm/dm/ddeep-core?style=flat-square) 
+![NPM License](https://img.shields.io/npm/l/ddeep-core?style=flat-square) 
+![GitHub issues](https://img.shields.io/github/issues/kais-radwan/ddeep-core?style=flat-square) 
+![typescript version](https://img.shields.io/npm/dependency-version/ddeep-core/dev/typescript?style=flat-square) 
+![esbuild version](https://img.shields.io/npm/dependency-version/ddeep-core/esbuild?style=flat-square) 
+![Scrutinizer build](https://img.shields.io/scrutinizer/build/g/kais-radwan/ddeep-core/main?style=flat-square)
+![code quality](https://img.shields.io/scrutinizer/quality/g/kais-radwan/ddeep-core/main?style=flat-square)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/ddeep-core?style=flat-square)](https://socket.dev/npm/package/ddeep-core?style=flat-square)
+[![Static Badge](https://img.shields.io/badge/chat-on_matrix-lightgreen?style=flat-square)](https://matrix.to/#/@multineon:gitter.im)
+
+</div>
 
 > This is a beta version !
 
@@ -37,47 +50,46 @@ This will give you a complete ready-to-go environment, you can run `npm start` t
 
 ## Table of contents
 
-- [ddeep-core](#ddeep-core)
-  - [Installation](#installation)
-  - [Table of contents](#table-of-contents)
-  - [Getting started](#getting-started)
-    - [node \& npm](#node--npm)
-    - [docker](#docker)
-    - [build](#build)
-    - [Beta](#beta)
-  - [Configurations](#configurations)
-  - [Policies](#policies)
-    - [Add policies](#add-policies)
-    - [Schema](#schema)
-    - [Check policies](#check-policies)
-      - [Usage](#usage)
-    - [Smart policies](#smart-policies)
-      - [HuggingFace token](#huggingface-token)
-      - [Usage](#usage-1)
-      - [`smart_check` extension](#smart_check-extension)
-  - [Extensions](#extensions)
-    - [Add extensions](#add-extensions)
-    - [Schema](#schema-1)
-    - [Write your extensions](#write-your-extensions)
-    - [Use your extensions](#use-your-extensions)
-  - [Restore checkpoints](#restore-checkpoints)
-  - [Infrastructure](#infrastructure)
-    - [Communications](#communications)
-    - [CRDT](#crdt)
-    - [Storage](#storage)
-    - [Policies](#policies-1)
-      - [Check policies](#check-policies-1)
-      - [AI-powered policies](#ai-powered-policies)
-  - [Decentralized world](#decentralized-world)
-  - [Development](#development)
-    - [`dev` directory](#dev-directory)
-    - [License](#license)
-    - [NOTICE](#notice)
-  - [Thanks](#thanks)
-  - [The idea of ddeep-core](#the-idea-of-ddeep-core)
-    - [Ddeep ecosystem](#ddeep-ecosystem)
-    - [Gun](#gun)
-  - [Contact us](#contact-us)
+- [Installation](#installation)
+- [Table of contents](#table-of-contents)
+- [Getting started](#getting-started)
+  - [node \& npm](#node--npm)
+  - [docker](#docker)
+  - [build](#build)
+  - [Beta](#beta)
+- [Configurations](#configurations)
+- [Policies](#policies)
+  - [Add policies](#add-policies)
+  - [Schema](#schema)
+  - [Check policies](#check-policies)
+    - [Usage](#usage)
+  - [Smart policies](#smart-policies)
+    - [HuggingFace token](#huggingface-token)
+    - [Usage](#usage-1)
+    - [`smart_check` extension](#smart_check-extension)
+- [Extensions](#extensions)
+  - [Add extensions](#add-extensions)
+  - [Schema](#schema-1)
+  - [Write your extensions](#write-your-extensions)
+  - [Use your extensions](#use-your-extensions)
+- [Restore checkpoints](#restore-checkpoints)
+- [Infrastructure](#infrastructure)
+  - [Communications](#communications)
+  - [CRDT](#crdt)
+  - [Storage](#storage)
+  - [Policies](#policies-1)
+    - [Check policies](#check-policies-1)
+    - [AI-powered policies](#ai-powered-policies)
+- [Decentralized world](#decentralized-world)
+- [Development](#development)
+  - [`dev` directory](#dev-directory)
+  - [License](#license)
+  - [NOTICE](#notice)
+- [Thanks](#thanks)
+- [The idea of ddeep-core](#the-idea-of-ddeep-core)
+  - [Ddeep ecosystem](#ddeep-ecosystem)
+  - [Gun](#gun)
+- [Contact us](#contact-us)
 
 ## Getting started
 
@@ -95,11 +107,15 @@ node ./dist/build.js
 ```
 
 ### docker
-You can also run it in [Docker](docker.com), first build the docker image:
+You can run ddeep-code in a [Docker](docker.com) container, you can push the image from Docker hub:
+```bash
+docker push multineon/ddeep-core
+```
+or build it from the source (recommended) :
 ```bash
 docker build -t ddeep-core .
 ```
-and now you can run a docker container:
+and now you can run ddeep-core as a docker container:
 ```bash
 docker run -d ddeep-core
 ```
