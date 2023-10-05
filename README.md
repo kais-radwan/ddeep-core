@@ -1,5 +1,7 @@
 
-# ddeep-core `beta`
+# ddeep-core
+
+![Static Badge](https://img.shields.io/badge/beta_release-current?style=flat&color=slateblue) [![Socket Badge](https://socket.dev/api/badge/npm/package/ddeep-core)](https://socket.dev/npm/package/ddeep-core) ![NPM Downloads](https://img.shields.io/npm/dm/ddeep-core) ![NPM License](https://img.shields.io/npm/l/ddeep-core) ![GitHub issues](https://img.shields.io/github/issues/kais-radwan/ddeep-core) ![npm dev dependency version (scoped)](https://img.shields.io/npm/dependency-version/ddeep-core/dev/typescript) ![npm (prod) dependency version (scoped)](https://img.shields.io/npm/dependency-version/ddeep-core/esbuild) ![Snyk](https://scrutinizer-ci.com/g/kais-radwan/ddeep-core/badges/build.png?b=main)
 
 > This is a beta version !
 
@@ -35,7 +37,7 @@ This will give you a complete ready-to-go environment, you can run `npm start` t
 
 ## Table of contents
 
-- [ddeep-core `beta`](#ddeep-core-beta)
+- [ddeep-core](#ddeep-core)
   - [Installation](#installation)
   - [Table of contents](#table-of-contents)
   - [Getting started](#getting-started)
@@ -52,7 +54,7 @@ This will give you a complete ready-to-go environment, you can run `npm start` t
     - [Smart policies](#smart-policies)
       - [HuggingFace token](#huggingface-token)
       - [Usage](#usage-1)
-      - [`smartCheck` extension](#smartcheck-extension)
+      - [`smart_check` extension](#smart_check-extension)
   - [Extensions](#extensions)
     - [Add extensions](#add-extensions)
     - [Schema](#schema-1)
@@ -251,13 +253,14 @@ module.exports = [
 
 the policy above is applied to all nodes under "posts" and it blocks all data that contains angry inputs from being added or read.
 
-#### `smartCheck` extension
+#### `smart_check` extension
 
-with smart policies you need to use `smartCheck` extension to check the classes and return `true` or `false`.
+with smart policies you need to use `smart_check` extension to check the classes and return `true` or `false`.
 
-the extension can be loaded using `ddeepExt.load` and it's imported to your policies by default, this is how `smartCheck` is used:
+the extension can be loaded using `ddeepExt.load` and it's imported to your policies by default, this is how `smart_check` is used:
 
 ```javascript
+var smartCheck = ddeepExt.load('smart_check');
 return smartCheck(classes, [
     [class:string, condition:string, return:true||false]
 ])

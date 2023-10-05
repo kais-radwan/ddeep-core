@@ -5,12 +5,12 @@ var get_from_graph = (lex, graph) => {
     var node = graph[soul];
     var ack = {};
 
-    if (!node) return;
+    if (!node) {return null};
 
     if (key) {
 
         var tmp = node[key];
-        if (!tmp) return;
+        if (!tmp) {return null};
 
         (node = { _: node._ })[key] = tmp;
         tmp = node._['>'];

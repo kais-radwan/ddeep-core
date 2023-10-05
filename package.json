@@ -15,7 +15,7 @@
     "bin": {
         "ddeep-init": "./init/init.js"
     },
-    "main": "./dev/serve.js",
+    "main": "./dist/build.js",
     "preferGlobal": true,
     "devDependencies": {
         "@types/node": "^20.7.1",
@@ -44,15 +44,5 @@
     "bugs": {
         "url": "https://matrix.to/#/@multineon:gitter.im"
     },
-    "license": "(MIT OR Zlib OR Apache-2.0)",
-    "peerDependencies": {
-        "assert": "^2.1.0",
-        "async_hooks": "^1.0.0",
-        "events": "^3.3.0",
-        "http": "^0.0.1-security",
-        "https": "^1.0.0",
-        "stream": "^0.0.2",
-        "url": "^0.11.3",
-        "utils": "^0.2.2"
-    }
+    "license": "(MIT OR Zlib OR Apache-2.0)"
 }

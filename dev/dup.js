@@ -11,8 +11,9 @@ function Dup() {
         if (!dup.to) {
             dup.to = setTimeout(function () {
                 Object.keys(dup.s).forEach(function (time, id) {
-                    if (opt.age > ((+new Date()) - Number(time)))
+                    if (opt.age > ((+new Date()) - Number(time))) {
                         return;
+                    }
                     delete dup.s[id];
                 });
                 dup.to = null;

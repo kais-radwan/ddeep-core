@@ -37,7 +37,7 @@ fastify.register (async function (fastify) {
     
             var msg = JSON.parse(data);
     
-            if (dup.check(msg['#'])) return;
+            if (dup.check(msg['#'])) {return};
             dup.track(msg['#']);
     
             (msg.put) ? PUT(msg, graph, storage)

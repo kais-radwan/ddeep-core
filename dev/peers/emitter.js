@@ -1,14 +1,14 @@
-var events = require('events');
+var EVENTS = require('events');
 
-var PE = new events();
+var PE = new EVENTS();
 
 PE.on('get', (peer, data) => {
 
-    if (!peer) return;
+    if (!peer) { return; }
 
     try {
         peer.socket.send(JSON.stringify(data));
-    } catch (err) {};
+    } catch (err) {}; // we don't really need to do anything here. but we don't want any errors if there are problems sending data to peers
 
 });
 
@@ -37,7 +37,13 @@ PE.on('put', (nodes, data) => {
             
             });
 
-            (send) ? peer.socket.send(JSON.stringify(data)) : null;
+            if (send) {
+
+                try {
+                    peer.socket.send(JSON.stringify(data))
+                } catch (err) {} // we don't really need to do anything here. but we don't want any errors if there are problems sending data to peers
+
+            }
 
         }
 
