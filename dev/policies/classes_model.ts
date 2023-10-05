@@ -10,10 +10,13 @@ async function getAIClasses (data:any) {
 
     // Make data a string if It's not
     if (typeof data === "object"){
+        data = data[Object.keys(data)[0]];
         var val:Array<any> = [];
         for (var key in data) {
-            var keyValue:string = data[key];
-            val.push(keyValue);
+            if (key !== "_"){ 
+                var keyValue:string = data[key];
+                if (typeof keyValue !== "number") val.push(keyValue);
+            }
         }
         data = JSON.stringify(val);
     }

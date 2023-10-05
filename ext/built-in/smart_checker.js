@@ -4,10 +4,13 @@ exports.smartChecker = void 0;
 // Smart checker will check AI generated classes and match them with the defined rules
 function smartChecker(data, rules) {
     // Define main vars
-    var res;
+    let res;
     var ao = ["<", ">"];
     // Throw error if data is invalid as it should be an object
-    (!data || typeof data !== "object") ? console.error("Data is not valid in smart check") : null;
+    if (!data || typeof data !== "object"){ 
+        console.error("Data is not valid in smart check");
+        return null;
+    }
     // Map over the rules and process them
     for (var rule in rules) {
         // Define the current rule value
@@ -30,9 +33,14 @@ function smartChecker(data, rules) {
             console.error("Rule label '".concat(ruleLabel, "' is not valid. valid labels:").concat(JSON.stringify(Object.keys(data))))
             : null;
         // Process the rule operation
-        (ruleScoreOperator === "<" && Number(ruleClassScore) < Number(ruleScore)) ? res = ruleScore
-            : (ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore)) ? res = ruleRes
-                : null;
+        if (ruleScoreOperator === "<" && Number(ruleClassScore) < Number(ruleScore)) {
+            res = ruleRes;
+        }
+        else if (ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore)){ 
+            res = ruleRes;
+        } else {
+            res = false;
+        }
     }
     (res !== true && res !== false) ?
         console.error("Error processing a smart check. you are not returning a valid true|false") : null;

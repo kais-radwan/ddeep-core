@@ -30,7 +30,7 @@ async function processPolicy (policy:policySchema, data:any) {
     if (type === "smart") {
 
         var classes = await getAIClasses(data);
-        if (!classes || typeof classes !== "object") throw new Error("Unable to process data classes");
+        if (!classes || typeof classes !== "object") console.log("Unable to process data classes");
 
         var result:true|false = await check(classes);
 

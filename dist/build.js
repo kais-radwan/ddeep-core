@@ -2199,10 +2199,14 @@ var require_classes_model = __commonJS({
       var hf = opt2.hf;
       var classes = {};
       if (typeof data === "object") {
+        data = data[Object.keys(data)[0]];
         var val = [];
         for (var key in data) {
-          var keyValue = data[key];
-          val.push(keyValue);
+          if (key !== "_") {
+            var keyValue = data[key];
+            if (typeof keyValue !== "number")
+              val.push(keyValue);
+          }
         }
         data = JSON.stringify(val);
       }
@@ -2247,7 +2251,7 @@ var require_processor = __commonJS({
       if (type === "smart") {
         var classes = await getAIClasses(data);
         if (!classes || typeof classes !== "object")
-          throw new Error("Unable to process data classes");
+          console.log("Unable to process data classes");
         var result = await check(classes);
         res = result;
       }
@@ -2374,9 +2378,12 @@ var require_smart_checker = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.smartChecker = void 0;
     function smartChecker(data, rules) {
-      var res;
+      let res;
       var ao = ["<", ">"];
-      !data || typeof data !== "object" ? console.error("Data is not valid in smart check") : null;
+      if (!data || typeof data !== "object") {
+        console.error("Data is not valid in smart check");
+        return null;
+      }
       for (var rule in rules) {
         var ruleValue = rules[rule];
         !ruleValue || typeof ruleValue !== "object" || ruleValue.length !== 3 ? console.error("Invalid rule in smart check") : null;
@@ -2388,7 +2395,13 @@ var require_smart_checker = __commonJS({
         ao.indexOf(ruleScoreOperator) === -1 ? console.error("Opeartor '".concat(ruleScoreOperator, "' is not valid in smart check")) : null;
         var ruleClassScore = data[ruleLabel];
         !ruleClassScore ? console.error("Rule label '".concat(ruleLabel, "' is not valid. valid labels:").concat(JSON.stringify(Object.keys(data)))) : null;
-        ruleScoreOperator === "<" && Number(ruleClassScore) < Number(ruleScore) ? res = ruleScore : ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore) ? res = ruleRes : null;
+        if (ruleScoreOperator === "<" && Number(ruleClassScore) < Number(ruleScore)) {
+          res = ruleRes;
+        } else if (ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore)) {
+          res = ruleRes;
+        } else {
+          res = false;
+        }
       }
       res !== true && res !== false ? console.error("Error processing a smart check. you are not returning a valid true|false") : null;
       return res;

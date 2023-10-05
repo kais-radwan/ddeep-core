@@ -221,6 +221,8 @@ you have full customizability to build your own check functions and policies.
 
 ### Smart policies
 
+> WARNING: the text classification model is giving poor classes scores and is not acurate, we are currently working on a fix for this
+
 Smart policies uses AI classification to classify the inputs and gives an object of classes with a score from 0.0 to 1.0 for every class or emotion as 1.0 is the highest score.
 
 #### HuggingFace token
