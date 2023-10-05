@@ -1,4 +1,8 @@
-<h1 align="center">ddeep-core</h1>
+<div align="center">
+  <img align="center" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-long-description/dedb8939-f88e-4099-8d41-8680f0a67ef3/ddeep_big.png" height="200px" />
+</div>
+
+<h2 align="center">ddeep-core</h2>
 <p align="center">Decentralized real-time peer-to-peer data network</p>
 
 <div align="center">
