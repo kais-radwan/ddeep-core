@@ -2383,15 +2383,7 @@ var require_extensions_config = __commonJS({
   "extensions.config.js"(exports, module2) {
     "use strict";
     module2.exports = [
-      // This is just a simple example to show you the basic schema of an extension
-      {
-        name: "logger",
-        callback: (...args) => {
-          var data = args[0];
-          var type = args[1];
-          type === "error" ? console.error(data) : console.log(data);
-        }
-      }
+      // Add your extensions here
     ];
   }
 });
@@ -2454,7 +2446,7 @@ var require_get = __commonJS({
         prop ? soul.push(prop) : null;
         var ack = RFG(msg.get, graph2);
         if (ack) {
-          SCANNER(soul, "get", policies, { data: ack, instance: msg }, () => {
+          SCANNER(soul, "get", policies, ack, () => {
             if (peer)
               listen(soul, peer);
             PE.emit("get", peer, {
@@ -2467,7 +2459,7 @@ var require_get = __commonJS({
         }
         if (!ack) {
           store.get(msg.get, async (err, ack2) => {
-            SCANNER(soul, "get", policies, { data: ack2, instance: msg }, () => {
+            SCANNER(soul, "get", policies, ack2, () => {
               if (peer)
                 listen(soul, peer);
               PE.emit("get", peer, {
@@ -2558,7 +2550,7 @@ var require_put = __commonJS({
       try {
         var soul = msg.put[Object.keys(msg.put)[0]]._["#"];
         soul ? soul = soul.split("/") : null;
-        SCANNER(soul, "put", policies, { data: msg.put, instance: msg }, () => {
+        SCANNER(soul, "put", policies, msg.put, () => {
           var change = HAM.mix(msg.put, graph2);
           storage2 ? store.put(change, function(err, ok) {
             err ? console.log(err.red) : null;

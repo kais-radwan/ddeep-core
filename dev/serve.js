@@ -1,7 +1,7 @@
 var GET = require('./get.ts'); // get nodes data from cache and store
 var PUT = require('./put.ts'); // get nodes data from cache and store
 var DUP = require('./dup'), dup = DUP(); // check and track data
-var recovery = require('./storage/checkpoint'); // build recover checkpoints
+var recovery = require('./storage/checkpoint.ts'); // build recover checkpoints
 var opt = require('../ddeep.config'); // peer configurations
 
 // Setup process peers and graph to build some pooling functionality
