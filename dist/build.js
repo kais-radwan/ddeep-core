@@ -55,22 +55,19 @@ var require_radix = __commonJS({
     (function() {
       function Radix() {
         var radix = function(key, val, t) {
-          key = "" + key;
-          if (!t && u !== val) {
-            radix.last = key < radix.last ? radix.last : key;
-            delete (radix.$ || {})[_];
-          }
+          radix.unit = 0;
+          !t && u !== val ? radix.last = "" + key < radix.last ? radix.last : "" + key && delete (radix.$ || {})[_] : null;
           t = t || radix.$ || (radix.$ = {});
           if (!key && Object.keys(t).length) {
             return t;
           }
+          key = "" + key;
           var i = 0, l = key.length - 1, k = key[i], at, tmp;
           while (!(at = t[k]) && i < l) {
             k += key[++i];
           }
-          radix.at = t;
           if (!at) {
-            if (!map(t, function(r, s) {
+            if (!each(t, function(r, s) {
               var ii = 0, kk = "";
               if ((s || "").length) {
                 while (s[ii] == key[ii]) {
@@ -82,13 +79,18 @@ var require_radix = __commonJS({
                   if (ii <= l) {
                     return;
                   }
-                  return (tmp || (tmp = {}))[s.slice(ii)] = r;
+                  (tmp || (tmp = {}))[s.slice(ii)] = r;
+                  return r;
                 }
                 var __ = {};
                 __[s.slice(ii)] = r;
                 ii = key.slice(ii);
                 "" === ii ? __[""] = val : (__[ii] = {})[""] = val;
                 t[kk] = __;
+                if (Radix.debug && "undefined" === "" + kk) {
+                  console.log(0, kk);
+                  debugger;
+                }
                 delete t[s];
                 return true;
               }
@@ -97,78 +99,102 @@ var require_radix = __commonJS({
                 return;
               }
               (t[k] || (t[k] = {}))[""] = val;
+              if (Radix.debug && "undefined" === "" + k) {
+                console.log(1, k);
+                debugger;
+              }
             }
             if (u === val) {
               return tmp;
             }
           } else if (i == l) {
             if (u === val) {
-              return u === (tmp = at[""]) ? at : tmp;
+              return u === (tmp = at[""]) ? at : (radix.unit = 1) && tmp;
             }
             at[""] = val;
           } else {
-            if (u !== val) {
-              delete at[_];
-            }
+            u !== val ? delete at[_] : null;
             return radix(key.slice(++i), val, at || (at = {}));
           }
         };
         return radix;
       }
       ;
-      Radix.map = function map2(radix, cb, opt2, pre) {
-        pre = pre || [];
-        var t = "function" == typeof radix ? radix.$ || {} : radix;
-        if (!t) {
-          return;
-        }
-        var keys = (t[_] || no).sort || (t[_] = function $() {
-          $.sort = Object.keys(t).sort();
-          return $;
-        }()).sort;
-        opt2 = true === opt2 ? { branch: true } : opt2 || {};
-        if (opt2.reverse) {
-          keys = keys.slice().reverse();
-        }
-        var start = opt2.start, end = opt2.end;
-        var i = 0, l = keys.length;
-        for (; i < l; i++) {
-          var key = keys[i], tree = t[key], tmp, p, pt;
-          if (!tree || "" === key || _ === key) {
-            continue;
+      Radix.map = function rap(radix, cb, opt2, pre) {
+        try {
+          pre = pre || [];
+          var t = "function" == typeof radix ? radix.$ || {} : radix;
+          if (!t) {
+            return;
           }
-          p = pre.slice();
-          p.push(key);
-          pt = p.join("");
-          if (u !== start && pt < (start || "").slice(0, pt.length)) {
-            continue;
-          }
-          if (u !== end && (end || "\uFFFF") < pt) {
-            continue;
-          }
-          if (u !== (tmp = tree[""])) {
-            tmp = cb(tmp, pt, key, pre);
-            if (u !== tmp) {
-              return tmp;
+          if ("string" == typeof t) {
+            if (Radix.debug) {
+              throw ["BUG:", radix, cb, opt2, pre];
             }
-          } else if (opt2.branch) {
-            tmp = cb(u, pt, key, pre);
-            if (u !== tmp) {
-              return tmp;
+            return;
+          }
+          var keys = (t[_] || no).sort || (t[_] = function $() {
+            $.sort = Object.keys(t).sort();
+            return $;
+          }()).sort, rev;
+          opt2 = true === opt2 ? { branch: true } : opt2 || {};
+          if (rev = opt2.reverse) {
+            keys = keys.slice(0).reverse();
+          }
+          var start = opt2.start, end = opt2.end, END = "\uFFFF";
+          var i = 0, l = keys.length;
+          for (; i < l; i++) {
+            var key = keys[i], tree = t[key], tmp, p, pt;
+            if (!tree || "" === key || _ === key || "undefined" === key) {
+              continue;
             }
+            p = pre.slice(0);
+            p.push(key);
+            pt = p.join("");
+            if (u !== start && pt < (start || "").slice(0, pt.length)) {
+              continue;
+            }
+            if (u !== end && (end || END) < pt) {
+              continue;
+            }
+            if (rev) {
+              tmp = rap(tree, cb, opt2, p);
+              if (u !== tmp) {
+                return tmp;
+              }
+            }
+            if (u !== (tmp = tree[""])) {
+              var yes = 1;
+              if (u !== start && pt < (start || "")) {
+                yes = 0;
+              }
+              if (u !== end && pt > (end || END)) {
+                yes = 0;
+              }
+              if (yes) {
+                tmp = cb(tmp, pt, key, pre);
+                if (u !== tmp) {
+                  return tmp;
+                }
+              }
+            } else if (opt2.branch) {
+              tmp = cb(u, pt, key, pre);
+              if (u !== tmp) {
+                return tmp;
+              }
+            }
+            pre = p;
+            if (!rev) {
+              tmp = rap(tree, cb, opt2, pre);
+              if (u !== tmp) {
+                return tmp;
+              }
+            }
+            pre.pop();
           }
-          pre = p;
-          tmp = map2(tree, cb, opt2, pre);
-          if (u !== tmp) {
-            return tmp;
-          }
-          pre.pop();
+        } catch (e) {
+          console.error(e);
         }
-      };
-      Object.keys = Object.keys || function(o) {
-        return map(o, function(v, k, t) {
-          t(k);
-        });
       };
       if (typeof window !== "undefined") {
         window.Radix = Radix;
@@ -178,8 +204,292 @@ var require_radix = __commonJS({
         } catch (e) {
         }
       }
-      var map = Gun.obj.map, no = {}, u;
+      var each = Radix.object = function(o, f, r) {
+        for (var k in o) {
+          if (!o.hasOwnProperty(k)) {
+            continue;
+          }
+          if ((r = f(o[k], k)) !== u) {
+            return r;
+          }
+        }
+      }, no = {}, u;
       var _ = String.fromCharCode(24);
+    })();
+  }
+});
+
+// dev/storage/yson.js
+var require_yson = __commonJS({
+  "dev/storage/yson.js"(exports, module2) {
+    "use strict";
+    (function() {
+      var yson = {}, u, sI = setTimeout.turn || typeof setImmediate != "" + u && setImmediate || setTimeout;
+      yson.parseAsync = function(text, done, revive, M) {
+        if ("string" != typeof text) {
+          try {
+            done(u, JSON.parse(text));
+          } catch (e) {
+            done(e);
+          }
+          return;
+        }
+        var ctx = { i: 0, text, done, l: text.length, up: [] };
+        M = M || 1024 * 32;
+        parse();
+        function parse() {
+          var s = ctx.text;
+          var i = ctx.i, l = ctx.l, j = 0;
+          var w = ctx.w, b, tmp;
+          while (j++ < M) {
+            var c = s[i++];
+            if (i > l) {
+              ctx.end = true;
+              break;
+            }
+            if (w) {
+              i = s.indexOf('"', i - 1);
+              c = s[i];
+              tmp = 0;
+              while ("\\" == s[i - ++tmp]) {
+              }
+              ;
+              tmp = !(tmp % 2);
+              b = b || tmp;
+              if ('"' == c && !tmp) {
+                w = u;
+                tmp = ctx.s;
+                if (ctx.a) {
+                  tmp = s.slice(ctx.sl, i);
+                  if (b || 1 + tmp.indexOf("\\")) {
+                    tmp = JSON.parse('"' + tmp + '"');
+                  }
+                  if (ctx.at instanceof Array) {
+                    ctx.at.push(ctx.s = tmp);
+                  } else {
+                    if (!ctx.at) {
+                      ctx.end = j = M;
+                      tmp = u;
+                    }
+                    (ctx.at || {})[ctx.s] = ctx.s = tmp;
+                  }
+                  ctx.s = u;
+                } else {
+                  ctx.s = s.slice(ctx.sl, i);
+                  if (b || 1 + ctx.s.indexOf("\\")) {
+                    ctx.s = JSON.parse('"' + ctx.s + '"');
+                  }
+                }
+                ctx.a = b = u;
+              }
+              ++i;
+            } else {
+              switch (c) {
+                case '"':
+                  ctx.sl = i;
+                  w = true;
+                  break;
+                case ":":
+                  ctx.ai = i;
+                  ctx.a = true;
+                  break;
+                case ",":
+                  if (ctx.a || ctx.at instanceof Array) {
+                    if (tmp = s.slice(ctx.ai, i - 1)) {
+                      if (u !== (tmp = value(tmp))) {
+                        ctx.at instanceof Array ? ctx.at.push(tmp) : ctx.at[ctx.s] = tmp;
+                      }
+                    }
+                  }
+                  ctx.a = u;
+                  if (ctx.at instanceof Array) {
+                    ctx.a = true;
+                    ctx.ai = i;
+                  }
+                  break;
+                case "{":
+                  ctx.up.push(ctx.at || (ctx.at = {}));
+                  if (ctx.at instanceof Array) {
+                    ctx.at.push(ctx.at = {});
+                  } else if (u !== (tmp = ctx.s)) {
+                    ctx.at[tmp] = ctx.at = {};
+                  }
+                  ctx.a = u;
+                  break;
+                case "}":
+                  if (ctx.a) {
+                    if (tmp = s.slice(ctx.ai, i - 1)) {
+                      if (u !== (tmp = value(tmp))) {
+                        if (ctx.at instanceof Array) {
+                          ctx.at.push(tmp);
+                        } else {
+                          if (!ctx.at) {
+                            ctx.end = j = M;
+                            tmp = u;
+                          }
+                          (ctx.at || {})[ctx.s] = tmp;
+                        }
+                      }
+                    }
+                  }
+                  ctx.a = u;
+                  ctx.at = ctx.up.pop();
+                  break;
+                case "[":
+                  if (u !== (tmp = ctx.s)) {
+                    ctx.up.push(ctx.at);
+                    ctx.at[tmp] = ctx.at = [];
+                  } else if (!ctx.at) {
+                    ctx.up.push(ctx.at = []);
+                  }
+                  ctx.a = true;
+                  ctx.ai = i;
+                  break;
+                case "]":
+                  if (ctx.a) {
+                    if (tmp = s.slice(ctx.ai, i - 1)) {
+                      if (u !== (tmp = value(tmp))) {
+                        if (ctx.at instanceof Array) {
+                          ctx.at.push(tmp);
+                        } else {
+                          ctx.at[ctx.s] = tmp;
+                        }
+                      }
+                    }
+                  }
+                  ctx.a = u;
+                  ctx.at = ctx.up.pop();
+                  break;
+              }
+            }
+          }
+          ctx.s = u;
+          ctx.i = i;
+          ctx.w = w;
+          if (ctx.end) {
+            tmp = ctx.at;
+            if (u === tmp) {
+              try {
+                tmp = JSON.parse(text);
+              } catch (e) {
+                return ctx.done(e);
+              }
+            }
+            ctx.done(u, tmp);
+          } else {
+            sI(parse);
+          }
+        }
+      };
+      function value(s) {
+        var n = parseFloat(s);
+        if (!isNaN(n)) {
+          return n;
+        }
+        s = s.trim();
+        if ("true" == s) {
+          return true;
+        }
+        if ("false" == s) {
+          return false;
+        }
+        if ("null" == s) {
+          return null;
+        }
+      }
+      yson.stringifyAsync = function(data, done, replacer, space, ctx) {
+        ctx = ctx || {};
+        ctx.text = ctx.text || "";
+        ctx.up = [ctx.at = { d: data }];
+        ctx.done = done;
+        ctx.i = 0;
+        var j = 0;
+        ify();
+        function ify() {
+          var at = ctx.at, data2 = at.d, add = "", tmp;
+          if (at.i && at.i - at.j > 0) {
+            add += ",";
+          }
+          if (u !== (tmp = at.k)) {
+            add += JSON.stringify(tmp) + ":";
+          }
+          switch (typeof data2) {
+            case "boolean":
+              add += "" + data2;
+              break;
+            case "string":
+              add += JSON.stringify(data2);
+              break;
+            case "number":
+              add += isNaN(data2) ? "null" : data2;
+              break;
+            case "object":
+              if (!data2) {
+                add += "null";
+                break;
+              }
+              if (data2 instanceof Array) {
+                add += "[";
+                at = { i: -1, as: data2, up: at, j: 0 };
+                at.l = data2.length;
+                ctx.up.push(ctx.at = at);
+                break;
+              }
+              if ("function" != typeof (data2 || "").toJSON) {
+                add += "{";
+                at = { i: -1, ok: Object.keys(data2).sort(), as: data2, up: at, j: 0 };
+                at.l = at.ok.length;
+                ctx.up.push(ctx.at = at);
+                break;
+              }
+              if (tmp = data2.toJSON()) {
+                add += tmp;
+                break;
+              }
+            case "function":
+              if (at.as instanceof Array) {
+                add += "null";
+                break;
+              }
+            default:
+              add = "";
+              at.j++;
+          }
+          ctx.text += add;
+          while (1 + at.i >= at.l) {
+            ctx.text += at.ok ? "}" : "]";
+            at = ctx.at = at.up;
+          }
+          if (++at.i < at.l) {
+            if (tmp = at.ok) {
+              at.d = at.as[at.k = tmp[at.i]];
+            } else {
+              at.d = at.as[at.i];
+            }
+            if (++j < 9) {
+              return ify();
+            } else {
+              j = 0;
+            }
+            sI(ify);
+            return;
+          }
+          ctx.done(u, ctx.text);
+        }
+      };
+      if (typeof window != "" + u) {
+        window.YSON = yson;
+      }
+      try {
+        if (typeof module2 != "" + u) {
+          module2.exports = yson;
+        }
+      } catch (e) {
+      }
+      if (typeof JSON != "" + u) {
+        JSON.parseAsync = yson.parseAsync;
+        JSON.stringifyAsync = yson.stringifyAsync;
+      }
     })();
   }
 });
@@ -197,20 +507,23 @@ var require_radisk = __commonJS({
         if (has) {
           return has;
         }
-        opt2.pack = opt2.pack || (opt2.memory ? opt2.memory * 1e3 * 1e3 : 1399e6) * 0.3;
+        opt2.max = opt2.max || (opt2.memory ? opt2.memory * 999 * 999 : 3e8) * 0.3;
         opt2.until = opt2.until || opt2.wait || 250;
         opt2.batch = opt2.batch || 10 * 1e3;
         opt2.chunk = opt2.chunk || 1024 * 1024 * 1;
         opt2.code = opt2.code || {};
         opt2.code.from = opt2.code.from || "!";
+        opt2.jsonify = true;
         function ename(t) {
           return encodeURIComponent(t).replace(/\*/g, "%2A");
         }
         function atomic(v) {
           return u !== v && (!v || "object" != typeof v);
         }
-        var map = Gun.obj.map;
-        var LOG = false;
+        var timediate = "" + u === typeof setImmediate ? setTimeout : setImmediate;
+        var puff = setTimeout.turn || timediate, u;
+        var map = Radix.object;
+        var ST = 0;
         if (!opt2.store) {
           return opt2.log("ERROR: Radisk needs `opt.store` interface with `{get: fn, put: fn (, list: fn)}`!");
         }
@@ -222,204 +535,268 @@ var require_radisk = __commonJS({
         }
         if (!opt2.store.list) {
         }
-        var r = function(key, val, cb) {
-          key = "" + key;
-          if (val instanceof Function) {
+        if ("" + u != typeof require) {
+          require_yson();
+        }
+        var parse = JSON.parseAsync || function(t, cb, r2) {
+          var u2;
+          try {
+            cb(u2, JSON.parse(t, r2));
+          } catch (e) {
+            cb(e);
+          }
+        };
+        var json = JSON.stringifyAsync || function(v, cb, r2, s) {
+          var u2;
+          try {
+            cb(u2, JSON.stringify(v, r2, s));
+          } catch (e) {
+            cb(e);
+          }
+        };
+        var r = function(key, data, cb, tag, DBG) {
+          if ("function" === typeof data) {
             var o = cb || {};
-            cb = val;
-            val = r.batch(key);
-            if (u !== val) {
-              cb(u, r.range(val, o), o);
-              if (atomic(val)) {
+            cb = data;
+            r.read(key, cb, o, DBG || tag);
+            return;
+          }
+          r.save(key, data, cb, tag, DBG);
+        };
+        r.save = function(key, data, cb, tag, DBG) {
+          var s = { key }, tags, f, d, q;
+          s.find = function(file) {
+            var tmp;
+            s.file = file || (file = opt2.code.from);
+            DBG && (DBG = DBG[file] = DBG[file] || {});
+            DBG && (DBG.sf = DBG.sf || +/* @__PURE__ */ new Date());
+            if (tmp = r.disk[file]) {
+              s.mix(u, tmp);
+              return;
+            }
+            r.parse(file, s.mix, u, DBG);
+          };
+          s.mix = function(err, disk) {
+            DBG && (DBG.sml = +/* @__PURE__ */ new Date());
+            DBG && (DBG.sm = DBG.sm || +/* @__PURE__ */ new Date());
+            if (s.err = err || s.err) {
+              cb(err);
+              return;
+            }
+            var file = s.file = (disk || "").file || s.file, tmp;
+            if (!disk && file !== opt2.code.from) {
+              r.find.bad(file);
+              r.save(key, data, cb, tag);
+              return;
+            }
+            (disk = r.disk[file] || (r.disk[file] = disk || Radix())).file || (disk.file = file);
+            if (opt2.compare) {
+              data = opt2.compare(disk(key), data, key, file);
+              if (u === data) {
+                cb(err, -1);
                 return;
               }
             }
-            if (r.thrash.at) {
-              val = r.thrash.at(key);
-              if (u !== val) {
-                cb(u, r.range(val, o), o);
-                if (atomic(val)) {
-                  cb(u, val, o);
-                  return;
-                }
-              }
+            (s.disk = disk)(key, data);
+            if (tag) {
+              (tmp = (tmp = disk.tags || (disk.tags = {}))[tag] || (tmp[tag] = r.tags[tag] || (r.tags[tag] = {})))[file] || (tmp[file] = r.one[tag] || (r.one[tag] = cb));
+              cb = null;
             }
-            return r.read(key, cb, o);
-          }
-          r.batch(key, val);
-          if (cb) {
-            r.batch.acks.push(cb);
-          }
-          if (++r.batch.ed >= opt2.batch) {
-            return r.thrash();
-          }
-          if (r.batch.to) {
-            return;
-          }
-          r.batch.to = setTimeout(r.thrash, opt2.until || 1);
-        };
-        r.batch = Radix();
-        r.batch.acks = [];
-        r.batch.ed = 0;
-        r.thrash = function() {
-          var thrash = r.thrash;
-          if (thrash.ing) {
-            return thrash.more = true;
-          }
-          thrash.more = false;
-          thrash.ing = true;
-          var batch = thrash.at = r.batch, i = 0;
-          clearTimeout(r.batch.to);
-          r.batch = null;
-          r.batch = Radix();
-          r.batch.acks = [];
-          r.batch.ed = 0;
-          r.save(batch, function(err, ok) {
-            if (++i > 1) {
-              opt2.log("RAD ERR: Radisk has callbacked multiple times, please report this as a BUG at github.com/amark/gun/issues ! " + i);
+            DBG && (DBG.st = DBG.st || +/* @__PURE__ */ new Date());
+            if (disk.Q) {
+              cb && disk.Q.push(cb);
               return;
             }
-            if (err) {
-              opt2.log("err", err);
+            disk.Q = cb ? [cb] : [];
+            disk.to = setTimeout(s.write, opt2.until);
+          };
+          s.write = function() {
+            DBG && (DBG.sto = DBG.sto || +/* @__PURE__ */ new Date());
+            var file = f = s.file, disk = d = s.disk;
+            q = s.q = disk.Q;
+            tags = s.tags = disk.tags;
+            delete disk.Q;
+            delete r.disk[file];
+            delete disk.tags;
+            r.write(file, disk, s.ack, u, DBG);
+          };
+          s.ack = function(err, ok) {
+            DBG && (DBG.sa = DBG.sa || +/* @__PURE__ */ new Date());
+            DBG && (DBG.sal = q.length);
+            var ack, tmp;
+            for (var id in r.tags) {
+              if (!r.tags.hasOwnProperty(id)) {
+                continue;
+              }
+              var tag2 = r.tags[id];
+              if ((tmp = r.disk[f]) && (tmp = tmp.tags) && tmp[tag2]) {
+                continue;
+              }
+              ack = tag2[f];
+              delete tag2[f];
+              var ne;
+              for (var k in tag2) {
+                if (tag2.hasOwnProperty(k)) {
+                  ne = true;
+                  break;
+                }
+              }
+              if (ne) {
+                continue;
+              }
+              delete r.tags[tag2];
+              ack && ack(err, ok);
             }
-            map(batch.acks, function(cb) {
-              cb(err, ok);
-            });
-            thrash.at = null;
-            thrash.ing = false;
-            if (thrash.more) {
-              thrash();
+            !q && (q = "");
+            var l = q.length, i = 0;
+            var S = +/* @__PURE__ */ new Date();
+            for (; i < l; i++) {
+              (ack = q[i]) && ack(err, ok);
+            }
+            console.STAT && console.STAT(S, +/* @__PURE__ */ new Date() - S, "rad acks", ename(s.file));
+            console.STAT && console.STAT(S, q.length, "rad acks #", ename(s.file));
+          };
+          cb || (cb = function(err, ok) {
+            if (!err) {
+              return;
             }
           });
+          r.find(key, s.find);
         };
-        r.save = function(rad, cb) {
-          var s = function Span() {
-          };
-          s.find = function(tree, key) {
-            if (key < s.start) {
-              return;
-            }
-            s.start = key;
-            r.list(s.lex);
-            return true;
-          };
-          s.lex = function(file) {
-            file = u === file ? u : decodeURIComponent(file);
-            if (!file || file > s.start) {
-              s.mix(s.file || opt2.code.from, s.start, s.end = file);
-              return true;
-            }
-            s.file = file;
-          };
-          s.mix = function(file, start, end) {
-            s.start = s.end = s.file = u;
-            r.parse(file, function(err, disk) {
-              if (err) {
-                return cb(err);
-              }
-              disk = disk || Radix();
-              Radix.map(rad, function(val, key) {
-                if (key < start) {
-                  return;
-                }
-                if (end && end < key) {
-                  return s.start = key;
-                }
-                disk(key, val);
-              });
-              r.write(file, disk, s.next);
-            });
-          };
-          s.next = function(err, ok) {
-            if (s.err = err) {
-              return cb(err);
-            }
-            if (s.start) {
-              return Radix.map(rad, s.find);
-            }
-            cb(err, ok);
-          };
-          Radix.map(rad, s.find);
-        };
-        r.write = function(file, rad, cb, o) {
+        r.disk = {};
+        r.one = {};
+        r.tags = {};
+        var RWC = 0;
+        r.write = function(file, rad, cb, o, DBG) {
+          if (!rad) {
+            cb("No radix!");
+            return;
+          }
           o = "object" == typeof o ? o : { force: o };
           var f = function Fractal() {
-          };
+          }, a, b;
           f.text = "";
-          f.count = 0;
-          f.file = file;
+          f.file = file = rad.file || (rad.file = file);
+          if (!file) {
+            cb("What file?");
+            return;
+          }
+          f.write = function() {
+            var text = rad.raw = f.text;
+            r.disk[file = rad.file || f.file || file] = rad;
+            var S = +/* @__PURE__ */ new Date();
+            DBG && (DBG.wd = S);
+            r.find.add(file, function add(err) {
+              DBG && (DBG.wa = +/* @__PURE__ */ new Date());
+              if (err) {
+                cb(err);
+                return;
+              }
+              opt2.store.put(ename(file), text, function safe(err2, ok) {
+                DBG && (DBG.wp = +/* @__PURE__ */ new Date());
+                console.STAT && console.STAT(S, ST = +/* @__PURE__ */ new Date() - S, "wrote disk", JSON.stringify(file), ++RWC, "total all writes.");
+                cb(err2, ok || 1);
+                if (!rad.Q) {
+                  delete r.disk[file];
+                }
+              });
+            });
+          };
+          f.split = function() {
+            var S = +/* @__PURE__ */ new Date();
+            DBG && (DBG.wf = S);
+            f.text = "";
+            if (!f.count) {
+              f.count = 0;
+              Radix.map(rad, function count() {
+                f.count++;
+              });
+            }
+            DBG && (DBG.wfc = f.count);
+            f.limit = Math.ceil(f.count / 2);
+            var SC = f.count;
+            f.count = 0;
+            DBG && (DBG.wf1 = +/* @__PURE__ */ new Date());
+            f.sub = Radix();
+            Radix.map(rad, f.slice, { reverse: 1 });
+            DBG && (DBG.wf2 = +/* @__PURE__ */ new Date());
+            r.write(f.end, f.sub, f.both, o);
+            DBG && (DBG.wf3 = +/* @__PURE__ */ new Date());
+            f.hub = Radix();
+            Radix.map(rad, f.stop);
+            DBG && (DBG.wf4 = +/* @__PURE__ */ new Date());
+            r.write(rad.file, f.hub, f.both, o);
+            DBG && (DBG.wf5 = +/* @__PURE__ */ new Date());
+            console.STAT && console.STAT(S, +/* @__PURE__ */ new Date() - S, "rad split", ename(rad.file), SC);
+            return true;
+          };
+          f.slice = function(val, key) {
+            f.sub(f.end = key, val);
+            if (f.limit <= ++f.count) {
+              return true;
+            }
+          };
+          f.stop = function(val, key) {
+            if (key >= f.end) {
+              return true;
+            }
+            f.hub(key, val);
+          };
+          f.both = function(err, ok) {
+            DBG && (DBG.wfd = +/* @__PURE__ */ new Date());
+            if (b) {
+              cb(err || b);
+              return;
+            }
+            if (a) {
+              cb(err, ok);
+              return;
+            }
+            a = true;
+            b = err;
+          };
           f.each = function(val, key, k, pre) {
             if (u !== val) {
               f.count++;
             }
-            if (opt2.pack <= (val || "").length) {
-              return cb("Record too big!"), true;
+            if (opt2.max <= (val || "").length) {
+              return cb("Data too big!"), true;
             }
             var enc = Radisk.encode(pre.length) + "#" + Radisk.encode(k) + (u === val ? "" : ":" + Radisk.encode(val)) + "\n";
             if (opt2.chunk < f.text.length + enc.length && 1 < f.count && !o.force) {
-              f.text = "";
-              f.limit = Math.ceil(f.count / 2);
-              f.count = 0;
-              f.sub = Radix();
-              Radix.map(rad, f.slice);
-              return true;
+              return f.split();
             }
             f.text += enc;
           };
-          f.write = function() {
-            var tmp = ename(file);
-            var start;
-            LOG && (start = +/* @__PURE__ */ new Date());
-            opt2.store.put(tmp, f.text, function(err) {
-              LOG && console.log("wrote JSON in", +/* @__PURE__ */ new Date() - start);
-              if (err) {
-                return cb(err);
-              }
-              r.list.add(tmp, cb);
-            });
-          };
-          f.slice = function(val, key) {
-            if (key < f.file) {
-              return;
-            }
-            if (f.limit < ++f.count) {
-              var name = f.file;
-              f.file = key;
-              f.count = 0;
-              r.write(name, f.sub, f.next, o);
-              return true;
-            }
-            f.sub(key, val);
-          };
-          f.next = function(err) {
-            if (err) {
-              return cb(err);
-            }
-            f.sub = Radix();
-            if (!Radix.map(rad, f.slice)) {
-              r.write(f.file, f.sub, cb, o);
-            }
-          };
           if (opt2.jsonify) {
-            return r.write.jsonify(f, file, rad, cb, o);
+            r.write.jsonify(f, rad, cb, o, DBG);
+            return;
           }
           if (!Radix.map(rad, f.each, true)) {
             f.write();
           }
         };
-        r.write.jsonify = function(f, file, rad, cb, o) {
+        r.write.jsonify = function(f, rad, cb, o, DBG) {
           var raw;
-          var start;
-          LOG && (start = +/* @__PURE__ */ new Date());
+          var S = +/* @__PURE__ */ new Date();
+          DBG && (DBG.w = S);
           try {
             raw = JSON.stringify(rad.$);
           } catch (e) {
-            return cb("Record too big!");
+            cb("Cannot radisk!");
+            return;
           }
-          LOG && console.log("stringified JSON in", +/* @__PURE__ */ new Date() - start);
+          DBG && (DBG.ws = +/* @__PURE__ */ new Date());
+          console.STAT && console.STAT(S, +/* @__PURE__ */ new Date() - S, "rad stringified JSON");
           if (opt2.chunk < raw.length && !o.force) {
-            if (Radix.map(rad, f.each, true)) {
-              return;
+            var c = 0;
+            Radix.map(rad, function() {
+              if (c++) {
+                return true;
+              }
+            });
+            if (c > 1) {
+              return f.split();
             }
           }
           f.text = raw;
@@ -442,115 +819,146 @@ var require_radisk = __commonJS({
           return sub("");
         };
         (function() {
-          var Q = {};
-          r.read = function(key, cb, o) {
+          r.read = function(key, cb, o, DBG) {
             o = o || {};
-            if (RAD && !o.next) {
-              var val = RAD(key);
-              if (atomic(val)) {
-                cb(u, val, o);
-                return;
-              }
-            }
-            o.span = u !== o.start || u !== o.end;
-            var g = function Get() {
-            };
-            g.lex = function(file) {
+            var g = { key };
+            g.find = function(file) {
               var tmp;
-              file = u === file ? u : decodeURIComponent(file);
-              tmp = o.next || key || (o.reverse ? o.end || "\uFFFF" : o.start || "");
-              if (!file || (o.reverse ? file < tmp : file > tmp)) {
-                if (o.next || o.reverse) {
-                  g.file = file;
-                }
-                if (tmp = Q[g.file]) {
-                  tmp.push({ key, ack: cb, file: g.file, opt: o });
-                  return true;
-                }
-                Q[g.file] = [{ key, ack: cb, file: g.file, opt: o }];
-                if (!g.file) {
-                  g.it(null, u, {});
-                  return true;
-                }
-                r.parse(g.file, g.it);
-                return true;
-              }
-              g.file = file;
-            };
-            g.it = function(err, disk, info) {
-              if (g.err = err) {
-                opt2.log("err", err);
-              }
-              g.info = info;
-              if (disk) {
-                RAD = g.disk = disk;
-              }
-              disk = Q[g.file];
-              delete Q[g.file];
-              map(disk, g.ack);
-            };
-            g.ack = function(as) {
-              if (!as.ack) {
+              g.file = file || (file = opt2.code.from);
+              DBG && (DBG = DBG[file] = DBG[file] || {});
+              DBG && (DBG.rf = DBG.rf || +/* @__PURE__ */ new Date());
+              if (tmp = r.disk[g.file = file]) {
+                g.check(u, tmp);
                 return;
               }
-              var tmp = as.key, o2 = as.opt, info = g.info, rad = g.disk || noop, data = r.range(rad(tmp), o2), last = rad.last;
-              o2.parsed = (o2.parsed || 0) + (info.parsed || 0);
-              o2.chunks = (o2.chunks || 0) + 1;
-              if (!o2.some) {
-                o2.some = u !== data;
-              }
-              if (u !== data) {
-                as.ack(g.err, data, o2);
-              } else if (!as.file) {
-                !o2.some && as.ack(g.err, u, o2);
+              r.parse(file, g.check, u, DBG);
+            };
+            g.get = function(err, disk, info) {
+              DBG && (DBG.rgl = +/* @__PURE__ */ new Date());
+              DBG && (DBG.rg = DBG.rg || +/* @__PURE__ */ new Date());
+              if (g.err = err || g.err) {
+                cb(err);
                 return;
               }
-              if (!o2.span) {
-                if (
-                  /*!last || */
-                  last === tmp
-                ) {
-                  !o2.some && as.ack(g.err, u, o2);
+              var file = g.file = (disk || "").file || g.file;
+              if (!disk && file !== opt2.code.from) {
+                r.find.bad(file);
+                r.read(key, cb, o);
+                return;
+              }
+              disk = r.disk[file] || (r.disk[file] = disk);
+              if (!disk) {
+                cb(file === opt2.code.from ? u : "No file!");
+                return;
+              }
+              disk.file || (disk.file = file);
+              var data = r.range(disk(key), o);
+              DBG && (DBG.rr = +/* @__PURE__ */ new Date());
+              o.unit = disk.unit;
+              o.chunks = (o.chunks || 0) + 1;
+              o.parsed = (o.parsed || 0) + ((info || "").parsed || o.chunks * opt2.chunk);
+              o.more = 1;
+              o.next = u;
+              Radix.map(r.list, function next2(v, f) {
+                if (!v || file === f) {
                   return;
                 }
-                if (last && last > tmp && 0 != last.indexOf(tmp)) {
-                  !o2.some && as.ack(g.err, u, o2);
-                  return;
+                o.next = f;
+                return 1;
+              }, o.reverse ? { reverse: 1, end: file } : { start: file });
+              DBG && (DBG.rl = +/* @__PURE__ */ new Date());
+              if (!o.next) {
+                o.more = 0;
+              }
+              if (o.next) {
+                if (!o.reverse && (key < o.next && 0 != o.next.indexOf(key) || u !== o.end && (o.end || "\uFFFF") < o.next)) {
+                  o.more = 0;
+                }
+                if (o.reverse && (key > o.next && 0 != key.indexOf(o.next) || u !== o.start && (o.start || "") > o.next && file <= o.start)) {
+                  o.more = 0;
                 }
               }
-              if (o2.some && o2.parsed >= o2.limit) {
+              if (!o.more) {
+                cb(g.err, data, o);
                 return;
               }
-              o2.next = as.file;
-              r.read(tmp, as.ack, o2);
+              if (data) {
+                cb(g.err, data, o);
+              }
+              if (o.parsed >= o.limit) {
+                return;
+              }
+              var S = +/* @__PURE__ */ new Date();
+              DBG && (DBG.rm = S);
+              var next = o.next;
+              timediate(function() {
+                console.STAT && console.STAT(S, +/* @__PURE__ */ new Date() - S, "rad more");
+                r.parse(next, g.check);
+              }, 0);
             };
-            if (o.reverse) {
-              g.lex.reverse = true;
-            }
-            r.list(g.lex);
+            g.check = function(err, disk, info) {
+              g.get(err, disk, info);
+              if (!disk || disk.check) {
+                return;
+              }
+              disk.check = 1;
+              var S = +/* @__PURE__ */ new Date();
+              (info || (info = {})).file || (info.file = g.file);
+              Radix.map(disk, function(val, key2) {
+                r.find(key2, function(file) {
+                  if ((file || (file = opt2.code.from)) === info.file) {
+                    return;
+                  }
+                  var id = ("" + Math.random()).slice(-3);
+                  puff(function() {
+                    r.save(key2, val, function ack(err2, ok) {
+                      if (err2) {
+                        r.save(key2, val, ack);
+                        return;
+                      }
+                      console.STAT && console.STAT("MISLOCATED DATA CORRECTED", id, ename(key2), ename(info.file), ename(file));
+                    });
+                  }, 0);
+                });
+              });
+              console.STAT && console.STAT(S, +/* @__PURE__ */ new Date() - S, "rad check");
+            };
+            r.find(key || (o.reverse ? o.end || "" : o.start || ""), g.find);
           };
+          function rev(a, b) {
+            return b;
+          }
+          var revo = { reverse: true };
         })();
         ;
         (function() {
+          var RPC = 0;
           var Q = {}, s = String.fromCharCode(31);
-          r.parse = function(file, cb, raw) {
+          r.parse = function(file, cb, raw, DBG) {
             var q;
+            if (!file) {
+              return cb();
+            }
             if (q = Q[file]) {
-              return q.push(cb);
+              q.push(cb);
+              return;
             }
             q = Q[file] = [cb];
             var p = function Parse() {
-            }, info = {};
-            p.disk = Radix();
+            }, info = { file };
+            (p.disk = Radix()).file = file;
             p.read = function(err, data) {
               var tmp;
-              delete Q[file];
+              DBG && (DBG.rpg = +/* @__PURE__ */ new Date());
+              console.STAT && console.STAT(S, +/* @__PURE__ */ new Date() - S, "read disk", JSON.stringify(file), ++RPC, "total all parses.");
               if ((p.err = err) || (p.not = !data)) {
-                return map(q, p.ack);
+                delete Q[file];
+                p.map(q, p.ack);
+                return;
               }
-              if (typeof data !== "string") {
+              if ("string" !== typeof data) {
                 try {
-                  if (opt2.pack <= data.length) {
+                  if (opt2.max <= data.length) {
                     p.err = "Chunk too big!";
                   } else {
                     data = data.toString();
@@ -559,33 +967,72 @@ var require_radisk = __commonJS({
                   p.err = e;
                 }
                 if (p.err) {
-                  return map(q, p.ack);
+                  delete Q[file];
+                  p.map(q, p.ack);
+                  return;
                 }
               }
               info.parsed = data.length;
-              var start;
-              LOG && (start = +/* @__PURE__ */ new Date());
-              if (opt2.jsonify) {
-                try {
-                  var json = JSON.parse(data);
-                  p.disk.$ = json;
-                  LOG && console.log("parsed JSON in", +/* @__PURE__ */ new Date() - start);
-                  map(q, p.ack);
+              DBG && (DBG.rpl = info.parsed);
+              DBG && (DBG.rpa = q.length);
+              S = +/* @__PURE__ */ new Date();
+              if (!(opt2.jsonify || "{" === data[0])) {
+                p.radec(err, data);
+                return;
+              }
+              parse(data, function(err2, tree) {
+                if (!err2) {
+                  delete Q[file];
+                  p.disk.$ = tree;
+                  console.STAT && (ST = +/* @__PURE__ */ new Date() - S) > 9 && console.STAT(S, ST, "rad parsed JSON");
+                  DBG && (DBG.rpd = +/* @__PURE__ */ new Date());
+                  p.map(q, p.ack);
                   return;
-                } catch (e) {
-                  tmp = e;
                 }
                 if ("{" === data[0]) {
+                  delete Q[file];
                   p.err = tmp || "JSON error!";
-                  return map(q, p.ack);
+                  p.map(q, p.ack);
+                  return;
                 }
+                p.radec(err2, data);
+              });
+            };
+            p.map = function() {
+              if (!q || !q.length) {
+                return;
               }
-              var start;
-              LOG && (start = +/* @__PURE__ */ new Date());
-              var tmp = p.split(data), pre = [], i, k, v, at, ats = [];
+              var S2 = +/* @__PURE__ */ new Date();
+              var err = p.err, data = p.not ? u : p.disk;
+              var i = 0, ack;
+              while (i < 9 && (ack = q[i++])) {
+                ack(err, data, info);
+              }
+              console.STAT && console.STAT(S2, +/* @__PURE__ */ new Date() - S2, "rad packs", ename(file));
+              console.STAT && console.STAT(S2, i, "rad packs #", ename(file));
+              if (!(q = q.slice(i)).length) {
+                return;
+              }
+              puff(p.map, 0);
+            };
+            p.ack = function(cb2) {
+              if (!cb2) {
+                return;
+              }
+              if (p.err || p.not) {
+                cb2(p.err, u, info);
+                return;
+              }
+              cb2(u, p.disk, info);
+            };
+            p.radec = function(err, data) {
+              delete Q[file];
+              S = +/* @__PURE__ */ new Date();
+              var tmp = p.split(data), pre = [], i, k, v;
               if (!tmp || 0 !== tmp[1]) {
                 p.err = "File '" + file + "' does not have root radix! ";
-                return map(q, p.ack);
+                p.map(q, p.ack);
+                return;
               }
               while (tmp) {
                 k = v = u;
@@ -600,25 +1047,18 @@ var require_radisk = __commonJS({
                 }
                 tmp = p.split(tmp[2]) || "";
                 if ("\n" == tmp[0]) {
-                  at = ats[i] || p.disk.at;
-                  p.disk(k, u, at);
-                  ats[i] = p.disk.at;
-                  ats[i + 1] = p.disk.at[k] || (p.disk.at[k] = {});
                   continue;
                 }
                 if ("=" == tmp[0] || ":" == tmp[0]) {
                   v = tmp[1];
                 }
                 if (u !== k && u !== v) {
-                  at = ats[i];
-                  p.disk(k, v, at);
-                  ats[i] = p.disk.at;
-                  ats[i + 1] = p.disk.at[k];
+                  p.disk(pre.join(""), v);
                 }
                 tmp = p.split(tmp[2]);
               }
-              LOG && console.log("parsed JSON in", +/* @__PURE__ */ new Date() - start);
-              map(q, p.ack);
+              console.STAT && console.STAT(S, +/* @__PURE__ */ new Date() - S, "parsed RAD");
+              p.map(q, p.ack);
             };
             p.split = function(t) {
               if (!t) {
@@ -635,89 +1075,102 @@ var require_radisk = __commonJS({
               l[2] = t.slice(i + o.i);
               return l;
             };
-            p.ack = function(cb2) {
-              if (!cb2) {
-                return;
-              }
-              if (p.err || p.not) {
-                return cb2(p.err, u, info);
-              }
-              cb2(u, p.disk, info);
-            };
+            if (r.disk) {
+              raw || (raw = (r.disk[file] || "").raw);
+            }
+            var S = +/* @__PURE__ */ new Date(), SM, SL;
+            DBG && (DBG.rp = S);
             if (raw) {
-              return p.read(null, raw);
+              return puff(function() {
+                p.read(u, raw);
+              }, 0);
             }
             opt2.store.get(ename(file), p.read);
           };
         })();
         ;
         (function() {
-          var dir, q, f = String.fromCharCode(28), ef = ename(f);
-          r.list = function(cb) {
-            if (dir) {
-              var tmp = { reverse: cb.reverse ? 1 : 0 };
-              Radix.map(dir, function(val, key) {
-                return cb(key);
-              }, tmp) || cb();
+          var dir, f = String.fromCharCode(28), Q;
+          r.find = function(key, cb) {
+            if (!dir) {
+              if (Q) {
+                Q.push([key, cb]);
+                return;
+              }
+              Q = [[key, cb]];
+              r.parse(f, init);
               return;
             }
-            if (q) {
-              return q.push(cb);
-            }
-            q = [cb];
-            r.parse(f, r.list.init);
+            Radix.map(r.list = dir, function(val, key2) {
+              if (!val) {
+                return;
+              }
+              return cb(key2) || true;
+            }, { reverse: 1, end: key }) || cb(opt2.code.from);
           };
-          r.list.add = function(file, cb) {
+          r.find.add = function(file, cb) {
             var has2 = dir(file);
-            if (has2 || file === ef) {
-              return cb(u, 1);
+            if (has2 || file === f) {
+              cb(u, 1);
+              return;
             }
-            dir(file, true);
-            cb.listed = (cb.listed || 0) + 1;
+            dir(file, 1);
+            cb.found = (cb.found || 0) + 1;
             r.write(f, dir, function(err, ok) {
               if (err) {
-                return cb(err);
+                cb(err);
+                return;
               }
-              cb.listed = (cb.listed || 0) - 1;
-              if (cb.listed !== 0) {
+              cb.found = (cb.found || 0) - 1;
+              if (0 !== cb.found) {
                 return;
               }
               cb(u, 1);
             }, true);
           };
-          r.list.init = function(err, disk) {
+          r.find.bad = function(file, cb) {
+            dir(file, 0);
+            r.write(f, dir, cb || noop);
+          };
+          function init(err, disk) {
             if (err) {
               opt2.log("list", err);
               setTimeout(function() {
-                r.parse(f, r.list.init);
+                r.parse(f, init);
               }, 1e3);
               return;
             }
             if (disk) {
-              r.list.drain(disk);
+              drain(disk);
               return;
             }
+            dir = dir || disk || Radix();
             if (!opt2.store.list) {
-              r.list.drain(Radix());
+              drain(dir);
               return;
             }
             opt2.store.list(function(file) {
-              dir = dir || Radix();
               if (!file) {
-                return r.list.drain(dir);
+                drain(dir);
+                return;
               }
-              r.list.add(file, noop);
+              r.find.add(file, noop);
             });
-          };
-          r.list.drain = function(rad, tmp) {
-            r.list.dir = dir = rad;
-            tmp = q;
-            q = null;
-            Gun.list.map(tmp, function(cb) {
-              r.list(cb);
+          }
+          function drain(rad, tmp) {
+            dir = dir || rad;
+            dir.file = f;
+            tmp = Q;
+            Q = null;
+            map(tmp, function(arg) {
+              r.find(arg[0], arg[1]);
             });
-          };
+          }
         })();
+        try {
+          !Gun.window && require("./radmigtmp")(r);
+        } catch (e) {
+        }
         var noop = function() {
         }, RAD, u;
         Radisk.has[opt2.file] = r;
@@ -736,9 +1189,9 @@ var require_radisk = __commonJS({
               i = d.indexOf(s, i + 1);
             }
             return t + '"' + d + s;
-          } else if (d && d["#"] && (tmp = Gun.val.link.is(d))) {
+          } else if (d && d["#"] && 1 == Object.keys(d).length) {
             return t + "#" + tmp + t;
-          } else if (Gun.num.is(d)) {
+          } else if ("number" == typeof d) {
             return t + "+" + (d || 0) + t;
           } else if (null === d) {
             return t + " " + t;
@@ -771,7 +1224,7 @@ var require_radisk = __commonJS({
           if ('"' === p) {
             return d;
           } else if ("#" === p) {
-            return Gun.val.link.ify(d);
+            return { "#": d };
           } else if ("+" === p) {
             if (0 === d.length) {
               return true;
@@ -39262,6 +39715,7 @@ fastify.listen({ port }, (err) => {
     fastify.log.error(err);
   }
 });
+//!opt && console.log("WHAT IS T?", JSON.stringify(t).length);
 /*! Bundled license information:
 
 uri-js/dist/es5/uri.all.js:
