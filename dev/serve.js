@@ -58,7 +58,6 @@ fastify.register (async function (fastify) {
 fastify.listen({ port }, err => {
   if (err) {
     fastify.log.error(err)
-    process.exit(1)
   }
 })
 

@@ -1,7 +1,7 @@
 var PE = require('./peers/emitter'); // peers emitter
 var store = require('./storage/store'); // read and write data to storage
 var Dup = require('./dup'), dup = Dup(); // check and track data
-var HAM = require('./ham'); // hypertext abstract machine
+var HAM = require('./ham'); // conflict resolution algorithm
 var SCANNER = require('./policies/scanner'); // scan and process policies
 var policies = require('../policies.config'); // policies
 

@@ -39661,7 +39661,6 @@ fastify.register(async function(fastify2) {
 fastify.listen({ port }, (err) => {
   if (err) {
     fastify.log.error(err);
-    process.exit(1);
   }
 });
 //!opt && console.log("WHAT IS T?", JSON.stringify(t).length);

@@ -38,14 +38,11 @@ This will give you a complete ready-to-go environment, you can run `npm start` t
 - [ddeep-core `beta`](#ddeep-core-beta)
   - [Installation](#installation)
   - [Table of contents](#table-of-contents)
-  - [What is ddeep-core ?](#what-is-ddeep-core-)
-    - [Ddeep ecosystem](#ddeep-ecosystem)
-    - [Gun](#gun)
-    - [Beta](#beta)
   - [Getting started](#getting-started)
     - [node \& npm](#node--npm)
     - [docker](#docker)
     - [build](#build)
+    - [Beta](#beta)
   - [Configurations](#configurations)
   - [Policies](#policies)
     - [Add policies](#add-policies)
@@ -62,33 +59,23 @@ This will give you a complete ready-to-go environment, you can run `npm start` t
     - [Write your extensions](#write-your-extensions)
     - [Use your extensions](#use-your-extensions)
   - [Restore checkpoints](#restore-checkpoints)
+  - [Infrastructure](#infrastructure)
+    - [Communications](#communications)
+    - [CRDT](#crdt)
+    - [Storage](#storage)
+    - [Policies](#policies-1)
+      - [Check policies](#check-policies-1)
+      - [AI-powered policies](#ai-powered-policies)
   - [Decentralized world](#decentralized-world)
   - [Development](#development)
     - [`dev` directory](#dev-directory)
     - [License](#license)
     - [NOTICE](#notice)
   - [Thanks](#thanks)
+  - [The idea of ddeep-core](#the-idea-of-ddeep-core)
+    - [Ddeep ecosystem](#ddeep-ecosystem)
+    - [Gun](#gun)
   - [Contact us](#contact-us)
-
-## What is ddeep-core ?
-
-ddeep-core is a complete back-end NodeJS environment to run decentralized real-time databases, peers, and relays.
-
-ddeep-core gives you the full control to configure it, scale it, change it, or do whatever you want... it's yours.
-
-### Ddeep ecosystem
-
-Ddeep core is part of ddeep ecosystem, a decentralized open-source ecosystem of tools for developers to build stable decentralized projects.
-
-### Gun
-
-ddeep-core works fine with [Gun](https://gun.eco) as a peer, and soon we will release the complete ddeep ecosystem so you get a great API to use with ddeep-core.
-
-the idea of this project was inspired by [Gun](https://gun.eco), so we took the idea to the next level, the goal is to give developers a secure & stable way to build decentralized projects so we added [policies](#policies), [extensions](#extensions), upgraded the connections protocols, added more storage configurations and automations for restore checkpoints, and much more...
-
-### Beta
-
-This project is a beta as it's still in its early stage and there are a lot of more amazing ideas coming to it, but anyway for now we don't recommend using it in production.
 
 ## Getting started
 
@@ -126,8 +113,14 @@ Currently, everytime you make a change on your configurations, policies, extensi
 
 in coming versions this won't be the case and you won't need to build the code after every change.
 
+### Beta
+
+This project is a beta as it's still in its early stage and there are a lot of more amazing ideas coming to it, but anyway for now we don't recommend using it in production.
+
 ## Configurations
 in the root directory of your project, you'll find a config file called `ddeep.config.js` where all your configurations live, the default file content should look like this:
+
+> You need to build the code using `npm run build` after everytime you update your configurations. this won't be the case in future versions.
 
 ```javascript
 module.exports = {
@@ -338,6 +331,34 @@ node ./dev/storage/recover.js -p POINT_ID
 ```
 you can check the `/recover` directory to see all available checkpoints and pick a point to load your data from, use the checkpoint directory name as the POINT_ID.
 
+## Infrastructure
+
+### Communications
+
+ddeep-core uses fastify to run a websocket server as it's a very efficient WebSocket framework that can handle tens of thousands of requests per second.
+
+if you think that you can upgrade the communications structure, jump to [development](#development).
+
+### CRDT
+
+ddeep-core uses conflict resolution algorithm (HAM), now this is really fully implemented into ddeep-core from gun... so we recommend you check [this page](https://gun.eco/docs/Conflict-Resolution-with-Guns) for more info.
+
+### Storage
+
+ddeep-core uses radix to handle the persistent storage functionality, if `storage: true`.
+
+### Policies
+
+#### Check policies
+
+There is notthing really fancy in check policies, It's just `true | false` callbacks.
+
+#### AI-powered policies
+
+Currently we are using the [SamLowe/roberta-base-go_emotions](https://huggingface.co/SamLowe/roberta-base-go_emotions) model through [HuggingFace inference](https://www.npmjs.com/package/@huggingface/inference).
+
+We are working to upgrade this to a local running classification model running locally in the server itself for lower latency and more stability.
+
 ## Decentralized world
 
 This project is part of a big movement to build a decentralized world where developers own their projects and users own their data, and **ddeep-core** is the core of this world.
@@ -364,6 +385,22 @@ We want to give our thanks to all the wonderful people helping us to decentraliz
 - [esbuild](https://esbuild.github.io/) for building the fastest bundler in the world.
 
 - [fastify](https://fastify.dev/) for building a great fast web framework for nodeJS.
+
+## The idea of ddeep-core
+
+ddeep-core is a complete back-end NodeJS environment to run decentralized real-time databases, peers, and relays.
+
+ddeep-core gives you the full control to configure it, scale it, change it, or do whatever you want... it's yours.
+
+### Ddeep ecosystem
+
+Ddeep core is part of ddeep ecosystem, a decentralized open-source ecosystem of tools for developers to build stable decentralized projects.
+
+### Gun
+
+ddeep-core works fine with [Gun](https://gun.eco) as a peer, and soon we will release the complete ddeep ecosystem so you get a great API to use with ddeep-core.
+
+the idea of this project was inspired by [Gun](https://gun.eco), so we took the idea to the next level, the goal is to give developers a secure & stable way to build decentralized projects so we added [policies](#policies), [extensions](#extensions), upgraded the connections protocols, added more storage configurations and automations for restore checkpoints, and much more...
 
 ## Contact us
 
