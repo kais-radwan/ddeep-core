@@ -111,9 +111,9 @@ node ./dist/build.js
 ```
 
 ### docker
-You can run ddeep-code in a [Docker](docker.com) container, you can push the image from Docker hub:
+You can run ddeep-code in a [Docker](docker.com) container, you can pull the image from Docker hub:
 ```bash
-docker push multineon/ddeep-core
+docker pull multineon/ddeep-core
 ```
 or build it from the source (recommended) :
 ```bash
