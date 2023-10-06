@@ -1,11 +1,14 @@
 {
     "name": "ddeep-core",
-    "version": "1.0.8-d",
+    "version": "1.0.8-c",
     "description": "Decentralized real-time peer-to-peer data network",
     "author": {
         "name": "Kais Radwan",
         "email": "kais.radwan.personal@gmail.com",
         "url": "https://matrix.to/#/@multineon:gitter.im"
+    },
+    "engines": {
+        "node": ">=16.13.0 || >=18.0.0"
     },
     "scripts": {
         "start": "node ./dist/build.js",
