@@ -2,7 +2,7 @@
   <img align="center" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-long-description/dedb8939-f88e-4099-8d41-8680f0a67ef3/ddeep_big.png" height="200px" />
 </div>
 
-<h2 align="center">ddeep-core</h2>
+<h2 align="center"></h2>
 <p align="center">Decentralized real-time peer-to-peer data network</p>
 
 <div align="center">
@@ -15,7 +15,7 @@
 ![esbuild version](https://img.shields.io/npm/dependency-version/ddeep-core/esbuild?style=flat-square) 
 ![Scrutinizer build](https://img.shields.io/scrutinizer/build/g/kais-radwan/ddeep-core/main?style=flat-square)
 ![code quality](https://img.shields.io/scrutinizer/quality/g/kais-radwan/ddeep-core/main?style=flat-square)
-[![Socket Badge](https://socket.dev/api/badge/npm/package/ddeep-core?style=flat-square)](https://socket.dev/npm/package/ddeep-core?style=flat-square)
+[![Socket Badge](https://socket.dev/api/badge/npm/package/ddeep-core?style=flat-square)](https://socket.dev/npm/package/ddeep-core)
 [![Static Badge](https://img.shields.io/badge/chat-on_matrix-lightgreen?style=flat-square)](https://matrix.to/#/@multineon:gitter.im)
 
 </div>
