@@ -1,26 +1,22 @@
-var get_from_graph = (lex, graph) => {
+const get_from_graph = (lex, graph) => {
+  const soul = lex['#']
+  const key = lex['.']
+  let node = graph[soul]
+  const ack = {}
 
-    var soul = lex['#'];
-    var key = lex['.'];
-    var node = graph[soul];
-    var ack = {};
+  if (!node) { return null };
 
-    if (!node) {return null};
+  if (key) {
+    let tmp = node[key]
+    if (!tmp) { return null };
 
-    if (key) {
+    (node = { _: node._ })[key] = tmp
+    tmp = node._['>'];
+    (node._['>'] = {})[key] = tmp[key]
+  }
 
-        var tmp = node[key];
-        if (!tmp) {return null};
-
-        (node = { _: node._ })[key] = tmp;
-        tmp = node._['>'];
-        (node._['>'] = {})[key] = tmp[key];
-
-    }
-
-    ack[soul] = node;
-    return ack;
-
+  ack[soul] = node
+  return ack
 }
 
-module.exports = get_from_graph;
+module.exports = get_from_graph

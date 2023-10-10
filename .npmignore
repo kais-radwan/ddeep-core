@@ -3,3 +3,5 @@
 **/recovery
 **/.git
 **/test
+/test
+/dev/policies/*.js

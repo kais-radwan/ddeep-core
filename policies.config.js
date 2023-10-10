@@ -1,13 +1,21 @@
+var POLICY = require('./dev/policies/policy_builder');
 
 /*
-    ddeepExt gives you the ability to load extensions to your peer's code and policies.
+    exntesions gives you the ability to load extensions to your peer's code and policies.
     you can add your own extensions to the 'extensions.config.js' file or use built-in extensions.
-    Use ddeepExt.load(extension_name: string) to load an extension.
+    Use exntesions.load(extension_name) to load an extension.
 */
-var ddeepExt = require("./ext/require");
+// var extensions = require("./lib/ext/require");
 
 module.exports = [
     
     // your policies goes here
+    POLICY(
+        'check', ['get'], 'people',
+        (data) => {
+            // return (data.name) ? true : false;
+            return true;
+        }
+    )
 
-]
+];

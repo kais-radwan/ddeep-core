@@ -1,20 +1,10 @@
-
-var processPolicy = require("./processor.ts");
-
-type policySchema = {
-    "name": string,
-    "operations": Array<string>,
-    "type": "check" | "smart",
-    "graph": Array<string>,
-    "check": Function,
-    "rules": Array<string>
-}
+require('./scanner2');
+var _processPolicy = require("./processor");
 
 // scan policies for a specific node path and operation and process valid policies
 function scanPolicies (nodes:Array<string>, operation:string, policies:any, data:any, cb:Function) {
 
     // Define the res that will change and be returned later
-    let res:any = true;
     let processedPolicies:Array<string> = [];
     var anyApplied:true|false = false;
 
@@ -68,7 +58,7 @@ function scanPolicies (nodes:Array<string>, operation:string, policies:any, data
 
 var perform = async (soul:any, policy:any, data:any, cb:Function) => {
 
-    var res = await processPolicy(policy, data);
+    var res = await _processPolicy(policy, data);
 
     // Throw error if res is not a valid (true || false)
     (res !== true && res !== false) ?
