@@ -16,7 +16,7 @@
         "build": "./node_modules/.bin/esbuild dev/serve.js --bundle --outfile=dist/build.js --platform=node"
     },
     "bin": {
-        "ddeep-init": "./init/init.js"
+        "ddeep-init": "./lib/init/init.js"
     },
     "main": "./dist/build.js",
     "preferGlobal": true,

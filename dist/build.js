@@ -799,7 +799,7 @@ var require_commands = __commonJS({
             console.log(`${process.PEERS[peer]._id} -> listening to: ${process.PEERS[peer].listeners}`);
           }
         } else {
-          console.log("NULL");
+          console.log("No peers connected".gray);
         }
         console.log("\nRun 'peer PEER_ID' to show full peer info\n".yellow);
       }
@@ -847,7 +847,7 @@ var require_commands = __commonJS({
     });
     commander.on("set", (args) => {
       if (args[1] === "storage") {
-        args[2] === "true" ? process.storage = true : args[2] === "false" ? process.storage = false : console.log("storage can only be set to true or fasle".red);
+        args[2] === "true" ? process.storage = true : args[2] === "false" ? process.storage = false : console.log("storage can only be set to true or false".red);
       }
       if (args[1] === "checkpoint") {
         process.checkpoint = Number(args[1]);
@@ -3272,140 +3272,11 @@ var require_policy_builder = __commonJS({
   }
 });
 
-// lib/ext/built-in/check.js
-var require_check = __commonJS({
-  "lib/ext/built-in/check.js"(exports, module2) {
-    "use strict";
-    function conditionCheck(condition) {
-      var conditionProp = condition[0];
-      var conditionValue = condition[1];
-      return conditionValue === true && conditionProp ? true : conditionValue === false && !conditionProp ? true : conditionProp === conditionValue ? true : false;
-    }
-    module2.exports = conditionCheck;
-  }
-});
-
-// lib/ext/built-in/check_with_function.js
-var require_check_with_function = __commonJS({
-  "lib/ext/built-in/check_with_function.js"(exports, module2) {
-    "use strict";
-    function conditionCheckWithAction(condition, action, args) {
-      var conditionProp = condition[0];
-      var conditionValue = condition[1];
-      conditionValue === true && conditionProp ? action(args) : conditionValue === false && !conditionProp ? action(args) : conditionProp === conditionValue ? action(args) : null;
-    }
-    module2.exports = conditionCheckWithAction;
-  }
-});
-
-// lib/ext/built-in/smart_checker.js
-var require_smart_checker = __commonJS({
-  "lib/ext/built-in/smart_checker.js"(exports, module2) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.smartChecker = void 0;
-    function smartChecker(data, rules) {
-      let res;
-      var ao = ["<", ">"];
-      if (!data || typeof data !== "object") {
-        console.error("Data is not valid in smart check");
-        return null;
-      }
-      for (var rule in rules) {
-        var ruleValue = rules[rule];
-        !ruleValue || typeof ruleValue !== "object" || ruleValue.length !== 3 ? console.error("Invalid rule in smart check") : null;
-        var ruleLabel = ruleValue[0];
-        var ruleFullScore = ruleValue[1];
-        var ruleScore = Number(ruleFullScore.substring(1, 100));
-        var ruleScoreOperator = ruleFullScore.substring(0, 1);
-        var ruleRes = ruleValue[2];
-        ao.indexOf(ruleScoreOperator) === -1 ? console.error("Opeartor '".concat(ruleScoreOperator, "' is not valid in smart check")) : null;
-        var ruleClassScore = data[ruleLabel];
-        !ruleClassScore ? console.error("Rule label '".concat(ruleLabel, "' is not valid. valid labels:").concat(JSON.stringify(Object.keys(data)))) : null;
-        if (ruleScoreOperator === "<" && Number(ruleClassScore) < Number(ruleScore)) {
-          res = ruleRes;
-        } else if (ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore)) {
-          res = ruleRes;
-        } else {
-          res = false;
-        }
-      }
-      res !== true && res !== false ? console.error("Error processing a smart check. you are not returning a valid true|false") : null;
-      return res;
-    }
-    exports.smartChecker = smartChecker;
-    module2.exports = smartChecker;
-  }
-});
-
-// lib/ext/built-in/index.js
-var require_built_in = __commonJS({
-  "lib/ext/built-in/index.js"(exports, module2) {
-    "use strict";
-    module2.exports = [
-      {
-        name: "check",
-        callback: (args) => {
-          var check = require_check();
-          return check(args);
-        }
-      },
-      {
-        name: "check_with_function",
-        callback: (...args) => {
-          var check_with_function = require_check_with_function();
-          return check_with_function(args[0], args[1], args[2]);
-        }
-      },
-      {
-        name: "smart_check",
-        callback: (...args) => {
-          var smartChecker = require_smart_checker();
-          return smartChecker(args[0], args[1]);
-        }
-      }
-    ];
-  }
-});
-
-// lib/ext/require.ts
-var require_require = __commonJS({
-  "lib/ext/require.ts"(exports, module2) {
-    "use strict";
-    var builtin = require_built_in();
-    try {
-      ext = require("../extensions.config");
-    } catch (err) {
-      console.log("extensions.config not found");
-    }
-    var ext;
-    var extensions = builder([...ext, ...builtin]);
-    var root = {
-      load: (extName) => {
-        var ext2 = extensions[extName];
-        if (ext2)
-          return ext2;
-        if (!ext2)
-          throw new Error(`Extension ${extName} not found`);
-      }
-    };
-    function builder(data) {
-      let build = {};
-      data.forEach((ext2) => {
-        build[ext2.name] = ext2.callback;
-      });
-      return build;
-    }
-    module2.exports = root;
-  }
-});
-
 // policies.config.js
 var require_policies_config = __commonJS({
   "policies.config.js"(exports, module2) {
     "use strict";
     var POLICY = require_policy_builder();
-    var extensions = require_require();
     module2.exports = [
       // your policies goes here
       POLICY(
@@ -3708,23 +3579,15 @@ var require_put = __commonJS({
               if (err) {
                 console.log(err.red);
               }
-              PE.emit("put", soul, {
-                "#": dup2.track(Dup.random()),
-                "@": msg["#"],
-                err,
-                ok,
-                put: msg.put
-              });
-            });
-          } else {
-            PE.emit("put", soul, {
-              "#": dup2.track(Dup.random()),
-              "@": msg["#"],
-              err: null,
-              ok: 1,
-              put: msg.put
             });
           }
+          PE.emit("put", soul, {
+            "#": dup2.track(Dup.random()),
+            "@": msg["#"],
+            err: null,
+            ok: 1,
+            put: msg.put
+          });
         });
       } catch (err) {
       }
@@ -40819,6 +40682,7 @@ if (storage && checkpoint) {
 fastify.register(async function(fastify_socket) {
   try {
     fs.readFile("./lib/entry/ascii.txt", {}, (error, content) => {
+      console.clear();
       console.log("\n", `${content}`.blue, "\n");
       console.log("port -> ".yellow, `${port}`.gray);
       console.log("storage -> ".yellow, `${storage}`.gray, "\n");

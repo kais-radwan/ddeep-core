@@ -49,7 +49,7 @@ fastify.register(async function (fastify_socket) {
         // read command interface entry and options
         fs.readFile('./lib/entry/ascii.txt', {}, (error, content) => {
 
-            // console.clear();
+            console.clear();
             console.log("\n", `${content}`.blue, "\n");
             console.log("port -> ".yellow, `${port}`.gray);
             console.log("storage -> ".yellow, `${storage}`.gray, "\n");
