@@ -4,11 +4,12 @@ var extension;
 module.exports = [
 
     // Add your extensions here
-    extension.create(
-        'ext1', 'interface', (...args) => {
-            console.log(args[0]);
+    {
+        name: 'ext1',
+        callback (...args) {
+            console.log(args);
         }
-    )
+    }
 
 ];
 

@@ -1,39 +1,35 @@
 function listen (graph, peer) {
-    
+
     if (peer && graph) {
-    
+
         var nodes = [];
         var props;
-        var dynamic_graph;
 
         if (graph.includes('.')) {
-            nodes = graph.split('.')[0].split('/');
+            nodes = graph.split('.')[0];
             props = graph.split('.')[1];
         } else {
-            nodes = graph.split('/');
+            nodes = graph;
         }
-    
-        process.PEERS[process.PEERS.indexOf(peer)].listeners.push(...nodes);
 
-        nodes.forEach(node => {
-            if (!dynamic_graph) {
-                dynamic_graph = node;
-            } else {
-                dynamic_graph = `${dynamic_graph}/${node}`;
+        if (process.listeners[nodes]) {
+            if (process.listeners[nodes].indexOf(peer) === -1) {
+                process.listeners[nodes].push(peer);
             }
-            if (process.listeners[dynamic_graph]) {
-                process.listeners[dynamic_graph].push(peer);
-            } else {
-                process.listeners[dynamic_graph] = [peer];
-            }
-        });
+        }
+
+        else if (!process.listeners[nodes]) {
+            process.listeners[nodes] = [peer];
+        }
 
         if (props) {
-            dynamic_graph = `${dynamic_graph}.${props}`;
-            if (process.listeners[dynamic_graph]) {
-                process.listeners[dynamic_graph].push(peer);
-            } else {
-                process.listeners[dynamic_graph] = [peer];
+            if (process.listeners[graph]) {
+                if (process.listeners[graph].indexOf(peer) === -1) {
+                    process.listeners[nodes].push(peer);
+                }
+            }
+            else if (!process.listeners[graph]) {
+                process.listeners[graph] = [peer];
             }
         }
 

@@ -103,11 +103,7 @@
     } catch (e) { console.error(e) }
   }
 
-  if (typeof window !== 'undefined') {
-    window.Radix = Radix
-  } else {
-    try { module.exports = Radix } catch (e) { }
-  }
+  try { module.exports = Radix } catch (e) { };
   var each = Radix.object = function (o, f, r) {
     for (const k in o) {
       if (!o.hasOwnProperty(k)) { continue }

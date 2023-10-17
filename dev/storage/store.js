@@ -1,13 +1,13 @@
 /*
     This file was modified. for license see https://github.com/amark/gun/blob/master/LICENSE.md
 */
-const Radix = require('./radix')
-const Radisk = require('./radisk')
-const fs = require('fs')
+const Radix = require('./radix');
+const Radisk = require('./radisk');
+const fs = require('fs');
 
 function Store (opt) {
   opt = opt || {}
-  opt.file = String(opt.file || 'ddeep_data')
+  opt.file = 'ddeep_data';
 
   const store = function Store () { }
 

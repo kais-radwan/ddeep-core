@@ -7,7 +7,7 @@ PE.on('get', (peer, data) => {
     if (!peer) { return; }
 
     try {
-        peer.socket.send(JSON.stringify(data));
+        process.PEERS[peer].socket.send(JSON.stringify(data));
     } catch (err) {}; // we don't really need to do anything here.
 
 });
@@ -48,7 +48,7 @@ PE.on('put', (graph, data) => {
     listening_peers.forEach(peer => {
         if (peers.indexOf(peer) === -1) {
             peers.push(peer);
-            peer.socket.send(JSON.stringify(data));
+            process.PEERS[peer].socket.send(JSON.stringify(data));
         }
     })
 

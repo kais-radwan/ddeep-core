@@ -13,7 +13,7 @@ type msg = {
     },
 }
 
-var get = async function (peer:any, msg:msg, graph:any, storage:true|false) {
+var get = function (peer:any, msg:msg, graph:any, storage:true|false) {
 
     var soul:string = msg?.get["#"];
     var prop = msg?.get["."];

@@ -9,7 +9,7 @@ type putMsg = {
     'put': any
 }
 
-var put = async function (msg:putMsg, graph:any, storage:true|false) {
+var put = function (msg:putMsg, graph:any, storage:true|false) {
 
     try {
 

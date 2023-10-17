@@ -779,9 +779,9 @@ var require_lib = __commonJS({
   }
 });
 
-// lib/commands/index.js
-var require_commands = __commonJS({
-  "lib/commands/index.js"(exports, module2) {
+// lib/commands/processor.js
+var require_processor = __commonJS({
+  "lib/commands/processor.js"(exports, module2) {
     "use strict";
     var { exec } = require("child_process");
     var C_EVENT = require("events");
@@ -794,14 +794,24 @@ var require_commands = __commonJS({
     commander.on("list", (type) => {
       if (type[1] === "peers") {
         console.log("\nconnected peers:");
-        if (process.PEERS.length > 0) {
+        if (Object.keys(process.PEERS).length > 0) {
           for (let peer in process.PEERS) {
-            console.log(`${process.PEERS[peer]._id} -> listening to: ${process.PEERS[peer].listeners}`);
+            console.log(`_id: ${process.PEERS[peer]._id}`);
           }
         } else {
           console.log("No peers connected".gray);
         }
-        console.log("\nRun 'peer PEER_ID' to show full peer info\n".yellow);
+        console.log("\nRun 'peer PEER_ID' to show all peer info\n".yellow);
+      }
+      if (type[1] === "listeners") {
+        console.log("\nconnected listeners:");
+        if (Object.keys(process.listeners).length > 0) {
+          console.log(process.listeners);
+          console.log("");
+        } else {
+          console.log("No listeners...\n".gray);
+        }
+        console.log("\nRun 'peer PEER_ID' to show all peer info\n".yellow);
       }
     });
     commander.on("clear", (type) => {
@@ -809,20 +819,36 @@ var require_commands = __commonJS({
         console.clear();
       } else if (type[1] === "peers") {
         process.PEERS = [];
+      } else if (type[1] === "listeners") {
+        process.listeners = {};
+      } else {
+        console.log(`'${type[1]}' is not a valid argument for 'clear'`.red);
       }
     });
     commander.on("peer", (data) => {
       var peer;
       var id = data[1];
       var arg = data[2];
-      process.PEERS.forEach((peer_data) => {
+      Object.keys(process.PEERS).forEach((key) => {
+        var peer_data = process.PEERS[key];
         if (peer_data._id === id) {
           peer = peer_data;
         }
         ;
       });
       if (peer && arg) {
-        console.log(peer[arg.replace("--", "")]);
+        var info = peer;
+        arg.split(".").forEach((a) => {
+          if (!info) {
+            console.log(`'${arg}' is not a valid key in the '${id}' peer`);
+          }
+          info = peer[a];
+        });
+        if (!info) {
+          console.log(`'${arg}' is not a valid key in '${id}'`.red);
+        } else {
+          console.log(info);
+        }
       } else if (peer && !arg) {
         console.log(peer);
       } else {
@@ -903,7 +929,7 @@ var require_emitter = __commonJS({
         return;
       }
       try {
-        peer.socket.send(JSON.stringify(data));
+        process.PEERS[peer].socket.send(JSON.stringify(data));
       } catch (err) {
       }
       ;
@@ -939,7 +965,7 @@ var require_emitter = __commonJS({
       listening_peers.forEach((peer) => {
         if (peers.indexOf(peer) === -1) {
           peers.push(peer);
-          peer.socket.send(JSON.stringify(data));
+          process.PEERS[peer].socket.send(JSON.stringify(data));
         }
       });
     });
@@ -1108,14 +1134,11 @@ var require_radix = __commonJS({
           console.error(e);
         }
       };
-      if (typeof window !== "undefined") {
-        window.Radix = Radix;
-      } else {
-        try {
-          module2.exports = Radix;
-        } catch (e) {
-        }
+      try {
+        module2.exports = Radix;
+      } catch (e) {
       }
+      ;
       var each = Radix.object = function(o, f, r) {
         for (const k in o) {
           if (!o.hasOwnProperty(k)) {
@@ -1434,9 +1457,6 @@ var require_radmigtmp = __commonJS({
           }
           l.push([f2, v2]);
         });
-        if (l.length) {
-          console.log("\n! ! ! WARNING ! ! !\nRAD v0.2020.x has detected OLD v0.2019.x data & automatically migrating. Automatic migration will be turned OFF in future versions! If you are just developing/testing, we recommend you reset your data. Please contact us if you have any concerns.\nThis message should only log once.");
-        }
         let f, v;
         l.forEach(function(a) {
           f = a[0];
@@ -2252,7 +2272,7 @@ var require_store = __commonJS({
     var fs2 = require("fs");
     function Store(opt2) {
       opt2 = opt2 || {};
-      opt2.file = String(opt2.file || "ddeep_data");
+      opt2.file = "ddeep_data";
       const store = function Store2() {
       };
       store.put = function(file, data, cb) {
@@ -2361,23 +2381,40 @@ var require_dup = __commonJS({
     function Dup() {
       const dup2 = { s: {} };
       const opt2 = { max: 1e3, age: 1e3 * 9 };
+      let cache = {};
+      let tracked = /* @__PURE__ */ new Set();
       dup2.check = function(id) {
-        return dup2.s[id] ? dup2.track(id) : false;
+        if (cache[id]) {
+          return cache[id];
+        }
+        const result = dup2.s[id];
+        cache[id] = result;
+        return result;
       };
       dup2.track = function(id) {
+        if (tracked.has(id)) {
+          return id;
+        }
+        tracked.add(id);
         dup2.s[id] = +/* @__PURE__ */ new Date();
         if (!dup2.to) {
           dup2.to = setTimeout(function() {
-            Object.keys(dup2.s).forEach(function(time, id2) {
+            for (const [id2, time] of Object.entries(dup2.s)) {
               if (opt2.age > +/* @__PURE__ */ new Date() - Number(time)) {
-                return;
+                continue;
               }
+              tracked.delete(id2);
               delete dup2.s[id2];
-            });
+            }
             dup2.to = null;
           }, opt2.age);
         }
         return id;
+      };
+      dup2.destroy = function() {
+        clearTimeout(dup2.to);
+        cache = {};
+        tracked.clear();
       };
       return dup2;
     }
@@ -3166,16 +3203,38 @@ var require_ddeep_config = __commonJS({
   "ddeep.config.js"(exports, module2) {
     "use strict";
     module2.exports = {
-      // Set storage to true to enable persistent data storage
+      /* Set storage to true to enable persistent data storage */
       "storage": true,
-      // Set the port you want to run the peer on
+      /* Set the port you want to run the peer on */
       "port": 9999,
-      // Add your huggingFace token to be used with AI smart policies
+      /*
+          Set a list of IP adresses (of peers, servers, or websites) that are able to connect to this core
+          this could help you prevent cross-site connections to your core
+      */
+      whitelist: [
+        "127.0.0.1"
+      ],
+      /* Add your huggingFace token to be used with AI smart policies */
       "hf": null,
-      // Set a checkpoint interval timer in ms to make a recovery checkpoint of the database
-      // example: setting "checkpoint" to 60000 will make a point of recover every 1 minute
-      // this works onyl with persistent storage enabled
-      "checkpoint": null
+      /*
+          Set a checkpoint interval timer in ms to make a recovery checkpoint of the database
+          example: setting "checkpoint" to 60000 will make a point of recover every minute
+          this works onyl with persistent storage enabled
+      */
+      "checkpoint": null,
+      /*
+          Set a reset_graph interval timer in ms to clear the core's cached graph
+          example: setting "reset_graph" to 60000 will clear the graph data cache every minute
+      */
+      "reset_graph": null,
+      /*
+          Set a reset_listeners interval timers in ms to clear the core's lisetners
+          Listeners record all nodes being listened to with all peer's IDs listeting to them
+          and while a peer is removed from the listeners when It's disconnected,
+          It's "strongly recommended" to use 'resset_listeners' to keep things clear and avoid possible issues
+          you can disable this option by setting it to null or 0
+      */
+      "reset_listeners": 6e6
     };
   }
 });
@@ -3224,7 +3283,7 @@ var require_classes_model = __commonJS({
 });
 
 // dev/policies/processor.ts
-var require_processor = __commonJS({
+var require_processor2 = __commonJS({
   "dev/policies/processor.ts"(exports, module2) {
     "use strict";
     var getAIClasses = require_classes_model();
@@ -3319,7 +3378,7 @@ var require_policies_builder = __commonJS({
 var require_scanner2 = __commonJS({
   "dev/policies/scanner2.ts"(exports, module2) {
     "use strict";
-    var _processPolicy = require_processor();
+    var _processPolicy = require_processor2();
     var policies = require_policies_config();
     var _policies_builder = require_policies_builder();
     policies = _policies_builder(policies);
@@ -3413,32 +3472,26 @@ var require_listen = __commonJS({
       if (peer && graph2) {
         var nodes = [];
         var props;
-        var dynamic_graph;
         if (graph2.includes(".")) {
-          nodes = graph2.split(".")[0].split("/");
+          nodes = graph2.split(".")[0];
           props = graph2.split(".")[1];
         } else {
-          nodes = graph2.split("/");
+          nodes = graph2;
         }
-        process.PEERS[process.PEERS.indexOf(peer)].listeners.push(...nodes);
-        nodes.forEach((node) => {
-          if (!dynamic_graph) {
-            dynamic_graph = node;
-          } else {
-            dynamic_graph = `${dynamic_graph}/${node}`;
+        if (process.listeners[nodes]) {
+          if (process.listeners[nodes].indexOf(peer) === -1) {
+            process.listeners[nodes].push(peer);
           }
-          if (process.listeners[dynamic_graph]) {
-            process.listeners[dynamic_graph].push(peer);
-          } else {
-            process.listeners[dynamic_graph] = [peer];
-          }
-        });
+        } else if (!process.listeners[nodes]) {
+          process.listeners[nodes] = [peer];
+        }
         if (props) {
-          dynamic_graph = `${dynamic_graph}.${props}`;
-          if (process.listeners[dynamic_graph]) {
-            process.listeners[dynamic_graph].push(peer);
-          } else {
-            process.listeners[dynamic_graph] = [peer];
+          if (process.listeners[graph2]) {
+            if (process.listeners[graph2].indexOf(peer) === -1) {
+              process.listeners[nodes].push(peer);
+            }
+          } else if (!process.listeners[graph2]) {
+            process.listeners[graph2] = [peer];
           }
         }
       }
@@ -3458,7 +3511,7 @@ var require_get = __commonJS({
     var SCANNER = require_scanner2();
     var RFG = require_get_from_graph();
     var listen = require_listen();
-    var get = async function(peer, msg, graph2, storage2) {
+    var get = function(peer, msg, graph2, storage2) {
       var soul = msg?.get["#"];
       var prop = msg?.get["."];
       if (prop)
@@ -3566,7 +3619,7 @@ var require_put = __commonJS({
     var dup2 = Dup();
     var HAM = require_ham();
     var SCANNER = require_scanner2();
-    var put = async function(msg, graph2, storage2) {
+    var put = function(msg, graph2, storage2) {
       try {
         var soul = msg.put[Object.keys(msg.put)[0]]._["#"];
         var prop = msg.put[Object.keys(msg.put)[0]]._["."];
@@ -40654,14 +40707,14 @@ var require_websocket2 = __commonJS({
 require_lib();
 var fs = require("fs");
 var readline = require("readline");
-var CP = require_commands();
+var CP = require_processor();
 var GET = require_get();
 var PUT = require_put();
 var recovery = require_checkpoint();
 var DUP = require_dup();
 var dup = DUP();
 var opt = require_ddeep_config();
-var rl = readline.createInterface({
+var interface_prompt = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
@@ -40669,7 +40722,10 @@ var graph = {};
 var port = opt.port || 9999;
 var storage = opt.storage || false;
 var checkpoint = opt.checkpoint || false;
-process.PEERS = [];
+var graph_timer = opt.reset_graph || 0;
+var listeners_timer = opt.reset_listeners || 0;
+var whitelist = opt.whitelist || [];
+process.PEERS = {};
 process.storage = storage;
 process.port = port;
 process.checkpoint = checkpoint;
@@ -40679,27 +40735,42 @@ fastify.register(require_websocket2());
 if (storage && checkpoint) {
   recovery(checkpoint);
 }
+if (Number(graph_timer) > 0) {
+  clear_graph(graph_timer);
+}
+if (Number(listeners_timer) > 0) {
+  clear_listeners(listeners_timer);
+}
 fastify.register(async function(fastify_socket) {
   try {
     fs.readFile("./lib/entry/ascii.txt", {}, (error, content) => {
       console.clear();
-      console.log("\n", `${content}`.blue, "\n");
-      console.log("port -> ".yellow, `${port}`.gray);
-      console.log("storage -> ".yellow, `${storage}`.gray, "\n");
       if (error) {
         return;
-      } else {
+      } else if (content) {
         content = content.toString();
-        receiveCommand();
+        console.log("\n", `${content}`.blue, "\n");
       }
+      console.log("port -> ".yellow, `${port}`.gray);
+      console.log("storage -> ".yellow, `${storage}`.gray, "\n");
+      receive_command();
     });
   } catch (err) {
   }
   ;
-  fastify_socket.get("/", { websocket: true }, (peer) => {
+  fastify_socket.get("/", (req, reply) => {
+    reply.send(`open socket connections to /ddeep`);
+  });
+  fastify_socket.get("/ddeep", { websocket: true }, (peer, req) => {
+    var peer_ip = req.socket.remoteAddress;
+    if (whitelist.length > 0 && whitelist.indexOf(peer_ip) === -1) {
+      peer.socket.send("ACCESS DENIED: you are not allowed to connect to this core...");
+      peer.socket.close();
+    }
     peer.listeners = [];
-    peer._id = (Date.now() * Math.random()).toString(36);
-    process.PEERS.push(peer);
+    var _id = "ddeep:" + (Date.now() * Math.random()).toString(36);
+    peer._id = _id;
+    process.PEERS[_id] = peer;
     peer.socket.on("message", (data) => {
       var msg = JSON.parse(data);
       if (dup.check(msg["#"])) {
@@ -40710,28 +40781,63 @@ fastify.register(async function(fastify_socket) {
       if (msg.put) {
         PUT(msg, graph, process.storage);
       } else if (msg.get) {
-        GET(peer, msg, graph, process.storage);
+        GET(peer._id, msg, graph, process.storage);
       }
     });
     peer.socket.on("close", () => {
-      process.PEERS.pop(process.PEERS.indexOf(peer));
+      try {
+        delete process.PEERS[peer._id];
+        Object.keys(process.listeners).forEach((key) => {
+          var listener = process.listeners[key];
+          if (listener.indexOf(peer._id) > -1) {
+            listener.forEach((p) => {
+              if (p === peer._id) {
+                process.listeners[key].pop(listener.indexOf(p));
+                listener.pop(listener.indexOf(p));
+              }
+            });
+          }
+        });
+      } catch (err) {
+      }
     });
   });
 });
 fastify.listen({ port }, (err) => {
   if (err) {
-    console.error(err.red);
+    console.error(err);
+    process.exit(1);
   }
 });
-var receiveCommand = () => {
-  rl.question(`ddeep@${port}`.brightGreen + "$ ", async (command) => {
+function receive_command() {
+  interface_prompt.question("ddeep > ", async (command) => {
     if (command) {
       command = command.split(" ");
       await CP.emit(command[0], command);
     }
-    receiveCommand();
+    receive_command();
   });
-};
+}
+function clear_graph(timer) {
+  if (timer < 1e3) {
+    console.log("\nCancelling clear_graph as it is less than 1000ms and would cause issues\n".red);
+    return;
+  }
+  setTimeout(() => {
+    graph = {};
+    clear_graph(timer);
+  }, timer);
+}
+function clear_listeners(timer) {
+  if (timer < 1e3) {
+    console.log("\nCancelling clear_listeners as it is less than 1000ms and would cause issues\n".red);
+    return;
+  }
+  setTimeout(() => {
+    process.listeners = {};
+    clear_listeners(timer);
+  }, timer);
+}
 //! opt && console.log("WHAT IS T?", JSON.stringify(t).length);
 /*! Bundled license information:
 

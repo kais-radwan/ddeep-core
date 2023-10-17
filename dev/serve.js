@@ -4,7 +4,7 @@ var fs = require('fs');
 
 // commands interface
 var readline = require('readline'); // process inputs
-var CP = require('../lib/commands'); // Commands processor
+var CP = require('../lib/commands/processor'); // Commands processor
 
 // storage and data operations
 var GET = require('./get');
@@ -16,7 +16,7 @@ var DUP = require('./dup'), dup = DUP(); // check and track data
 var opt = require('../ddeep.config'); // ddeep configurations
 
 // create command interface inputs
-var rl = readline.createInterface({
+var interface_prompt = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
 })
@@ -26,9 +26,12 @@ let graph = {};
 var port = opt.port || 9999;
 var storage = opt.storage || false;
 var checkpoint = opt.checkpoint || false;
+var graph_timer = opt.reset_graph || 0;
+var listeners_timer = opt.reset_listeners || 0;
+var whitelist = opt.whitelist || [];
 
 // add options to the process
-process.PEERS = [];
+process.PEERS = {};
 process.storage = storage;
 process.port = port;
 process.checkpoint = checkpoint;
@@ -38,8 +41,19 @@ process.listeners = {};
 const fastify = require('fastify')();
 fastify.register(require('@fastify/websocket'));
 
+// start recovery function if a checkpoint timer is in palce and storage enabled
 if (storage && checkpoint) {
     recovery(checkpoint);
+}
+
+// clear graph based on the reset_graph timer
+if (Number(graph_timer) > 0) {
+    clear_graph(graph_timer);
+}
+
+// clear listeners based on the reset_listeners timer
+if (Number(listeners_timer) > 0) {
+    clear_listeners(listeners_timer);
 }
 
 // register fastify server
@@ -50,16 +64,17 @@ fastify.register(async function (fastify_socket) {
         fs.readFile('./lib/entry/ascii.txt', {}, (error, content) => {
 
             console.clear();
-            console.log("\n", `${content}`.blue, "\n");
-            console.log("port -> ".yellow, `${port}`.gray);
-            console.log("storage -> ".yellow, `${storage}`.gray, "\n");
 
             if (error) {
                 return;
-            } else {
+            } else if (content) {
                 content = content.toString();
-                receiveCommand();
+                console.log("\n", `${content}`.blue, "\n");
             }
+
+            console.log("port -> ".yellow, `${port}`.gray);
+            console.log("storage -> ".yellow, `${storage}`.gray, "\n");
+            receive_command();
 
         })
     } catch (err) {
@@ -67,13 +82,28 @@ fastify.register(async function (fastify_socket) {
         // but no need to do anything.
     };
 
+    // handle simple http serving
+    fastify_socket.get('/', (req, reply) => {
+        reply.send(`open socket connections to /ddeep`);
+    })
+
     // handle new socket connections
-    fastify_socket.get('/', { websocket: true }, peer => {
+    fastify_socket.get('/ddeep', { websocket: true }, (peer, req) => {
+
+        // get the IP address of the peer connecting to the core
+        var peer_ip = req.socket.remoteAddress;
+
+        // check if ip address is in the whitelist to be able to connect
+        if (whitelist.length > 0 && whitelist.indexOf(peer_ip) === -1) {
+            peer.socket.send('ACCESS DENIED: you are not allowed to connect to this core...');
+            peer.socket.close();
+        }
 
         // push the new peer
         peer.listeners = [];
-        peer._id = (Date.now() * Math.random()).toString(36);
-        process.PEERS.push(peer);
+        var _id = 'ddeep:' + (Date.now() * Math.random()).toString(36);
+        peer._id = _id;
+        process.PEERS[_id] = peer;
 
         // handle messages
         peer.socket.on('message', (data) => {
@@ -92,14 +122,29 @@ fastify.register(async function (fastify_socket) {
 
             // handle get data
             else if (msg.get) {
-                GET(peer, msg, graph, process.storage);
+                GET(peer._id, msg, graph, process.storage);
             }
 
         });
 
         // pop peer when connection is closed
         peer.socket.on('close', () => {
-            process.PEERS.pop(process.PEERS.indexOf(peer));
+
+            try {
+                delete process.PEERS[peer._id];
+                Object.keys(process.listeners).forEach(key => {
+                    var listener = process.listeners[key];
+                    if (listener.indexOf(peer._id) > -1) {
+                        listener.forEach(p => {
+                            if (p === peer._id) {
+                                process.listeners[key].pop(listener.indexOf(p));
+                                listener.pop(listener.indexOf(p));
+                            }
+                        })
+                    }
+                });
+            } catch (err) {} // no need to do anything
+
         })
 
     });
@@ -109,22 +154,45 @@ fastify.register(async function (fastify_socket) {
 // listen to config port using fastify
 fastify.listen({ port }, err => {
     if (err) {
-        console.error(err.red);
+        console.error(err);
+        process.exit(1);
     }
 });
 
-var receiveCommand = () => {
+function receive_command () {
 
-    rl.question(`ddeep@${port}`.brightGreen + '$ ', async (command) => {
+    interface_prompt.question('ddeep > ', async (command) => {
 
         if (command) {
-
             command = command.split(" ");
             await CP.emit(command[0], command);
-
         }
 
-        receiveCommand();
+        receive_command();
     })
 
 };
+
+// clear graph every ms
+function clear_graph (timer) {
+    if (timer < 1000) {
+        console.log('\nCancelling clear_graph as it is less than 1000ms and would cause issues\n'.red);
+        return;
+    }
+    setTimeout( () => {
+        graph = {};
+        clear_graph(timer);
+    }, timer);
+}
+
+// clear listeners every ms
+function clear_listeners (timer) {
+    if (timer < 1000) {
+        console.log('\nCancelling clear_listeners as it is less than 1000ms and would cause issues\n'.red);
+        return;
+    }
+    setTimeout( () => {
+        process.listeners = {};
+        clear_listeners(timer);
+    }, timer);
+}
