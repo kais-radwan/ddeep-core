@@ -2,9 +2,17 @@
     This file was not modified, for license see https://github.com/amark/gun/blob/master/LICENSE.md
 */
 function HAM (machineState, incomingState, currentState, incomingValue, currentValue) {
-  if (machineState < incomingState) return { defer: true }
-  if (incomingState < currentState) return { historical: true }
-  if (currentState < incomingState) return { converge: true, incoming: true }
+  if (machineState < incomingState) { 
+    return { defer: true };
+  }
+  
+  if (incomingState < currentState) {
+    return { historical: true };
+  }
+
+  if (currentState < incomingState) {
+    return { converge: true, incoming: true };
+  }
 
   if (incomingState === currentState) {
     let res
@@ -34,16 +42,16 @@ HAM.mix = (change, graph) => {
 
     Object.keys(node).forEach((key) => {
       const val = node[key]
-      if (key === '_') return
+      if (key === '_') { return };
 
       const state = node._['>'][key]
       const was = (graph[soul] || { _: { '>': {} } })._['>'][key] || -Infinity
       const known = (graph[soul] || {})[key]
       const ham = HAM(machine, state, was, val, known)
 
-      if (!ham.incoming) {
-        if (ham.defer) console.log('DEFER', key, val)
-        return
+      if (!ham.incoming && ham.defer) {
+        console.error('DEFER', key, val);
+        return;
       }
 
       (diff || (diff = {}))[soul] = diff[soul] || node
@@ -58,4 +66,4 @@ HAM.mix = (change, graph) => {
   return diff
 }
 
-try { module.exports = HAM } catch (e) { };
+module.exports = HAM;
