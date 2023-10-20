@@ -2,7 +2,7 @@
   <img align="center" src="https://opencollective-production.s3.us-west-1.amazonaws.com/account-long-description/dedb8939-f88e-4099-8d41-8680f0a67ef3/ddeep_big.png" height="200px" />
 </div>
 
-<h2 align="center"></h2>
+<br>
 <p align="center">Decentralized real-time peer-to-peer data network</p>
 
 <div align="center">
@@ -22,25 +22,23 @@
 
 > This is a beta version !
 
-🚀 Decentralized real-time peer-to-peer data network to run your database, peer, and relay all at once.
+Decentralized real-time peer-to-peer data server, used to save and sync decentralized graph data across connected peers, with features like:
 
-ddeep-core is used to run a back-end environment to save and sync decentralized graph data across peers, powered with flexible extensions, real-time connections, AI-powered policies, and more....
+- Persistent data storage with recovery checkpoints
 
-- Real-time peer-to-peer connections ⚡️
+- Scoped and AI-powered data policies
 
-- AI-powered data policies and scopes 🔒
+- Real-time low latency connections
 
-- Extensions, so you can add your own code and packages to ddeep 🧩
+- Security features like IP whitelists, data policies, smart listeners so one device can't overload the core with connections
 
-- Fast & Scalable by design ☄️
+- Command-line interactive interface to manage your network
 
-- Full customizability and flexibility 🔧
-
-you can use ddeep-core as your full project's back-end, and soon you will be able to handle routing to build API functionalities 🔥
+- `ddeep-core` works perfectly with Gun JS.
 
 ## Installation
 
-We recommend you clone this repository and run `npm install`.
+We recommend you clone this repository and run `npm install` and then `npm start` to start ddeep-core.
 
 Using npm, you can install ddeep-core globally:
 ```bash
@@ -97,17 +95,17 @@ This will give you a complete ready-to-go environment, you can run `npm start` t
 
 ## Getting started
 
-### node & npm
+### node & bytenode
 
-To start your network using npm, just run:
+To start your network using node, just run:
 
 ```bash
 npm start
 ```
 
-or simply using node:
+or using bytenode:
 ```bash
-node ./dist/build.js
+node start-bytenode
 ```
 
 ### docker
@@ -131,6 +129,18 @@ To build your core again (needed after updating configurations, policies, and ex
 npm run build
 ```
 
+or using bytenode:
+```bash
+npm run bytenode-build
+```
+
+or simply do this:
+```bash
+npm run build-start
+```
+
+to build your new configurations and start the server.
+
 Currently, everytime you make a change on your configurations, policies, extensions, or code, you need to build ddeep-core again, thanks to [esbuild](https://www.npmjs.com/package/esbuild) the build will usually be ready in under one second.
 
 in coming versions this won't be the case and you won't need to build the code after every change.
@@ -142,29 +152,53 @@ This project is a beta as it's still in its early stage and there are a lot of m
 ## Configurations
 in the root directory of your project, you'll find a config file called `ddeep.config.js` where all your configurations live, the default file content should look like this:
 
-> You need to build the code using `npm run build` after everytime you update your configurations. this won't be the case in future versions.
+> You need to build the code using `npm run build` after everytime you update your configurations.
+
+in the `ddeep.config.js` you'll find comments explaining what every option does, and this is an example of the all default options:
 
 ```javascript
 module.exports = {
 
-    // Set storage to false to disable persistent data storage
-    "storage": true,
+  "storage": false,
 
-    // Set the port you want to run the peer on
-    "port": 9999,
+  "port": 9999,
 
-    // set logs to false if you don't want to see real-tiem logs in your peer
-    "logs": true,
+  "whitelist": [],
 
-    // Add your huggingFace token to be used with AI smart policies
-    "hf": null,
+  "hf": null,
 
-    // Set a checkpoint interval timer in ms to make a recovery checkpoint of the database
-    // example: setting "checkpoint" to 60000 will make a point of recover every 1 minute
-    // this works onyl with persistent storage enabled
-    "checkpoint": null
+  "checkpoint": null,
+
+  "reset_graph": null,
+
+  "reset_listeners": 6000000
+
 }
 ```
+
+## Interactive interface
+
+When you start `ddeepc-core` it opens a command-line interface where you can manage your network, let's see available commands:
+
+- `list peers`: lists all connected peers
+
+- `list listeners`: lists graph listeners and the peers listening to them
+
+- `peer PEER_ID`: shows a peer info
+
+- `clear`: clears the terminal
+
+- `clear peers`: clears all listening peers
+
+- `clear graph`: clears the cached graph data
+
+- `clear listeners`: clears all the listeners
+
+- `info`: shows the configurations info
+
+- `run CODE`: executes a nodeJS code inside the code's process
+
+- `exec CODE`: executes a command in your operating system (tested with Linux)
 
 ## Policies
 
@@ -179,21 +213,16 @@ You can add policies to the `policies.config.js` file in the root directory of y
 let's first discover a policy schema in Ddeep:
 
 ```javascript
-{
-    name: string,
-    
-    operations: ['get', 'put'],
-
-    graph: Array<string>
-
-    type: "check" || "smart",
-    
-    check: Function // return true or fales
-}
+POLICY(
+  type: 'check'|'smart',
+  operations: ['get', 'put'],
+  graph: string, 
+  callback: Function // return true or false
+)
 ```
 There are two types of policies, check policies and smart policies, so let's discover how every policy works.
 
-the `graph` property accept an array of nodes. if you apply a policy to `["people"]` node it's applied to all nodes under 'people', but if you apply a policy to `["people", "kais"]` the policy will only be applied to the node 'kais' under 'people', and so on.
+the `graph` property accept a string of nodes the policies is applied to. if you apply a policy to `people` it's applied to all nodes under `people`, but if you apply a policy to `people/kais` the policy will only be applied to the node `kais` under `people`, and so on.
 
 ### Check policies
 
@@ -205,35 +234,29 @@ let's see a simple example:
 
 ```javascript
 module.exports = [
-    
-    {
 
-      name: "policy1",
-      operations: ["put"],
-      node: ["people", "kais"],
-      type: "check",
-
-      check (data) {
-        return (data) ? true : false;
-      }
-
+  POLICY(
+    'check', ['put'], 'people/kais',
+    (data) => {
+      return (data.name) ? true : false;
     }
+  )
 
 ]
 ```
 
-this policy will be applied to `put` operations to the node 'kais' inside the node 'people' and it checks if the data we are putting have a 'plan' property or not, if it does, the data operation will be granted and the data will be added otherwise the operation will be cancelled.
+this policy will be applied to `put` operations to the node `kais` under `people` and it checks if the data we are putting have a `name` or not, if it does, the data operation will be granted and the data will be added otherwise the operation will be cancelled.
 
-the `data` argument passed to the check contains the data being putted if the operation is `put`, and the data is being `getted` is the operation is `get`.
+the `data` argument passed to the checking function contains the data being putted if the operation is `put`, and the data is being `getted` if the operation is `get`.
 
-what matters is that the `check()` function has to return `true` or `false`, if returned `true` the opeartion will be processed, and if returned `false` the opeartion will be ignored.
+what matters is that the checking function has to return `true` or `false`, if returned `true` the opeartion will be processed, and if returned `false` the opeartion will be ignored.
 
 for example this is also a valid `check()` policy function:
 
 ```javascript
-check (data) {
-    if (data.plan === "pro") return true;
-    if (data.plan !== "pro") return false;
+(data) => {
+    if (data.plan === "pro") {return true};
+    if (data.plan !== "pro") {return false};
 }
 ```
 
@@ -254,41 +277,40 @@ You can check if a class is more than a certain value or less than a certain val
 ```javascript
 module.exports = [
 
-    {
-        name: "smart policy",
-        operations: ["get", "put"],
-        graph: ["posts"],
-        type: "smart",
+  POLICY(
+    'smart', ['get', 'put'], 'posts',
+    
+    (classes) => {
+      var smart_check = extensions.load('smart_check');
 
-        check: (classes) => {
-            var smartCheck = ddeepExt.load('smart_check');
+      return smart_check(classes, [
+        [ "anger", "<0.5", true ],
+        [ "anger", ">0.5", false ]
+      ]);
 
-            return smartCheck(classes, [
-                [ "anger", "<0.5", true ],
-                [ "anger", ">0.5", false ]
-            ]);
-        };
     }
+
+  )
 
 ]
 ```
 
-the policy above is applied to all nodes under "posts" and it blocks all data that contains angry inputs from being added or read.
+the policy above is applied to all nodes under `posts` and it blocks all data that contains angry inputs from being added or read.
 
 #### `smart_check` extension
 
 with smart policies you need to use `smart_check` extension to check the classes and return `true` or `false`.
 
-the extension can be loaded using `ddeepExt.load` and it's imported to your policies by default, this is how `smart_check` is used:
+the extension can be loaded using `extensions.load` and it's imported to your policies by default, this is how `smart_check` is used:
 
 ```javascript
-var smartCheck = ddeepExt.load('smart_check');
+var smartCheck = extensions.load('smart_check');
 return smartCheck(classes, [
-    [class:string, condition:string, return:true||false]
+    [class: string, condition: string, return: true|false]
 ])
 ```
 
-- **Classes**: passed to policy's `check()` if the policy type is set to `smart`.
+- **Classes**: passed to the policy's function if the policy type is set to `smart` instead of the data in `check policies`.
 
 - **Class**: have to be a valid class name.
 
@@ -337,15 +359,21 @@ This is just a very simple extension that returns the keys in a data object. thi
 
 ### Use your extensions
 
-Now you can use your extension in your policies or any other file using `ddeepExt.load(extension_name)`. example:
+Now you can use your extension in your policies or any other file using `extensions.load(extension_name)`. example:
 ```javascript
-var get_object_keys = ddeepExt.load('object-keys');
+var get_object_keys = extensions.load('object-keys');
 ```
 
-`ddeepExt` is imported by default to your policies but if you want to use your extension in other files, you can require it:
+`extensions` is imported by default to your policies but if you want to use your extension in other files, you can require it:
 ```javascript
-var ddeepExt = require('./ext/require');
+var extensions = require('./lib/ext/require');
 ```
+
+## Whitelisted IPs
+
+in the `ddeep.config.js` you can add a list of IP adresses (of peers, servers, or websites) that are able to connect to your core or server.
+
+this can help you prevent cross-site connections to your core, if the list in empty this option will be ignored.
 
 ## Restore checkpoints
 If you are using persistent storage, you can setup a checkpoint in the `ddeep.config.js` so the system will create a restore checkpoint based on the options you give it. (more explained in the `ddeep.config.js` file itself).
@@ -410,6 +438,8 @@ We want to give our thanks to all the wonderful people helping us to decentraliz
 - [esbuild](https://esbuild.github.io/) for building the fastest bundler in the world.
 
 - [fastify](https://fastify.dev/) for building a great fast web framework for nodeJS.
+
+- [bytenode](https://github.com/bytenode/bytenode) for building a great bytecode compiler for NodeJS.
 
 ## The idea of ddeep-core
 

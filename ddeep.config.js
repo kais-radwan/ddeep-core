@@ -1,16 +1,16 @@
 module.exports = {
 
     /* Set storage to true to enable persistent data storage */
-    "storage": true,
+    "storage": false,
 
     /* Set the port you want to run the peer on */
     "port": 9999,
 
     /*
         Set a list of IP adresses (of peers, servers, or websites) that are able to connect to this core
-        this could help you prevent cross-site connections to your core
+        this can help prevent cross-site connections to your core
     */
-    whitelist: [],
+    "whitelist": [],
 
     /* Add your huggingFace token to be used with AI smart policies */
     "hf": null,

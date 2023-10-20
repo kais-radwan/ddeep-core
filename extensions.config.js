@@ -1,15 +1,7 @@
-var extension;
-
 // Add your own extensions here and use them in your code and policies using
 module.exports = [
 
     // Add your extensions here
-    {
-        name: 'ext1',
-        callback (...args) {
-            console.log(args);
-        }
-    }
 
 ];
 
