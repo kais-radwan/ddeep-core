@@ -13,19 +13,19 @@ type msg = {
     },
 }
 
-var get = function (peer:any, msg:msg, graph:any, storage:true|false) {
+var get = function (peer: any, msg: msg, graph: any, storage: true|false) {
 
     var soul:string = msg?.get["#"];
     var prop = msg?.get["."];
-    if (prop) soul = `${soul}+.${prop}`;
+    if (prop) soul = `${soul}.${prop}`;
 
     try {
 
         var ack = RFG(msg.get, graph);
 
         if (ack) {
-            SCANNER(soul, "get", ack, () => { 
-                if (peer) listen(soul, peer);
+            SCANNER(soul, "get", ack, () => {
+                listen(soul, peer);
                 PE.emit('get', peer, {
                     '#': dup.track(Dup.random()),
                     '@': msg['#'],
@@ -38,7 +38,7 @@ var get = function (peer:any, msg:msg, graph:any, storage:true|false) {
         if (!ack && storage){
             store.get(msg.get, (err:any, ack:any) => {
                 SCANNER(soul, "get", ack, () => {
-                    if (peer) listen(soul, peer);
+                    listen(soul, peer);
                     PE.emit('get', peer, {
                         '#': dup.track(Dup.random()),
                         '@': msg['#'],

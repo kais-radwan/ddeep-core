@@ -12,7 +12,7 @@ PE.on('get', (peer, data) => {
 
 });
 
-PE.on('put', (graph, data) => {
+PE.on('put', function (graph, data) {
 
     var peers = [];
     var listening_peers = [];
@@ -34,7 +34,9 @@ PE.on('put', (graph, data) => {
             dynamic_graph = `${dynamic_graph}/${node}`;
         }
         if (process.listeners[dynamic_graph]) {
-            listening_peers.push(...process.listeners[dynamic_graph]);
+            if (listening_peers.indexOf(process.listeners[dynamic_graph])) {
+                listening_peers.push(...process.listeners[dynamic_graph]);
+            }
         }
     });
 
@@ -46,10 +48,9 @@ PE.on('put', (graph, data) => {
     }
 
     listening_peers.forEach(peer => {
-        if (peers.indexOf(peer) === -1) {
-            peers.push(peer);
+        try {
             process.PEERS[peer].socket.send(JSON.stringify(data));
-        }
+        } catch (err) {};
     })
 
 });

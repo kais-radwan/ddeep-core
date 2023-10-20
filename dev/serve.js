@@ -14,6 +14,7 @@ var DUP = require('./dup'), dup = DUP(); // check and track data
 
 // configurations
 var opt = require('../ddeep.config'); // ddeep configurations
+const { listeners } = require('process');
 
 // create command interface inputs
 var interface_prompt = readline.createInterface({
@@ -101,7 +102,7 @@ fastify.register(async function (fastify_socket) {
 
         // push the new peer
         peer.listeners = [];
-        var _id = 'ddeep:' + (Date.now() * Math.random()).toString(36);
+        var _id = 'peer:' + (Date.now() * Math.random()).toString(36);
         peer._id = _id;
         process.PEERS[_id] = peer;
 
@@ -127,22 +128,17 @@ fastify.register(async function (fastify_socket) {
 
         });
 
-        // pop peer when connection is closed
+        // delete peer when connection is closed
         peer.socket.on('close', () => {
 
             try {
                 delete process.PEERS[peer._id];
-                Object.keys(process.listeners).forEach(key => {
-                    var listener = process.listeners[key];
-                    if (listener.indexOf(peer._id) > -1) {
-                        listener.forEach(p => {
-                            if (p === peer._id) {
-                                process.listeners[key].pop(listener.indexOf(p));
-                                listener.pop(listener.indexOf(p));
-                            }
-                        })
-                    }
-                });
+                peer.listeners.forEach(listener => {
+                    console.log(listener);
+                    delete process.listeners[listener][process.listeners[listener].indexOf(peer._id)];
+                    process.listeners[listener] = process.listeners.pop(process.listeners[listener].indexOf(peer._id));
+                })
+
             } catch (err) {} // no need to do anything
 
         })

@@ -9,13 +9,18 @@ type putMsg = {
     'put': any
 }
 
-var put = function (msg:putMsg, graph:any, storage:true|false) {
+var put = function (msg: putMsg, graph: any, storage: true|false) {
 
     try {
 
-        var soul:string = msg.put[Object.keys(msg.put)[0]]._["#"];
-        var prop = msg.put[Object.keys(msg.put)[0]]._["."];
-        if (prop) soul = `${soul}+.${prop}`;
+        var soul: any;
+        // var prop = msg.put[Object.keys(msg.put)[0]]._["."];
+        // if (prop) soul = `${soul}.${prop}`;
+
+        for (var key in msg.put) {
+            var node = msg.put[key]._['#'];
+            soul = node;
+        }
 
         SCANNER(soul, "put", msg.put, () => {
 

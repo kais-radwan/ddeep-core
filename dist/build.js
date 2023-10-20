@@ -934,7 +934,7 @@ var require_emitter = __commonJS({
       }
       ;
     });
-    PE.on("put", (graph2, data) => {
+    PE.on("put", function(graph2, data) {
       var peers = [];
       var listening_peers = [];
       var nodes = [];
@@ -953,7 +953,9 @@ var require_emitter = __commonJS({
           dynamic_graph = `${dynamic_graph}/${node}`;
         }
         if (process.listeners[dynamic_graph]) {
-          listening_peers.push(...process.listeners[dynamic_graph]);
+          if (listening_peers.indexOf(process.listeners[dynamic_graph])) {
+            listening_peers.push(...process.listeners[dynamic_graph]);
+          }
         }
       });
       if (props) {
@@ -963,10 +965,11 @@ var require_emitter = __commonJS({
         }
       }
       listening_peers.forEach((peer) => {
-        if (peers.indexOf(peer) === -1) {
-          peers.push(peer);
+        try {
           process.PEERS[peer].socket.send(JSON.stringify(data));
+        } catch (err) {
         }
+        ;
       });
     });
     module2.exports = PE;
@@ -3211,9 +3214,7 @@ var require_ddeep_config = __commonJS({
           Set a list of IP adresses (of peers, servers, or websites) that are able to connect to this core
           this could help you prevent cross-site connections to your core
       */
-      whitelist: [
-        "127.0.0.1"
-      ],
+      whitelist: [],
       /* Add your huggingFace token to be used with AI smart policies */
       "hf": null,
       /*
@@ -3469,31 +3470,20 @@ var require_listen = __commonJS({
   "dev/peers/listen.js"(exports, module2) {
     "use strict";
     function listen(graph2, peer) {
-      if (peer && graph2) {
-        var nodes = [];
-        var props;
-        if (graph2.includes(".")) {
-          nodes = graph2.split(".")[0];
-          props = graph2.split(".")[1];
-        } else {
-          nodes = graph2;
+      if (!peer || !graph2) {
+        return;
+      }
+      ;
+      if (!process.PEERS[peer]) {
+        return;
+      }
+      ;
+      if (process.listeners[graph2]) {
+        if (process.listeners[graph2].indexOf(peer) === -1) {
+          process.listeners[graph2].push(peer);
         }
-        if (process.listeners[nodes]) {
-          if (process.listeners[nodes].indexOf(peer) === -1) {
-            process.listeners[nodes].push(peer);
-          }
-        } else if (!process.listeners[nodes]) {
-          process.listeners[nodes] = [peer];
-        }
-        if (props) {
-          if (process.listeners[graph2]) {
-            if (process.listeners[graph2].indexOf(peer) === -1) {
-              process.listeners[nodes].push(peer);
-            }
-          } else if (!process.listeners[graph2]) {
-            process.listeners[graph2] = [peer];
-          }
-        }
+      } else if (!process.listeners[graph2]) {
+        process.listeners[graph2] = [peer];
       }
     }
     module2.exports = listen;
@@ -3515,13 +3505,12 @@ var require_get = __commonJS({
       var soul = msg?.get["#"];
       var prop = msg?.get["."];
       if (prop)
-        soul = `${soul}+.${prop}`;
+        soul = `${soul}.${prop}`;
       try {
         var ack = RFG(msg.get, graph2);
         if (ack) {
           SCANNER(soul, "get", ack, () => {
-            if (peer)
-              listen(soul, peer);
+            listen(soul, peer);
             PE.emit("get", peer, {
               "#": dup2.track(Dup.random()),
               "@": msg["#"],
@@ -3533,8 +3522,7 @@ var require_get = __commonJS({
         if (!ack && storage2) {
           store.get(msg.get, (err, ack2) => {
             SCANNER(soul, "get", ack2, () => {
-              if (peer)
-                listen(soul, peer);
+              listen(soul, peer);
               PE.emit("get", peer, {
                 "#": dup2.track(Dup.random()),
                 "@": msg["#"],
@@ -3621,10 +3609,11 @@ var require_put = __commonJS({
     var SCANNER = require_scanner2();
     var put = function(msg, graph2, storage2) {
       try {
-        var soul = msg.put[Object.keys(msg.put)[0]]._["#"];
-        var prop = msg.put[Object.keys(msg.put)[0]]._["."];
-        if (prop)
-          soul = `${soul}+.${prop}`;
+        var soul;
+        for (var key in msg.put) {
+          var node = msg.put[key]._["#"];
+          soul = node;
+        }
         SCANNER(soul, "put", msg.put, () => {
           var change = HAM.mix(msg.put, graph2);
           if (storage2) {
@@ -40714,6 +40703,7 @@ var recovery = require_checkpoint();
 var DUP = require_dup();
 var dup = DUP();
 var opt = require_ddeep_config();
+var { listeners } = require("process");
 var interface_prompt = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -40768,7 +40758,7 @@ fastify.register(async function(fastify_socket) {
       peer.socket.close();
     }
     peer.listeners = [];
-    var _id = "ddeep:" + (Date.now() * Math.random()).toString(36);
+    var _id = "peer:" + (Date.now() * Math.random()).toString(36);
     peer._id = _id;
     process.PEERS[_id] = peer;
     peer.socket.on("message", (data) => {
@@ -40787,16 +40777,10 @@ fastify.register(async function(fastify_socket) {
     peer.socket.on("close", () => {
       try {
         delete process.PEERS[peer._id];
-        Object.keys(process.listeners).forEach((key) => {
-          var listener = process.listeners[key];
-          if (listener.indexOf(peer._id) > -1) {
-            listener.forEach((p) => {
-              if (p === peer._id) {
-                process.listeners[key].pop(listener.indexOf(p));
-                listener.pop(listener.indexOf(p));
-              }
-            });
-          }
+        peer.listeners.forEach((listener) => {
+          console.log(listener);
+          delete process.listeners[listener][process.listeners[listener].indexOf(peer._id)];
+          process.listeners[listener] = process.listeners.pop(process.listeners[listener].indexOf(peer._id));
         });
       } catch (err) {
       }
