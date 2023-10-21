@@ -40840,7 +40840,7 @@ var dup = DUP();
 var opt = require_ddeep_config();
 var { listeners } = require("process");
 var graph = {};
-var port = opt.port || 9999;
+var port = opt.port || process.env.OPENSHIFT_NODEJS_PORT || process.env.VCAP_APP_PORT || process.env.PORT || 9999;
 var storage = opt.storage || false;
 var checkpoint = opt.checkpoint || false;
 var graph_timer = opt.reset_graph || 0;
@@ -40863,9 +40863,51 @@ if (Number(graph_timer) > 0) {
 if (Number(listeners_timer) > 0) {
   clear_listeners(listeners_timer);
 }
-fastify.register(async function(fastify_socket) {
+fastify.get("/", (req, reply) => {
+  reply.send(`open socket connections to /ddeep`);
+});
+fastify.get("/ddeep", { websocket: true }, (peer, req) => {
+  var peer_ip = req.socket.remoteAddress;
+  if (whitelist.length > 0 && whitelist.indexOf(peer_ip) === -1) {
+    peer.socket.send("ACCESS DENIED: you are not allowed to connect to this core...");
+    peer.socket.close();
+  }
+  peer.listeners = [];
+  var _id = "peer:" + (Date.now() * Math.random()).toString(36);
+  peer._id = _id;
+  process.PEERS[_id] = peer;
+  peer.socket.on("message", (data) => {
+    var msg = JSON.parse(data);
+    if (dup.check(msg["#"])) {
+      return;
+    }
+    ;
+    dup.track(msg["#"]);
+    if (msg.put) {
+      PUT(msg, graph, process.storage);
+    } else if (msg.get) {
+      GET(peer._id, msg, graph, process.storage);
+    }
+  });
+  peer.socket.on("close", () => {
+    try {
+      delete process.PEERS[peer._id];
+      peer.listeners.forEach((listener) => {
+        console.log(listener);
+        delete process.listeners[listener][process.listeners[listener].indexOf(peer._id)];
+        process.listeners[listener] = process.listeners.pop(process.listeners[listener].indexOf(peer._id));
+      });
+    } catch (err) {
+    }
+  });
+});
+fastify.listen({ port }, (err) => {
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  }
   try {
-    fs.readFile("./lib/entry/ascii.txt", {}, (error, content) => {
+    fs.readFile("./lib/entry/ascii.txt", {}, function(error, content) {
       console.clear();
       if (error) {
         return;
@@ -40881,53 +40923,9 @@ fastify.register(async function(fastify_socket) {
       });
       receive_command();
     });
-  } catch (err) {
+  } catch (err2) {
   }
   ;
-  fastify_socket.get("/", (req, reply) => {
-    reply.send(`open socket connections to /ddeep`);
-  });
-  fastify_socket.get("/ddeep", { websocket: true }, (peer, req) => {
-    var peer_ip = req.socket.remoteAddress;
-    if (whitelist.length > 0 && whitelist.indexOf(peer_ip) === -1) {
-      peer.socket.send("ACCESS DENIED: you are not allowed to connect to this core...");
-      peer.socket.close();
-    }
-    peer.listeners = [];
-    var _id = "peer:" + (Date.now() * Math.random()).toString(36);
-    peer._id = _id;
-    process.PEERS[_id] = peer;
-    peer.socket.on("message", (data) => {
-      var msg = JSON.parse(data);
-      if (dup.check(msg["#"])) {
-        return;
-      }
-      ;
-      dup.track(msg["#"]);
-      if (msg.put) {
-        PUT(msg, graph, process.storage);
-      } else if (msg.get) {
-        GET(peer._id, msg, graph, process.storage);
-      }
-    });
-    peer.socket.on("close", () => {
-      try {
-        delete process.PEERS[peer._id];
-        peer.listeners.forEach((listener) => {
-          console.log(listener);
-          delete process.listeners[listener][process.listeners[listener].indexOf(peer._id)];
-          process.listeners[listener] = process.listeners.pop(process.listeners[listener].indexOf(peer._id));
-        });
-      } catch (err) {
-      }
-    });
-  });
-});
-fastify.listen({ port }, (err) => {
-  if (err) {
-    console.error(err);
-    process.exit(1);
-  }
 });
 function receive_command() {
   if (!interface_prompt) {
@@ -40944,7 +40942,7 @@ function receive_command() {
 function clear_graph(timer) {
   if (timer < 1e3) {
     console.log("\nCancelling clear_graph as it is less than 1000ms and would cause issues\n".red);
-    return;
+    return void 0;
   }
   setTimeout(() => {
     graph = {};
@@ -40954,7 +40952,7 @@ function clear_graph(timer) {
 function clear_listeners(timer) {
   if (timer < 1e3) {
     console.log("\nCancelling clear_listeners as it is less than 1000ms and would cause issues\n".red);
-    return;
+    return void 0;
   }
   setTimeout(() => {
     process.listeners = {};
