@@ -5,14 +5,11 @@
   function Radix () {
     const radix = function (key, val, t) {
       radix.unit = 0;
-      // (!t && u !== val) ? radix.last = ('' + key < radix.last) ? radix.last : '' + key && delete (radix.$ || {})[_] : null;
       if (!t && u !== val) {
-        if ('' + key < radix.last) {
-          radix.last = radix.last;
-        } else {
+        if ('' + key > radix.last) {
           radix.last = '' + key;
         }
-        delete (radix.$ || {})[_]
+        delete (radix?.$ || {})[_]
       }
       t = t || radix.$ || (radix.$ = {})
       if (!key && Object.keys(t).length) { return t }
