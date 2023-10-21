@@ -3189,7 +3189,7 @@ var require_ddeep_config = __commonJS({
       /* Set storage to true to enable persistent data storage */
       "storage": false,
       /* Set the port you want to run the peer on */
-      "port": 8080,
+      "port": 8765,
       /*
           Set a list of IP adresses (of peers, servers, or websites) that are able to connect to this core
           this can help prevent cross-site connections to your core
@@ -40840,7 +40840,7 @@ var dup = DUP();
 var opt = require_ddeep_config();
 var { listeners } = require("process");
 var graph = {};
-var port = opt.port || 9999;
+var port = opt.port || process.env.OPENSHIFT_NODEJS_PORT || process.env.VCAP_APP_PORT || process.env.PORT || 8888;
 var storage = opt.storage || false;
 var checkpoint = opt.checkpoint || false;
 var graph_timer = opt.reset_graph || 0;
@@ -40864,26 +40864,6 @@ if (Number(listeners_timer) > 0) {
   clear_listeners(listeners_timer);
 }
 fastify.register(async function(fastify_socket) {
-  try {
-    fs.readFile("./lib/entry/ascii.txt", {}, (error, content) => {
-      console.clear();
-      if (error) {
-        return;
-      } else if (content) {
-        content = content.toString();
-        console.log("\n", `${content}`.blue, "\n");
-      }
-      console.log("port -> ".yellow, `${port}`.gray);
-      console.log("storage -> ".yellow, `${storage}`.gray, "\n");
-      interface_prompt = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-      });
-      receive_command();
-    });
-  } catch (err) {
-  }
-  ;
   fastify_socket.get("/", (req, reply) => {
     reply.send(`open socket connections to /ddeep`);
   });
@@ -40928,6 +40908,26 @@ fastify.listen({ port }, (err) => {
     console.error(err);
     process.exit(1);
   }
+  try {
+    fs.readFile("./lib/entry/ascii.txt", {}, function(error, content) {
+      console.clear();
+      if (error) {
+        return;
+      } else if (content) {
+        content = content.toString();
+        console.log("\n", `${content}`.blue, "\n");
+      }
+      console.log("port -> ".yellow, `${port}`.gray);
+      console.log("storage -> ".yellow, `${storage}`.gray, "\n");
+      interface_prompt = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+      });
+      receive_command();
+    });
+  } catch (err2) {
+  }
+  ;
 });
 function receive_command() {
   if (!interface_prompt) {
@@ -40944,7 +40944,7 @@ function receive_command() {
 function clear_graph(timer) {
   if (timer < 1e3) {
     console.log("\nCancelling clear_graph as it is less than 1000ms and would cause issues\n".red);
-    return;
+    return void 0;
   }
   setTimeout(() => {
     graph = {};
@@ -40954,7 +40954,7 @@ function clear_graph(timer) {
 function clear_listeners(timer) {
   if (timer < 1e3) {
     console.log("\nCancelling clear_listeners as it is less than 1000ms and would cause issues\n".red);
-    return;
+    return void 0;
   }
   setTimeout(() => {
     process.listeners = {};

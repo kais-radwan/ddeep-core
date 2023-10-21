@@ -4,7 +4,7 @@ module.exports = {
     "storage": false,
 
     /* Set the port you want to run the peer on */
-    "port": 8080,
+    "port": 8765,
 
     /*
         Set a list of IP adresses (of peers, servers, or websites) that are able to connect to this core

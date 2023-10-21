@@ -18,7 +18,7 @@ const { listeners } = require('process');
 
 // Setup opt
 let graph = {};
-var port = opt.port || 9999;
+var port = opt.port || process.env.OPENSHIFT_NODEJS_PORT || process.env.VCAP_APP_PORT || process.env.PORT || 8888;
 var storage = opt.storage || false;
 var checkpoint = opt.checkpoint || false;
 var graph_timer = opt.reset_graph || 0;
@@ -54,36 +54,6 @@ if (Number(listeners_timer) > 0) {
 
 // register fastify server
 fastify.register(async function (fastify_socket) {
-
-    try {
-        // read command interface entry and options
-        fs.readFile('./lib/entry/ascii.txt', {}, (error, content) => {
-
-            console.clear();
-
-            if (error) {
-                return;
-            } else if (content) {
-                content = content.toString();
-                console.log("\n", `${content}`.blue, "\n");
-            }
-
-            console.log("port -> ".yellow, `${port}`.gray);
-            console.log("storage -> ".yellow, `${storage}`.gray, "\n");
-            
-            // create command interface inputs
-            interface_prompt = readline.createInterface({
-                input: process.stdin,
-                output: process.stdout,
-            })
-
-            receive_command();
-
-        })
-    } catch (err) {
-        // I'm afraid some cloud hosting services would cause some issues.
-        // but no need to do anything.
-    };
 
     // handle simple http serving
     fastify_socket.get('/', (req, reply) => {
@@ -151,10 +121,42 @@ fastify.register(async function (fastify_socket) {
 
 // listen to config port using fastify
 fastify.listen({ port }, err => {
+
     if (err) {
         console.error(err);
         process.exit(1);
     }
+
+    try {
+        // read command interface entry and options
+        fs.readFile('./lib/entry/ascii.txt', {}, function (error, content) {
+
+            console.clear();
+
+            if (error) {
+                return;
+            } else if (content) {
+                content = content.toString();
+                console.log("\n", `${content}`.blue, "\n");
+            }
+
+            console.log("port -> ".yellow, `${port}`.gray);
+            console.log("storage -> ".yellow, `${storage}`.gray, "\n");
+            
+            // create command interface inputs
+            interface_prompt = readline.createInterface({
+                input: process.stdin,
+                output: process.stdout,
+            })
+
+            receive_command();
+
+        })
+    } catch (err) {
+        // I'm afraid some cloud hosting services would cause some issues.
+        // but no need to do anything.
+    };
+
 });
 
 function receive_command () {
@@ -179,7 +181,7 @@ function receive_command () {
 function clear_graph (timer) {
     if (timer < 1000) {
         console.log('\nCancelling clear_graph as it is less than 1000ms and would cause issues\n'.red);
-        return;
+        return undefined;
     }
     setTimeout( () => {
         graph = {};
@@ -191,7 +193,7 @@ function clear_graph (timer) {
 function clear_listeners (timer) {
     if (timer < 1000) {
         console.log('\nCancelling clear_listeners as it is less than 1000ms and would cause issues\n'.red);
-        return;
+        return undefined;
     }
     setTimeout( () => {
         process.listeners = {};
