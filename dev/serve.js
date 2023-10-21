@@ -1,6 +1,7 @@
 // just basics
 require('colors');
 var fs = require('fs');
+var crypto = require('crypto');
 
 // commands interface
 var readline = require('readline'); // process inputs
@@ -73,7 +74,7 @@ fastify.register(async (fastify_server) => {
 
         // push the new peer
         peer.listeners = [];
-        var _id = 'peer:' + (Date.now() * Math.random()).toString(36);
+        var _id = 'peer:' + crypto.randomBytes(10).toString('hex');
         peer._id = _id;
         process.PEERS[_id] = peer;
 

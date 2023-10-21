@@ -1,6 +1,9 @@
 /*
     This file was modified. for license see https://github.com/amark/gun/blob/master/LICENSE.md
 */
+
+let crypto = require('crypto');
+
 ; (function () {
   function Radisk (opt) {
     opt = opt || {}
@@ -322,7 +325,7 @@
             // assume in memory for now, since both write/read already call r.find which will init it.
             r.find(key, function (file) {
               if ((file || (file = opt.code.from)) === info.file) { return }
-              const id = ('' + Math.random()).slice(-3)
+              const id = crypto.randomBytes(32).toString('hex').slice(-3);
               puff(function () {
                 r.save(key, val, function ack (err, ok) {
                   if (err) { r.save(key, val, ack); return } // ad infinitum???

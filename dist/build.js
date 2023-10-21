@@ -879,18 +879,6 @@ var require_processor = __commonJS({
         process.checkpoint = Number(args[1]);
       }
     });
-    commander.on("run", (args) => {
-      delete args[0];
-      var ex = "";
-      if (args.length > 0) {
-        args.forEach((arg) => {
-          if (arg)
-            ex = ex + ` ${arg}`;
-        });
-        var func = new Function(ex);
-        func();
-      }
-    });
     module2.exports = commander;
   }
 });
@@ -962,12 +950,10 @@ var require_radix = __commonJS({
         const radix = function(key, val, t) {
           radix.unit = 0;
           if (!t && u !== val) {
-            if ("" + key < radix.last) {
-              radix.last = radix.last;
-            } else {
+            if ("" + key > radix.last) {
               radix.last = "" + key;
             }
-            delete (radix.$ || {})[_];
+            delete (radix?.$ || {})[_];
           }
           t = t || radix.$ || (radix.$ = {});
           if (!key && Object.keys(t).length) {
@@ -1467,6 +1453,7 @@ var require_radmigtmp = __commonJS({
 var require_radisk = __commonJS({
   "dev/storage/radisk.js"(exports, module2) {
     "use strict";
+    var crypto2 = require("crypto");
     (function() {
       function Radisk(opt2) {
         opt2 = opt2 || {};
@@ -1887,7 +1874,7 @@ var require_radisk = __commonJS({
                   if ((file || (file = opt2.code.from)) === info.file) {
                     return;
                   }
-                  const id = ("" + Math.random()).slice(-3);
+                  const id = crypto2.randomBytes(32).toString("hex").slice(-3);
                   puff(function() {
                     r.save(key2, val, function ack(err2, ok) {
                       if (err2) {
@@ -2260,13 +2247,14 @@ var require_store = __commonJS({
     var Radix = require_radix();
     var Radisk = require_radisk();
     var fs2 = require("fs");
+    var crypto2 = require("crypto");
     function Store(opt2) {
       opt2 = opt2 || {};
       opt2.file = "ddeep_data";
       const store = function Store2() {
       };
       store.put = function(file, data, cb) {
-        const random = Math.random().toString(36).slice(-3);
+        const random = crypto2.randomBytes(32).toString("hex").slice(-3);
         fs2.writeFile(opt2.file + "-" + random + ".tmp", data, function(err, ok) {
           if (err) {
             return cb(err);
@@ -2368,6 +2356,7 @@ var require_store = __commonJS({
 var require_dup = __commonJS({
   "dev/dup.js"(exports, module2) {
     "use strict";
+    var crypto2 = require("crypto");
     function Dup() {
       const dup2 = { s: {} };
       const opt2 = { max: 1e3, age: 1e3 * 9 };
@@ -2409,7 +2398,7 @@ var require_dup = __commonJS({
       return dup2;
     }
     Dup.random = function() {
-      return Math.random().toString(36).slice(-6);
+      return Date.now() * crypto2.randomInt(0, 1e4) - crypto2.randomInt(0, 199);
     };
     try {
       module2.exports = Dup;
@@ -4729,115 +4718,6 @@ var require_browser = __commonJS({
   }
 });
 
-// node_modules/has-flag/index.js
-var require_has_flag2 = __commonJS({
-  "node_modules/has-flag/index.js"(exports, module2) {
-    "use strict";
-    module2.exports = (flag, argv) => {
-      argv = argv || process.argv;
-      const prefix = flag.startsWith("-") ? "" : flag.length === 1 ? "-" : "--";
-      const pos = argv.indexOf(prefix + flag);
-      const terminatorPos = argv.indexOf("--");
-      return pos !== -1 && (terminatorPos === -1 ? true : pos < terminatorPos);
-    };
-  }
-});
-
-// node_modules/supports-color/index.js
-var require_supports_color = __commonJS({
-  "node_modules/supports-color/index.js"(exports, module2) {
-    "use strict";
-    var os = require("os");
-    var hasFlag = require_has_flag2();
-    var env = process.env;
-    var forceColor;
-    if (hasFlag("no-color") || hasFlag("no-colors") || hasFlag("color=false")) {
-      forceColor = false;
-    } else if (hasFlag("color") || hasFlag("colors") || hasFlag("color=true") || hasFlag("color=always")) {
-      forceColor = true;
-    }
-    if ("FORCE_COLOR" in env) {
-      forceColor = env.FORCE_COLOR.length === 0 || parseInt(env.FORCE_COLOR, 10) !== 0;
-    }
-    function translateLevel(level) {
-      if (level === 0) {
-        return false;
-      }
-      return {
-        level,
-        hasBasic: true,
-        has256: level >= 2,
-        has16m: level >= 3
-      };
-    }
-    function supportsColor(stream) {
-      if (forceColor === false) {
-        return 0;
-      }
-      if (hasFlag("color=16m") || hasFlag("color=full") || hasFlag("color=truecolor")) {
-        return 3;
-      }
-      if (hasFlag("color=256")) {
-        return 2;
-      }
-      if (stream && !stream.isTTY && forceColor !== true) {
-        return 0;
-      }
-      const min = forceColor ? 1 : 0;
-      if (process.platform === "win32") {
-        const osRelease = os.release().split(".");
-        if (Number(process.versions.node.split(".")[0]) >= 8 && Number(osRelease[0]) >= 10 && Number(osRelease[2]) >= 10586) {
-          return Number(osRelease[2]) >= 14931 ? 3 : 2;
-        }
-        return 1;
-      }
-      if ("CI" in env) {
-        if (["TRAVIS", "CIRCLECI", "APPVEYOR", "GITLAB_CI"].some((sign) => sign in env) || env.CI_NAME === "codeship") {
-          return 1;
-        }
-        return min;
-      }
-      if ("TEAMCITY_VERSION" in env) {
-        return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
-      }
-      if (env.COLORTERM === "truecolor") {
-        return 3;
-      }
-      if ("TERM_PROGRAM" in env) {
-        const version = parseInt((env.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
-        switch (env.TERM_PROGRAM) {
-          case "iTerm.app":
-            return version >= 3 ? 3 : 2;
-          case "Apple_Terminal":
-            return 2;
-        }
-      }
-      if (/-256(color)?$/i.test(env.TERM)) {
-        return 2;
-      }
-      if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
-        return 1;
-      }
-      if ("COLORTERM" in env) {
-        return 1;
-      }
-      if (env.TERM === "dumb") {
-        return min;
-      }
-      return min;
-    }
-    function getSupportLevel(stream) {
-      const level = supportsColor(stream);
-      return translateLevel(level);
-    }
-    module2.exports = {
-      supportsColor: getSupportLevel,
-      stdout: getSupportLevel(process.stdout),
-      stderr: getSupportLevel(process.stderr)
-    };
-  }
-});
-
 // node_modules/debug/src/node.js
 var require_node = __commonJS({
   "node_modules/debug/src/node.js"(exports, module2) {
@@ -4856,7 +4736,7 @@ var require_node = __commonJS({
     );
     exports.colors = [6, 2, 3, 4, 5, 1];
     try {
-      const supportsColor = require_supports_color();
+      const supportsColor = require("supports-color");
       if (supportsColor && (supportsColor.stderr || supportsColor).level >= 2) {
         exports.colors = [
           20,
@@ -40839,6 +40719,7 @@ var require_websocket2 = __commonJS({
 // dev/serve.js
 require_lib();
 var fs = require("fs");
+var crypto = require("crypto");
 var readline = require("readline");
 var CP = require_processor();
 var GET = require_get();
@@ -40883,7 +40764,7 @@ fastify.register(async (fastify_server) => {
       peer.socket.close();
     }
     peer.listeners = [];
-    var _id = "peer:" + (Date.now() * Math.random()).toString(36);
+    var _id = "peer:" + crypto.randomBytes(10).toString("hex");
     peer._id = _id;
     process.PEERS[_id] = peer;
     peer.socket.on("message", (data) => {

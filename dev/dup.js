@@ -1,6 +1,9 @@
 /*
     This file was modified, for license see https://github.com/amark/gun/blob/master/LICENSE.md
 */
+
+let crypto = require('crypto');
+
 function Dup() {
   const dup = { s: {} }; const opt = { max: 1000, age: 1000 * 9 };
   let cache = {};
@@ -51,7 +54,7 @@ function Dup() {
   return dup;
 }
 
-Dup.random = function() { return Math.random().toString(36).slice(-6) };
+Dup.random = function() { return (Date.now() * crypto.randomInt(0, 10000)) - crypto.randomInt(0, 199) };
 
 try {
   module.exports = Dup;
