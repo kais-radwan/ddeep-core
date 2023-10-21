@@ -7,7 +7,7 @@
 
 <div align="center">
 
-![Static Badge](https://img.shields.io/badge/beta_release-current?style=flat-square&color=slateblue) 
+![Static Badge](https://img.shields.io/badge/alpha_release-current?style=flat-square&color=slateblue) 
 ![NPM Downloads](https://img.shields.io/npm/dm/ddeep-core?style=flat-square) 
 ![NPM License](https://img.shields.io/npm/l/ddeep-core?style=flat-square) 
 ![GitHub issues](https://img.shields.io/github/issues/kais-radwan/ddeep-core?style=flat-square) 
@@ -20,9 +20,11 @@
 
 </div>
 
-> This is a beta version !
+> This is an alpha version !
 
-Decentralized real-time peer-to-peer data server, used to save and sync decentralized graph data across connected peers, with features like:
+<img src="https://github.com/kais-radwan/ddeep-core/blob/development/dev/assets/core_terminal.png?raw=true" style="border-radius: 10px;" />
+
+Decentralized real-time peer-to-peer data core, used to save and sync decentralized graph data across connected peers, with features like:
 
 - Persistent data storage with recovery checkpoints
 
@@ -58,7 +60,7 @@ This will give you a complete ready-to-go environment, you can run `npm start` t
   - [node \& npm](#node--npm)
   - [docker](#docker)
   - [build](#build)
-  - [Beta](#beta)
+  - [Alpha](#alpha)
 - [Configurations](#configurations)
 - [Policies](#policies)
   - [Add policies](#add-policies)
@@ -145,9 +147,9 @@ Currently, everytime you make a change on your configurations, policies, extensi
 
 in coming versions this won't be the case and you won't need to build the code after every change.
 
-### Beta
+### Alpha
 
-This project is a beta as it's still in its early stage and there are a lot of more amazing ideas coming to it, but anyway for now we don't recommend using it in production.
+This project is still in `alpha testing` and in its early stages, so we are testing possible issues and bugs, if you face any issue please contact us or report it on Github.
 
 ## Configurations
 in the root directory of your project, you'll find a config file called `ddeep.config.js` where all your configurations live, the default file content should look like this:
