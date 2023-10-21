@@ -18,7 +18,7 @@ function _scanPolicies (graph:string, operation:string, data:any, cb:Function) {
 
     // get the scoped set of policies for the current operation type
     var scoped_policies = policies[operation];
-    if (!scoped_policies) { return };
+    if (!scoped_policies) { return undefined };
 
     var nodes:Array<string> = [];
     var props:any;

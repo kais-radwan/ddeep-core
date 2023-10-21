@@ -17,7 +17,9 @@ var get = function (peer: any, msg: msg, graph: any, storage: true|false) {
 
     var soul:string = msg?.get["#"];
     var prop = msg?.get["."];
-    if (prop) soul = `${soul}.${prop}`;
+    if (prop) {
+        soul = `${soul}.${prop}`;
+    }
 
     try {
 
@@ -35,7 +37,7 @@ var get = function (peer: any, msg: msg, graph: any, storage: true|false) {
             });
         }
 
-        if (!ack && storage){
+        else if (!ack && storage){
             store.get(msg.get, (err:any, ack:any) => {
                 SCANNER(soul, "get", ack, () => {
                     listen(soul, peer);
@@ -47,6 +49,10 @@ var get = function (peer: any, msg: msg, graph: any, storage: true|false) {
                     });
                 });
             });
+        }
+
+        else {
+            listen(soul, peer);
         }
 
     } catch (err) {}; // no need to do anything here...
