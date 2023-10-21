@@ -5,7 +5,7 @@
   function Radix () {
     const radix = function (key, val, t) {
       radix.unit = 0;
-      (!t && u !== val) ? radix.last = ('' + key < radix.last) ? radix.last : '' + key && delete (radix.$ || {})[_] : null
+      (!t && u !== val) ? radix.last = ('' + key < radix.last) ? radix.last : '' + key && delete (radix.$ || {})[_] : null;
       t = t || radix.$ || (radix.$ = {})
       if (!key && Object.keys(t).length) { return t }
       key = '' + key
