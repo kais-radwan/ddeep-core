@@ -18,7 +18,7 @@ const { listeners } = require('process');
 
 // Setup opt
 let graph = {};
-var port = opt.port || process.env.OPENSHIFT_NODEJS_PORT || process.env.VCAP_APP_PORT || process.env.PORT || 8888;
+var port = opt.port || process.env.OPENSHIFT_NODEJS_PORT || process.env.VCAP_APP_PORT || process.env.PORT || 9999;
 var storage = opt.storage || false;
 var checkpoint = opt.checkpoint || false;
 var graph_timer = opt.reset_graph || 0;
@@ -52,70 +52,65 @@ if (Number(listeners_timer) > 0) {
     clear_listeners(listeners_timer);
 }
 
-// register fastify server
-fastify.register(async function (fastify_socket) {
+// handle simple http serving
+fastify.get('/', (req, reply) => {
+    reply.send(`open socket connections to /ddeep`);
+})
 
-    // handle simple http serving
-    fastify_socket.get('/', (req, reply) => {
-        reply.send(`open socket connections to /ddeep`);
-    })
+// handle new socket connections
+fastify.get('/ddeep', { websocket: true }, (peer, req) => {
 
-    // handle new socket connections
-    fastify_socket.get('/ddeep', { websocket: true }, (peer, req) => {
+    // get the IP address of the peer connecting to the core
+    var peer_ip = req.socket.remoteAddress;
 
-        // get the IP address of the peer connecting to the core
-        var peer_ip = req.socket.remoteAddress;
+    // check if ip address is in the whitelist to be able to connect
+    if (whitelist.length > 0 && whitelist.indexOf(peer_ip) === -1) {
+        peer.socket.send('ACCESS DENIED: you are not allowed to connect to this core...');
+        peer.socket.close();
+    }
 
-        // check if ip address is in the whitelist to be able to connect
-        if (whitelist.length > 0 && whitelist.indexOf(peer_ip) === -1) {
-            peer.socket.send('ACCESS DENIED: you are not allowed to connect to this core...');
-            peer.socket.close();
+    // push the new peer
+    peer.listeners = [];
+    var _id = 'peer:' + (Date.now() * Math.random()).toString(36);
+    peer._id = _id;
+    process.PEERS[_id] = peer;
+
+    // handle messages
+    peer.socket.on('message', (data) => {
+
+        // parse message to JSON
+        var msg = JSON.parse(data);
+
+        // check message's ID. return if already tracked, and track it if new
+        if (dup.check(msg['#'])) { return };
+        dup.track(msg['#']);
+
+        // handle put data
+        if (msg.put) {
+            PUT(msg, graph, process.storage);
         }
 
-        // push the new peer
-        peer.listeners = [];
-        var _id = 'peer:' + (Date.now() * Math.random()).toString(36);
-        peer._id = _id;
-        process.PEERS[_id] = peer;
-
-        // handle messages
-        peer.socket.on('message', (data) => {
-
-            // parse message to JSON
-            var msg = JSON.parse(data);
-
-            // check message's ID. return if already tracked, and track it if new
-            if (dup.check(msg['#'])) { return };
-            dup.track(msg['#']);
-
-            // handle put data
-            if (msg.put) {
-                PUT(msg, graph, process.storage);
-            }
-
-            // handle get data
-            else if (msg.get) {
-                GET(peer._id, msg, graph, process.storage);
-            }
-
-        });
-
-        // delete peer when connection is closed
-        peer.socket.on('close', () => {
-
-            try {
-                delete process.PEERS[peer._id];
-                peer.listeners.forEach(listener => {
-                    console.log(listener);
-                    delete process.listeners[listener][process.listeners[listener].indexOf(peer._id)];
-                    process.listeners[listener] = process.listeners.pop(process.listeners[listener].indexOf(peer._id));
-                })
-
-            } catch (err) {} // no need to do anything
-
-        })
+        // handle get data
+        else if (msg.get) {
+            GET(peer._id, msg, graph, process.storage);
+        }
 
     });
+
+    // delete peer when connection is closed
+    peer.socket.on('close', () => {
+
+        try {
+            delete process.PEERS[peer._id];
+            peer.listeners.forEach(listener => {
+                console.log(listener);
+                delete process.listeners[listener][process.listeners[listener].indexOf(peer._id)];
+                process.listeners[listener] = process.listeners.pop(process.listeners[listener].indexOf(peer._id));
+            })
+
+        } catch (err) {} // no need to do anything
+
+    })
 
 });
 

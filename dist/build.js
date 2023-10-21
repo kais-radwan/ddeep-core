@@ -3189,7 +3189,7 @@ var require_ddeep_config = __commonJS({
       /* Set storage to true to enable persistent data storage */
       "storage": false,
       /* Set the port you want to run the peer on */
-      "port": 8765,
+      "port": 9999,
       /*
           Set a list of IP adresses (of peers, servers, or websites) that are able to connect to this core
           this can help prevent cross-site connections to your core
@@ -40840,7 +40840,7 @@ var dup = DUP();
 var opt = require_ddeep_config();
 var { listeners } = require("process");
 var graph = {};
-var port = opt.port || process.env.OPENSHIFT_NODEJS_PORT || process.env.VCAP_APP_PORT || process.env.PORT || 8888;
+var port = opt.port || process.env.OPENSHIFT_NODEJS_PORT || process.env.VCAP_APP_PORT || process.env.PORT || 9999;
 var storage = opt.storage || false;
 var checkpoint = opt.checkpoint || false;
 var graph_timer = opt.reset_graph || 0;
@@ -40863,44 +40863,42 @@ if (Number(graph_timer) > 0) {
 if (Number(listeners_timer) > 0) {
   clear_listeners(listeners_timer);
 }
-fastify.register(async function(fastify_socket) {
-  fastify_socket.get("/", (req, reply) => {
-    reply.send(`open socket connections to /ddeep`);
-  });
-  fastify_socket.get("/ddeep", { websocket: true }, (peer, req) => {
-    var peer_ip = req.socket.remoteAddress;
-    if (whitelist.length > 0 && whitelist.indexOf(peer_ip) === -1) {
-      peer.socket.send("ACCESS DENIED: you are not allowed to connect to this core...");
-      peer.socket.close();
+fastify.get("/", (req, reply) => {
+  reply.send(`open socket connections to /ddeep`);
+});
+fastify.get("/ddeep", { websocket: true }, (peer, req) => {
+  var peer_ip = req.socket.remoteAddress;
+  if (whitelist.length > 0 && whitelist.indexOf(peer_ip) === -1) {
+    peer.socket.send("ACCESS DENIED: you are not allowed to connect to this core...");
+    peer.socket.close();
+  }
+  peer.listeners = [];
+  var _id = "peer:" + (Date.now() * Math.random()).toString(36);
+  peer._id = _id;
+  process.PEERS[_id] = peer;
+  peer.socket.on("message", (data) => {
+    var msg = JSON.parse(data);
+    if (dup.check(msg["#"])) {
+      return;
     }
-    peer.listeners = [];
-    var _id = "peer:" + (Date.now() * Math.random()).toString(36);
-    peer._id = _id;
-    process.PEERS[_id] = peer;
-    peer.socket.on("message", (data) => {
-      var msg = JSON.parse(data);
-      if (dup.check(msg["#"])) {
-        return;
-      }
-      ;
-      dup.track(msg["#"]);
-      if (msg.put) {
-        PUT(msg, graph, process.storage);
-      } else if (msg.get) {
-        GET(peer._id, msg, graph, process.storage);
-      }
-    });
-    peer.socket.on("close", () => {
-      try {
-        delete process.PEERS[peer._id];
-        peer.listeners.forEach((listener) => {
-          console.log(listener);
-          delete process.listeners[listener][process.listeners[listener].indexOf(peer._id)];
-          process.listeners[listener] = process.listeners.pop(process.listeners[listener].indexOf(peer._id));
-        });
-      } catch (err) {
-      }
-    });
+    ;
+    dup.track(msg["#"]);
+    if (msg.put) {
+      PUT(msg, graph, process.storage);
+    } else if (msg.get) {
+      GET(peer._id, msg, graph, process.storage);
+    }
+  });
+  peer.socket.on("close", () => {
+    try {
+      delete process.PEERS[peer._id];
+      peer.listeners.forEach((listener) => {
+        console.log(listener);
+        delete process.listeners[listener][process.listeners[listener].indexOf(peer._id)];
+        process.listeners[listener] = process.listeners.pop(process.listeners[listener].indexOf(peer._id));
+      });
+    } catch (err) {
+    }
   });
 });
 fastify.listen({ port }, (err) => {
