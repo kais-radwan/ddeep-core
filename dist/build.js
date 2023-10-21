@@ -891,29 +891,6 @@ var require_processor = __commonJS({
         func();
       }
     });
-    commander.on("exec", async (args) => {
-      delete args[0];
-      var ex = "";
-      if (args.length < 1)
-        return;
-      args.forEach((arg) => {
-        if (arg)
-          ex = ex + ` ${arg}`;
-      });
-      if (ex)
-        await exec(ex, (error, output) => {
-          if (error) {
-            console.log(`
-${error}`.red);
-            return;
-          } else {
-            console.log(`
-${output}`);
-            return;
-          }
-        });
-      return;
-    });
     module2.exports = commander;
   }
 });
@@ -1046,7 +1023,10 @@ var require_radix = __commonJS({
             }
             at[""] = val;
           } else {
-            u !== val ? delete at[_] : null;
+            if (u !== val) {
+              delete at[_];
+            }
+            ;
             return radix(key.slice(++i), val, at || (at = {}));
           }
         };
@@ -3352,7 +3332,13 @@ var require_check_with_function = __commonJS({
     function conditionCheckWithAction(condition, action, args) {
       var conditionProp = condition[0];
       var conditionValue = condition[1];
-      conditionValue === true && conditionProp ? action(args) : conditionValue === false && !conditionProp ? action(args) : conditionProp === conditionValue ? action(args) : null;
+      if (conditionValue === true && conditionProp) {
+        action(args);
+      } else if (conditionValue === false && !conditionProp) {
+        action(args);
+      } else if (conditionValue === conditionProp) {
+        action(args);
+      }
     }
     module2.exports = conditionCheckWithAction;
   }
@@ -3380,9 +3366,15 @@ var require_smart_checker = __commonJS({
         var ruleScore = Number(ruleFullScore.substring(1, 100));
         var ruleScoreOperator = ruleFullScore.substring(0, 1);
         var ruleRes = ruleValue[2];
-        ao.indexOf(ruleScoreOperator) === -1 ? console.error("Opeartor '".concat(ruleScoreOperator, "' is not valid in smart check")) : null;
+        if (ao.indexOf(ruleScoreOperator) === -1) {
+          console.error("Opeartor '".concat(ruleScoreOperator, "' is not valid in smart check"));
+          return void 0;
+        }
         var ruleClassScore = data[ruleLabel];
-        !ruleClassScore ? console.error("Rule label '".concat(ruleLabel, "' is not valid. valid labels:").concat(JSON.stringify(Object.keys(data)))) : null;
+        if (!ruleClassScore) {
+          console.error("Rule label '".concat(ruleLabel, "' is not valid. valid labels:").concat(JSON.stringify(Object.keys(data))));
+          return void 0;
+        }
         if (ruleScoreOperator === "<" && Number(ruleClassScore) < Number(ruleScore)) {
           res = ruleRes;
         } else if (ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore)) {
