@@ -1,7 +1,7 @@
 var builtin = require("./built-in/index");
 
 try {
-    var ext = require("../../extensions.config");
+    var ext = require("../../extensions.config.js");
 } catch(err) {
     console.log('extensions.config not found');
 }
@@ -12,7 +12,7 @@ type extType = {
 }
 
 if (!ext) {
-    ext = {};
+    ext = [];
 }
 
 let extensions = builder([...ext, ...builtin]);
