@@ -3423,17 +3423,30 @@ var require_built_in = __commonJS({
   }
 });
 
+// extensions.config.js
+var require_extensions_config = __commonJS({
+  "extensions.config.js"(exports, module2) {
+    "use strict";
+    module2.exports = [
+      // Add your extensions here
+    ];
+  }
+});
+
 // lib/ext/require.ts
 var require_require = __commonJS({
   "lib/ext/require.ts"(exports, module2) {
     "use strict";
     var builtin = require_built_in();
     try {
-      ext = require("../extensions.config");
+      ext = require_extensions_config();
     } catch (err) {
       console.log("extensions.config not found");
     }
     var ext;
+    if (!ext) {
+      ext = [];
+    }
     var extensions = builder([...ext, ...builtin]);
     var root = {
       load: (extName) => {
