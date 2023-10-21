@@ -40839,10 +40839,6 @@ var DUP = require_dup();
 var dup = DUP();
 var opt = require_ddeep_config();
 var { listeners } = require("process");
-var interface_prompt = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
 var graph = {};
 var port = opt.port || 9999;
 var storage = opt.storage || false;
@@ -40850,6 +40846,7 @@ var checkpoint = opt.checkpoint || false;
 var graph_timer = opt.reset_graph || 0;
 var listeners_timer = opt.reset_listeners || 0;
 var whitelist = opt.whitelist || [];
+var interface_prompt;
 process.PEERS = {};
 process.storage = storage;
 process.port = port;
@@ -40878,6 +40875,10 @@ fastify.register(async function(fastify_socket) {
       }
       console.log("port -> ".yellow, `${port}`.gray);
       console.log("storage -> ".yellow, `${storage}`.gray, "\n");
+      interface_prompt = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+      });
       receive_command();
     });
   } catch (err) {
@@ -40929,6 +40930,9 @@ fastify.listen({ port }, (err) => {
   }
 });
 function receive_command() {
+  if (!interface_prompt) {
+    return void 0;
+  }
   interface_prompt.question("ddeep > ", async (command) => {
     if (command) {
       command = command.split(" ");
