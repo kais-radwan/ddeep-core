@@ -200,8 +200,6 @@ When you start `ddeepc-core` it opens a command-line interface where you can man
 
 - `run CODE`: executes a nodeJS code inside the code's process
 
-- `exec CODE`: executes a command in your operating system (tested with Linux)
-
 ## Policies
 
 ### Add policies
