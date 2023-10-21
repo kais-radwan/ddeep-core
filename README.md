@@ -10,14 +10,12 @@
 ![Static Badge](https://img.shields.io/badge/alpha_release-current?style=flat-square&color=slateblue) 
 ![NPM Downloads](https://img.shields.io/npm/dm/ddeep-core?style=flat-square) 
 ![NPM License](https://img.shields.io/npm/l/ddeep-core?style=flat-square) 
-![GitHub issues](https://img.shields.io/github/issues/kais-radwan/ddeep-core?style=flat-square) 
-![typescript version](https://img.shields.io/npm/dependency-version/ddeep-core/dev/typescript?style=flat-square) 
-![esbuild version](https://img.shields.io/npm/dependency-version/ddeep-core/esbuild?style=flat-square) 
-![Scrutinizer build](https://img.shields.io/scrutinizer/build/g/kais-radwan/ddeep-core/main?style=flat-square)
 ![code quality](https://img.shields.io/scrutinizer/quality/g/kais-radwan/ddeep-core/main?style=flat-square)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=kais-radwan_ddeep-core&metric=bugs)](https://sonarcloud.io/summary/new_code?id=kais-radwan_ddeep-core)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=kais-radwan_ddeep-core&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=kais-radwan_ddeep-core)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=kais-radwan_ddeep-core&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=kais-radwan_ddeep-core)
 [![Socket Badge](https://socket.dev/api/badge/npm/package/ddeep-core?style=flat-square)](https://socket.dev/npm/package/ddeep-core)
 [![Static Badge](https://img.shields.io/badge/chat-on_matrix-lightgreen?style=flat-square)](https://matrix.to/#/@multineon:gitter.im)
-
 
 </div>
 
