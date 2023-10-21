@@ -1,67 +1,69 @@
-/* 
+/*
     This file was not modified, for license see https://github.com/amark/gun/blob/master/LICENSE.md
 */
-function HAM(machineState, incomingState, currentState, incomingValue, currentValue) {
+function HAM (machineState, incomingState, currentState, incomingValue, currentValue) {
+  if (machineState < incomingState) { 
+    return { defer: true };
+  }
+  
+  if (incomingState < currentState) {
+    return { historical: true };
+  }
 
-    if (machineState < incomingState) return { defer: true };
-    if (incomingState < currentState) return { historical: true };
-    if (currentState < incomingState) return { converge: true, incoming: true };
+  if (currentState < incomingState) {
+    return { converge: true, incoming: true };
+  }
 
-    if (incomingState === currentState) {
+  if (incomingState === currentState) {
+    let res
 
-        var res;
+    incomingValue = JSON.stringify(incomingValue) || ''
+    currentValue = JSON.stringify(currentValue) || '';
 
-        incomingValue = JSON.stringify(incomingValue) || "";
-        currentValue = JSON.stringify(currentValue) || "";
+    (incomingValue === currentValue)
+      ? res = { state: true }
+      : (incomingValue < currentValue)
+          ? res = { converge: true, current: true }
+          : (currentValue < incomingValue)
+              ? res = { converge: true, incoming: true }
+              : res = false
 
-        (incomingValue === currentValue) ? res = { state: true }
-        : (incomingValue < currentValue) ? res = { converge: true, current: true }
-        : (currentValue < incomingValue) ? res = { converge: true, incoming: true }
-        : res = false;
+    if (res) { return res };
+  }
 
-        if (res) { return res };
-
-    }
-
-    return { err: "Invalid CRDT Data: " + incomingValue + " to " + currentValue + " at " + incomingState + " to " + currentState };
+  return { err: 'Invalid CRDT Data: ' + incomingValue + ' to ' + currentValue + ' at ' + incomingState + ' to ' + currentState }
 }
 
 HAM.mix = (change, graph) => {
+  const machine = (+new Date()); let diff
 
-    var machine = (+new Date), diff;
+  Object.keys(change).forEach((soul) => {
+    const node = change[soul]
 
-    Object.keys(change).forEach((soul) => {
+    Object.keys(node).forEach((key) => {
+      const val = node[key]
+      if (key === '_') { return };
 
-        var node = change[soul];
+      const state = node._['>'][key]
+      const was = (graph[soul] || { _: { '>': {} } })._['>'][key] || -Infinity
+      const known = (graph[soul] || {})[key]
+      const ham = HAM(machine, state, was, val, known)
 
-        Object.keys(node).forEach((key) => {
+      if (!ham.incoming && ham.defer) {
+        console.error('DEFER', key, val);
+        return;
+      }
 
-            var val = node[key];
-            if ('_' == key) return;
+      (diff || (diff = {}))[soul] = diff[soul] || node
 
-            var state = node._['>'][key];
-            var was = (graph[soul] || { _: { '>': {} } })._['>'][key] || -Infinity;
-            var known = (graph[soul] || {})[key];
-            var ham = HAM(machine, state, was, val, known);
+      graph[soul] = graph[soul] || node
+      graph[soul][key] = diff[soul][key] = val
+      graph[soul]._['>'][key] = diff[soul]._['>'][key] = state
+    })
+  })
 
-            if (!ham.incoming) {
-                if (ham.defer) console.log("DEFER", key, val);
-                return;
-            }
-
-            (diff || (diff = {}))[soul] = diff[soul] || node;
-
-            graph[soul] = graph[soul] || node;
-            graph[soul][key] = diff[soul][key] = val;
-            graph[soul]._['>'][key] = diff[soul]._['>'][key] = state;
-
-        });
-
-    });
-
-    process.graph = diff;
-    return diff;
-
+  process.graph = diff
+  return diff
 }
 
-try { module.exports = HAM } catch (e) { };
+module.exports = HAM;

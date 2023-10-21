@@ -1,0 +1,3 @@
+This folder ('assets') is not used for development and only includes some resources like screenshots.
+
+This folder will never be published to 'npm' but only to Github.

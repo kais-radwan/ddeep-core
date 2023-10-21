@@ -1,100 +1,98 @@
 /*
     This file was modified. for license see https://github.com/amark/gun/blob/master/LICENSE.md
 */
-var Radix = require('./radix');
-var Radisk = require('./radisk');
-var fs = require('fs');
+const Radix = require('./radix');
+const Radisk = require('./radisk');
+const fs = require('fs');
 
-function Store(opt) {
+function Store (opt) {
+  opt = opt || {}
+  opt.file = 'ddeep_data';
 
-	opt = opt || {};
-	opt.file = String(opt.file || 'ddeep_data');
+  const store = function Store () { }
 
-	var store = function Store() { };
+  store.put = function (file, data, cb) {
+    const random = Math.random().toString(36).slice(-3)
+    fs.writeFile(opt.file + '-' + random + '.tmp', data, function (err, ok) {
+      if (err) { return cb(err) }
+      fs.rename(opt.file + '-' + random + '.tmp', opt.file + '/' + file, cb)
+    })
+  }
 
-	store.put = function (file, data, cb) {
-		var random = Math.random().toString(36).slice(-3)
-		fs.writeFile(opt.file + '-' + random + '.tmp', data, function (err, ok) {
-			if (err) { return cb(err) }
-			fs.rename(opt.file + '-' + random + '.tmp', opt.file + '/' + file, cb);
-		});
-	};
+  store.get = function (file, cb) {
+    fs.readFile(opt.file + '/' + file, (err, data) => {
+      if (err) {
+        if ((err.code || '').toUpperCase() === 'ENOENT') {
+          return cb()
+        }
+        console.log('ERROR:', err)
+      }
+      if (data) { data = data.toString() }
+      cb(err, data)
+    })
+  }
 
-	store.get = function (file, cb) {
-		fs.readFile(opt.file + '/' + file, (err, data) => {
-			if (err) {
-				if ('ENOENT' === (err.code || '').toUpperCase()) {
-					return cb();
-				}
-				console.log("ERROR:", err)
-			}
-			if (data) { data = data.toString() }
-			cb(err, data);
-		});
-	};
+  store.list = function (cb, match) {
+    fs.readdir(opt.file, function (err, dir) {
+      dir.forEach(cb)
+      cb() // Stream interface requires a final call to know when to be done.
+    })
+  }
 
-	store.list = function (cb, match) {
-		fs.readdir(opt.file, function (err, dir) {
-			dir.forEach(cb);
-			cb(); // Stream interface requires a final call to know when to be done.
-		});
-	};
-
-	if (!fs.existsSync(opt.file)) { fs.mkdirSync(opt.file) }
-	return store;
-
+  if (!fs.existsSync(opt.file)) { fs.mkdirSync(opt.file) }
+  return store
 }
 
-var rad = Radisk({ store: Store() });
+const rad = Radisk({ store: Store() })
 
-var API = {};
+const API = {}
 
 API.put = function (graph, cb) {
-	if (!graph) { return }
-	var c = 0;
-	Object.keys(graph).forEach(function (soul) {
-		var node = graph[soul];
-		Object.keys(node).forEach(function (key) {
-			if ('_' == key) { return }
-			c++
-			var val = node[key], state = node._['>'][key];
-			rad(soul + '.' + key, JSON.stringify([val, state]), ack);
-		});
-	});
-	function ack(err, ok) {
-		c--;
-		if (ack.err) { return }
-		if (ack.err = err) {
-			cb(err || 'ERROR!');
-			return;
-		}
-		if (0 < c) { return }
-		cb(ack.err, 1);
-	}
+  if (!graph) { return }
+  let c = 0
+  Object.keys(graph).forEach(function (soul) {
+    const node = graph[soul]
+    Object.keys(node).forEach(function (key) {
+      if (key == '_') { return }
+      c++
+      const val = node[key]; const state = node._['>'][key]
+      rad(soul + '.' + key, JSON.stringify([val, state]), ack)
+    })
+  })
+  function ack (err, ok) {
+    c--
+    if (ack.err) { return }
+    if (ack.err = err) {
+      cb(err || 'ERROR!')
+      return
+    }
+    if (c > 0) { return }
+    cb(ack.err, 1)
+  }
 }
 
 API.get = function (lex, cb) {
-	if (!lex) { return }
-	var soul = lex['#'];
-	var key = lex['.'] || '';
-	var tmp = soul + '.' + key;
-	var node;
-	rad(tmp, function (err, val) {
-		var graph;
-		if (val) {
-			Radix.map(val, each);
-			if (!node) { each(val, key) }
-			graph = {};
-			graph[soul] = node;
-		}
-		cb(err, graph);
-	});
-	function each(val, key) {
-		var data = JSON.parse(val);
-		node = node || { _: { '#': soul, '>': {} } };
-		node[key] = data[0];
-		node._['>'][key] = data[1];
-	}
+  if (!lex) { return }
+  const soul = lex['#']
+  const key = lex['.'] || ''
+  const tmp = soul + '.' + key
+  let node
+  rad(tmp, function (err, val) {
+    let graph
+    if (val) {
+      Radix.map(val, each)
+      if (!node) { each(val, key) }
+      graph = {}
+      graph[soul] = node
+    }
+    cb(err, graph)
+  })
+  function each (val, key) {
+    const data = JSON.parse(val)
+    node = node || { _: { '#': soul, '>': {} } }
+    node[key] = data[0]
+    node._['>'][key] = data[1]
+  }
 }
 
-module.exports = API;
+module.exports = API

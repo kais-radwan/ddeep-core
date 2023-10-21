@@ -2,41 +2,52 @@ var PE = require('./peers/emitter'); // peers emitter
 var store = require('./storage/store'); // read and write data to storage
 var Dup = require('./dup'), dup = Dup(); // check and track data
 var HAM = require('./ham'); // conflict resolution algorithm
-var SCANNER = require('./policies/scanner'); // scan and process policies
-var policies = require('../policies.config'); // policies
+var SCANNER = require('./policies/scanner2.ts'); // scan and process policies
 
 type putMsg = {
     '#': string,
     'put': any
 }
 
-var put = async function (msg:putMsg, graph:any, storage:true|false) {
+var put = function (msg: putMsg, graph: any, storage: true|false) {
 
     try {
 
-        var soul = msg.put[Object.keys(msg.put)[0]]._["#"];
+        var soul: any;
+        // var prop = msg.put[Object.keys(msg.put)[0]]._["."];
+        // if (prop) soul = `${soul}.${prop}`;
 
-        (soul) ? soul = soul.split('/') : null;
+        for (var key in msg.put) {
+            var node = msg.put[key]._['#'];
+            soul = node;
+        }
 
-        SCANNER(soul, "put", policies, msg.put, () => {
+        SCANNER(soul, "put", msg.put, () => {
+
             var change = HAM.mix(msg.put, graph);
 
-            (storage) ? store.put(change, function (err:any, ok:any) {
+            // if storage is enabled, save data and stream it
+            if (storage) {
+                store.put(change, function (err:any, ok:any) {
 
-                (err) ? console.log(err.red) : null;
+                    if (err) {
+                        console.log(err.red);
+                    }
 
-                PE.emit('put', soul, {
-                    '#': dup.track(Dup.random()),
-                    '@': msg['#'],
-                    err: err,
-                    ok: ok,
-                    put: msg.put
-                });
+                })
+            }
 
-            }) : null;
+            PE.emit('put', soul, {
+                '#': dup.track(Dup.random()),
+                '@': msg['#'],
+                err: null,
+                ok: 1,
+                put: msg.put
+            });
+
         });
 
-    } catch (err) {};
+    } catch (err) {}; // no need to do anything here...
 
 }
 

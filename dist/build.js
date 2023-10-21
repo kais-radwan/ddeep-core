@@ -7,6 +7,894 @@ var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 
+// node_modules/colors/lib/styles.js
+var require_styles = __commonJS({
+  "node_modules/colors/lib/styles.js"(exports, module2) {
+    var styles = {};
+    module2["exports"] = styles;
+    var codes = {
+      reset: [0, 0],
+      bold: [1, 22],
+      dim: [2, 22],
+      italic: [3, 23],
+      underline: [4, 24],
+      inverse: [7, 27],
+      hidden: [8, 28],
+      strikethrough: [9, 29],
+      black: [30, 39],
+      red: [31, 39],
+      green: [32, 39],
+      yellow: [33, 39],
+      blue: [34, 39],
+      magenta: [35, 39],
+      cyan: [36, 39],
+      white: [37, 39],
+      gray: [90, 39],
+      grey: [90, 39],
+      brightRed: [91, 39],
+      brightGreen: [92, 39],
+      brightYellow: [93, 39],
+      brightBlue: [94, 39],
+      brightMagenta: [95, 39],
+      brightCyan: [96, 39],
+      brightWhite: [97, 39],
+      bgBlack: [40, 49],
+      bgRed: [41, 49],
+      bgGreen: [42, 49],
+      bgYellow: [43, 49],
+      bgBlue: [44, 49],
+      bgMagenta: [45, 49],
+      bgCyan: [46, 49],
+      bgWhite: [47, 49],
+      bgGray: [100, 49],
+      bgGrey: [100, 49],
+      bgBrightRed: [101, 49],
+      bgBrightGreen: [102, 49],
+      bgBrightYellow: [103, 49],
+      bgBrightBlue: [104, 49],
+      bgBrightMagenta: [105, 49],
+      bgBrightCyan: [106, 49],
+      bgBrightWhite: [107, 49],
+      // legacy styles for colors pre v1.0.0
+      blackBG: [40, 49],
+      redBG: [41, 49],
+      greenBG: [42, 49],
+      yellowBG: [43, 49],
+      blueBG: [44, 49],
+      magentaBG: [45, 49],
+      cyanBG: [46, 49],
+      whiteBG: [47, 49]
+    };
+    Object.keys(codes).forEach(function(key) {
+      var val = codes[key];
+      var style = styles[key] = [];
+      style.open = "\x1B[" + val[0] + "m";
+      style.close = "\x1B[" + val[1] + "m";
+    });
+  }
+});
+
+// node_modules/colors/lib/system/has-flag.js
+var require_has_flag = __commonJS({
+  "node_modules/colors/lib/system/has-flag.js"(exports, module2) {
+    "use strict";
+    module2.exports = function(flag, argv) {
+      argv = argv || process.argv;
+      var terminatorPos = argv.indexOf("--");
+      var prefix = /^-{1,2}/.test(flag) ? "" : "--";
+      var pos = argv.indexOf(prefix + flag);
+      return pos !== -1 && (terminatorPos === -1 ? true : pos < terminatorPos);
+    };
+  }
+});
+
+// node_modules/colors/lib/system/supports-colors.js
+var require_supports_colors = __commonJS({
+  "node_modules/colors/lib/system/supports-colors.js"(exports, module2) {
+    "use strict";
+    var os = require("os");
+    var hasFlag = require_has_flag();
+    var env = process.env;
+    var forceColor = void 0;
+    if (hasFlag("no-color") || hasFlag("no-colors") || hasFlag("color=false")) {
+      forceColor = false;
+    } else if (hasFlag("color") || hasFlag("colors") || hasFlag("color=true") || hasFlag("color=always")) {
+      forceColor = true;
+    }
+    if ("FORCE_COLOR" in env) {
+      forceColor = env.FORCE_COLOR.length === 0 || parseInt(env.FORCE_COLOR, 10) !== 0;
+    }
+    function translateLevel(level) {
+      if (level === 0) {
+        return false;
+      }
+      return {
+        level,
+        hasBasic: true,
+        has256: level >= 2,
+        has16m: level >= 3
+      };
+    }
+    function supportsColor(stream) {
+      if (forceColor === false) {
+        return 0;
+      }
+      if (hasFlag("color=16m") || hasFlag("color=full") || hasFlag("color=truecolor")) {
+        return 3;
+      }
+      if (hasFlag("color=256")) {
+        return 2;
+      }
+      if (stream && !stream.isTTY && forceColor !== true) {
+        return 0;
+      }
+      var min = forceColor ? 1 : 0;
+      if (process.platform === "win32") {
+        var osRelease = os.release().split(".");
+        if (Number(process.versions.node.split(".")[0]) >= 8 && Number(osRelease[0]) >= 10 && Number(osRelease[2]) >= 10586) {
+          return Number(osRelease[2]) >= 14931 ? 3 : 2;
+        }
+        return 1;
+      }
+      if ("CI" in env) {
+        if (["TRAVIS", "CIRCLECI", "APPVEYOR", "GITLAB_CI"].some(function(sign) {
+          return sign in env;
+        }) || env.CI_NAME === "codeship") {
+          return 1;
+        }
+        return min;
+      }
+      if ("TEAMCITY_VERSION" in env) {
+        return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
+      }
+      if ("TERM_PROGRAM" in env) {
+        var version = parseInt((env.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
+        switch (env.TERM_PROGRAM) {
+          case "iTerm.app":
+            return version >= 3 ? 3 : 2;
+          case "Hyper":
+            return 3;
+          case "Apple_Terminal":
+            return 2;
+        }
+      }
+      if (/-256(color)?$/i.test(env.TERM)) {
+        return 2;
+      }
+      if (/^screen|^xterm|^vt100|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
+        return 1;
+      }
+      if ("COLORTERM" in env) {
+        return 1;
+      }
+      if (env.TERM === "dumb") {
+        return min;
+      }
+      return min;
+    }
+    function getSupportLevel(stream) {
+      var level = supportsColor(stream);
+      return translateLevel(level);
+    }
+    module2.exports = {
+      supportsColor: getSupportLevel,
+      stdout: getSupportLevel(process.stdout),
+      stderr: getSupportLevel(process.stderr)
+    };
+  }
+});
+
+// node_modules/colors/lib/custom/trap.js
+var require_trap = __commonJS({
+  "node_modules/colors/lib/custom/trap.js"(exports, module2) {
+    module2["exports"] = function runTheTrap(text, options) {
+      var result = "";
+      text = text || "Run the trap, drop the bass";
+      text = text.split("");
+      var trap = {
+        a: ["@", "\u0104", "\u023A", "\u0245", "\u0394", "\u039B", "\u0414"],
+        b: ["\xDF", "\u0181", "\u0243", "\u026E", "\u03B2", "\u0E3F"],
+        c: ["\xA9", "\u023B", "\u03FE"],
+        d: ["\xD0", "\u018A", "\u0500", "\u0501", "\u0502", "\u0503"],
+        e: [
+          "\xCB",
+          "\u0115",
+          "\u018E",
+          "\u0258",
+          "\u03A3",
+          "\u03BE",
+          "\u04BC",
+          "\u0A6C"
+        ],
+        f: ["\u04FA"],
+        g: ["\u0262"],
+        h: ["\u0126", "\u0195", "\u04A2", "\u04BA", "\u04C7", "\u050A"],
+        i: ["\u0F0F"],
+        j: ["\u0134"],
+        k: ["\u0138", "\u04A0", "\u04C3", "\u051E"],
+        l: ["\u0139"],
+        m: ["\u028D", "\u04CD", "\u04CE", "\u0520", "\u0521", "\u0D69"],
+        n: ["\xD1", "\u014B", "\u019D", "\u0376", "\u03A0", "\u048A"],
+        o: [
+          "\xD8",
+          "\xF5",
+          "\xF8",
+          "\u01FE",
+          "\u0298",
+          "\u047A",
+          "\u05DD",
+          "\u06DD",
+          "\u0E4F"
+        ],
+        p: ["\u01F7", "\u048E"],
+        q: ["\u09CD"],
+        r: ["\xAE", "\u01A6", "\u0210", "\u024C", "\u0280", "\u042F"],
+        s: ["\xA7", "\u03DE", "\u03DF", "\u03E8"],
+        t: ["\u0141", "\u0166", "\u0373"],
+        u: ["\u01B1", "\u054D"],
+        v: ["\u05D8"],
+        w: ["\u0428", "\u0460", "\u047C", "\u0D70"],
+        x: ["\u04B2", "\u04FE", "\u04FC", "\u04FD"],
+        y: ["\xA5", "\u04B0", "\u04CB"],
+        z: ["\u01B5", "\u0240"]
+      };
+      text.forEach(function(c) {
+        c = c.toLowerCase();
+        var chars = trap[c] || [" "];
+        var rand = Math.floor(Math.random() * chars.length);
+        if (typeof trap[c] !== "undefined") {
+          result += trap[c][rand];
+        } else {
+          result += c;
+        }
+      });
+      return result;
+    };
+  }
+});
+
+// node_modules/colors/lib/custom/zalgo.js
+var require_zalgo = __commonJS({
+  "node_modules/colors/lib/custom/zalgo.js"(exports, module2) {
+    module2["exports"] = function zalgo(text, options) {
+      text = text || "   he is here   ";
+      var soul = {
+        "up": [
+          "\u030D",
+          "\u030E",
+          "\u0304",
+          "\u0305",
+          "\u033F",
+          "\u0311",
+          "\u0306",
+          "\u0310",
+          "\u0352",
+          "\u0357",
+          "\u0351",
+          "\u0307",
+          "\u0308",
+          "\u030A",
+          "\u0342",
+          "\u0313",
+          "\u0308",
+          "\u034A",
+          "\u034B",
+          "\u034C",
+          "\u0303",
+          "\u0302",
+          "\u030C",
+          "\u0350",
+          "\u0300",
+          "\u0301",
+          "\u030B",
+          "\u030F",
+          "\u0312",
+          "\u0313",
+          "\u0314",
+          "\u033D",
+          "\u0309",
+          "\u0363",
+          "\u0364",
+          "\u0365",
+          "\u0366",
+          "\u0367",
+          "\u0368",
+          "\u0369",
+          "\u036A",
+          "\u036B",
+          "\u036C",
+          "\u036D",
+          "\u036E",
+          "\u036F",
+          "\u033E",
+          "\u035B",
+          "\u0346",
+          "\u031A"
+        ],
+        "down": [
+          "\u0316",
+          "\u0317",
+          "\u0318",
+          "\u0319",
+          "\u031C",
+          "\u031D",
+          "\u031E",
+          "\u031F",
+          "\u0320",
+          "\u0324",
+          "\u0325",
+          "\u0326",
+          "\u0329",
+          "\u032A",
+          "\u032B",
+          "\u032C",
+          "\u032D",
+          "\u032E",
+          "\u032F",
+          "\u0330",
+          "\u0331",
+          "\u0332",
+          "\u0333",
+          "\u0339",
+          "\u033A",
+          "\u033B",
+          "\u033C",
+          "\u0345",
+          "\u0347",
+          "\u0348",
+          "\u0349",
+          "\u034D",
+          "\u034E",
+          "\u0353",
+          "\u0354",
+          "\u0355",
+          "\u0356",
+          "\u0359",
+          "\u035A",
+          "\u0323"
+        ],
+        "mid": [
+          "\u0315",
+          "\u031B",
+          "\u0300",
+          "\u0301",
+          "\u0358",
+          "\u0321",
+          "\u0322",
+          "\u0327",
+          "\u0328",
+          "\u0334",
+          "\u0335",
+          "\u0336",
+          "\u035C",
+          "\u035D",
+          "\u035E",
+          "\u035F",
+          "\u0360",
+          "\u0362",
+          "\u0338",
+          "\u0337",
+          "\u0361",
+          " \u0489"
+        ]
+      };
+      var all = [].concat(soul.up, soul.down, soul.mid);
+      function randomNumber(range) {
+        var r = Math.floor(Math.random() * range);
+        return r;
+      }
+      function isChar(character) {
+        var bool = false;
+        all.filter(function(i) {
+          bool = i === character;
+        });
+        return bool;
+      }
+      function heComes(text2, options2) {
+        var result = "";
+        var counts;
+        var l;
+        options2 = options2 || {};
+        options2["up"] = typeof options2["up"] !== "undefined" ? options2["up"] : true;
+        options2["mid"] = typeof options2["mid"] !== "undefined" ? options2["mid"] : true;
+        options2["down"] = typeof options2["down"] !== "undefined" ? options2["down"] : true;
+        options2["size"] = typeof options2["size"] !== "undefined" ? options2["size"] : "maxi";
+        text2 = text2.split("");
+        for (l in text2) {
+          if (isChar(l)) {
+            continue;
+          }
+          result = result + text2[l];
+          counts = { "up": 0, "down": 0, "mid": 0 };
+          switch (options2.size) {
+            case "mini":
+              counts.up = randomNumber(8);
+              counts.mid = randomNumber(2);
+              counts.down = randomNumber(8);
+              break;
+            case "maxi":
+              counts.up = randomNumber(16) + 3;
+              counts.mid = randomNumber(4) + 1;
+              counts.down = randomNumber(64) + 3;
+              break;
+            default:
+              counts.up = randomNumber(8) + 1;
+              counts.mid = randomNumber(6) / 2;
+              counts.down = randomNumber(8) + 1;
+              break;
+          }
+          var arr = ["up", "mid", "down"];
+          for (var d in arr) {
+            var index = arr[d];
+            for (var i = 0; i <= counts[index]; i++) {
+              if (options2[index]) {
+                result = result + soul[index][randomNumber(soul[index].length)];
+              }
+            }
+          }
+        }
+        return result;
+      }
+      return heComes(text, options);
+    };
+  }
+});
+
+// node_modules/colors/lib/maps/america.js
+var require_america = __commonJS({
+  "node_modules/colors/lib/maps/america.js"(exports, module2) {
+    module2["exports"] = function(colors) {
+      return function(letter, i, exploded) {
+        if (letter === " ")
+          return letter;
+        switch (i % 3) {
+          case 0:
+            return colors.red(letter);
+          case 1:
+            return colors.white(letter);
+          case 2:
+            return colors.blue(letter);
+        }
+      };
+    };
+  }
+});
+
+// node_modules/colors/lib/maps/zebra.js
+var require_zebra = __commonJS({
+  "node_modules/colors/lib/maps/zebra.js"(exports, module2) {
+    module2["exports"] = function(colors) {
+      return function(letter, i, exploded) {
+        return i % 2 === 0 ? letter : colors.inverse(letter);
+      };
+    };
+  }
+});
+
+// node_modules/colors/lib/maps/rainbow.js
+var require_rainbow = __commonJS({
+  "node_modules/colors/lib/maps/rainbow.js"(exports, module2) {
+    module2["exports"] = function(colors) {
+      var rainbowColors = ["red", "yellow", "green", "blue", "magenta"];
+      return function(letter, i, exploded) {
+        if (letter === " ") {
+          return letter;
+        } else {
+          return colors[rainbowColors[i++ % rainbowColors.length]](letter);
+        }
+      };
+    };
+  }
+});
+
+// node_modules/colors/lib/maps/random.js
+var require_random = __commonJS({
+  "node_modules/colors/lib/maps/random.js"(exports, module2) {
+    module2["exports"] = function(colors) {
+      var available = [
+        "underline",
+        "inverse",
+        "grey",
+        "yellow",
+        "red",
+        "green",
+        "blue",
+        "white",
+        "cyan",
+        "magenta",
+        "brightYellow",
+        "brightRed",
+        "brightGreen",
+        "brightBlue",
+        "brightWhite",
+        "brightCyan",
+        "brightMagenta"
+      ];
+      return function(letter, i, exploded) {
+        return letter === " " ? letter : colors[available[Math.round(Math.random() * (available.length - 2))]](letter);
+      };
+    };
+  }
+});
+
+// node_modules/colors/lib/colors.js
+var require_colors = __commonJS({
+  "node_modules/colors/lib/colors.js"(exports, module2) {
+    var colors = {};
+    module2["exports"] = colors;
+    colors.themes = {};
+    var util = require("util");
+    var ansiStyles = colors.styles = require_styles();
+    var defineProps = Object.defineProperties;
+    var newLineRegex = new RegExp(/[\r\n]+/g);
+    colors.supportsColor = require_supports_colors().supportsColor;
+    if (typeof colors.enabled === "undefined") {
+      colors.enabled = colors.supportsColor() !== false;
+    }
+    colors.enable = function() {
+      colors.enabled = true;
+    };
+    colors.disable = function() {
+      colors.enabled = false;
+    };
+    colors.stripColors = colors.strip = function(str) {
+      return ("" + str).replace(/\x1B\[\d+m/g, "");
+    };
+    var stylize = colors.stylize = function stylize2(str, style) {
+      if (!colors.enabled) {
+        return str + "";
+      }
+      var styleMap = ansiStyles[style];
+      if (!styleMap && style in colors) {
+        return colors[style](str);
+      }
+      return styleMap.open + str + styleMap.close;
+    };
+    var matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
+    var escapeStringRegexp = function(str) {
+      if (typeof str !== "string") {
+        throw new TypeError("Expected a string");
+      }
+      return str.replace(matchOperatorsRe, "\\$&");
+    };
+    function build(_styles) {
+      var builder = function builder2() {
+        return applyStyle.apply(builder2, arguments);
+      };
+      builder._styles = _styles;
+      builder.__proto__ = proto;
+      return builder;
+    }
+    var styles = function() {
+      var ret = {};
+      ansiStyles.grey = ansiStyles.gray;
+      Object.keys(ansiStyles).forEach(function(key) {
+        ansiStyles[key].closeRe = new RegExp(escapeStringRegexp(ansiStyles[key].close), "g");
+        ret[key] = {
+          get: function() {
+            return build(this._styles.concat(key));
+          }
+        };
+      });
+      return ret;
+    }();
+    var proto = defineProps(function colors2() {
+    }, styles);
+    function applyStyle() {
+      var args = Array.prototype.slice.call(arguments);
+      var str = args.map(function(arg) {
+        if (arg != null && arg.constructor === String) {
+          return arg;
+        } else {
+          return util.inspect(arg);
+        }
+      }).join(" ");
+      if (!colors.enabled || !str) {
+        return str;
+      }
+      var newLinesPresent = str.indexOf("\n") != -1;
+      var nestedStyles = this._styles;
+      var i = nestedStyles.length;
+      while (i--) {
+        var code = ansiStyles[nestedStyles[i]];
+        str = code.open + str.replace(code.closeRe, code.open) + code.close;
+        if (newLinesPresent) {
+          str = str.replace(newLineRegex, function(match) {
+            return code.close + match + code.open;
+          });
+        }
+      }
+      return str;
+    }
+    colors.setTheme = function(theme) {
+      if (typeof theme === "string") {
+        console.log("colors.setTheme now only accepts an object, not a string.  If you are trying to set a theme from a file, it is now your (the caller's) responsibility to require the file.  The old syntax looked like colors.setTheme(__dirname + '/../themes/generic-logging.js'); The new syntax looks like colors.setTheme(require(__dirname + '/../themes/generic-logging.js'));");
+        return;
+      }
+      for (var style in theme) {
+        (function(style2) {
+          colors[style2] = function(str) {
+            if (typeof theme[style2] === "object") {
+              var out = str;
+              for (var i in theme[style2]) {
+                out = colors[theme[style2][i]](out);
+              }
+              return out;
+            }
+            return colors[theme[style2]](str);
+          };
+        })(style);
+      }
+    };
+    function init() {
+      var ret = {};
+      Object.keys(styles).forEach(function(name) {
+        ret[name] = {
+          get: function() {
+            return build([name]);
+          }
+        };
+      });
+      return ret;
+    }
+    var sequencer = function sequencer2(map2, str) {
+      var exploded = str.split("");
+      exploded = exploded.map(map2);
+      return exploded.join("");
+    };
+    colors.trap = require_trap();
+    colors.zalgo = require_zalgo();
+    colors.maps = {};
+    colors.maps.america = require_america()(colors);
+    colors.maps.zebra = require_zebra()(colors);
+    colors.maps.rainbow = require_rainbow()(colors);
+    colors.maps.random = require_random()(colors);
+    for (map in colors.maps) {
+      (function(map2) {
+        colors[map2] = function(str) {
+          return sequencer(colors.maps[map2], str);
+        };
+      })(map);
+    }
+    var map;
+    defineProps(colors, init());
+  }
+});
+
+// node_modules/colors/lib/extendStringPrototype.js
+var require_extendStringPrototype = __commonJS({
+  "node_modules/colors/lib/extendStringPrototype.js"(exports, module2) {
+    var colors = require_colors();
+    module2["exports"] = function() {
+      var addProperty = function(color, func) {
+        String.prototype.__defineGetter__(color, func);
+      };
+      addProperty("strip", function() {
+        return colors.strip(this);
+      });
+      addProperty("stripColors", function() {
+        return colors.strip(this);
+      });
+      addProperty("trap", function() {
+        return colors.trap(this);
+      });
+      addProperty("zalgo", function() {
+        return colors.zalgo(this);
+      });
+      addProperty("zebra", function() {
+        return colors.zebra(this);
+      });
+      addProperty("rainbow", function() {
+        return colors.rainbow(this);
+      });
+      addProperty("random", function() {
+        return colors.random(this);
+      });
+      addProperty("america", function() {
+        return colors.america(this);
+      });
+      var x = Object.keys(colors.styles);
+      x.forEach(function(style) {
+        addProperty(style, function() {
+          return colors.stylize(this, style);
+        });
+      });
+      function applyTheme(theme) {
+        var stringPrototypeBlacklist = [
+          "__defineGetter__",
+          "__defineSetter__",
+          "__lookupGetter__",
+          "__lookupSetter__",
+          "charAt",
+          "constructor",
+          "hasOwnProperty",
+          "isPrototypeOf",
+          "propertyIsEnumerable",
+          "toLocaleString",
+          "toString",
+          "valueOf",
+          "charCodeAt",
+          "indexOf",
+          "lastIndexOf",
+          "length",
+          "localeCompare",
+          "match",
+          "repeat",
+          "replace",
+          "search",
+          "slice",
+          "split",
+          "substring",
+          "toLocaleLowerCase",
+          "toLocaleUpperCase",
+          "toLowerCase",
+          "toUpperCase",
+          "trim",
+          "trimLeft",
+          "trimRight"
+        ];
+        Object.keys(theme).forEach(function(prop) {
+          if (stringPrototypeBlacklist.indexOf(prop) !== -1) {
+            console.log("warn: ".red + ("String.prototype" + prop).magenta + " is probably something you don't want to override.  Ignoring style name");
+          } else {
+            if (typeof theme[prop] === "string") {
+              colors[prop] = colors[theme[prop]];
+              addProperty(prop, function() {
+                return colors[prop](this);
+              });
+            } else {
+              var themePropApplicator = function(str) {
+                var ret = str || this;
+                for (var t = 0; t < theme[prop].length; t++) {
+                  ret = colors[theme[prop][t]](ret);
+                }
+                return ret;
+              };
+              addProperty(prop, themePropApplicator);
+              colors[prop] = function(str) {
+                return themePropApplicator(str);
+              };
+            }
+          }
+        });
+      }
+      colors.setTheme = function(theme) {
+        if (typeof theme === "string") {
+          console.log("colors.setTheme now only accepts an object, not a string. If you are trying to set a theme from a file, it is now your (the caller's) responsibility to require the file.  The old syntax looked like colors.setTheme(__dirname + '/../themes/generic-logging.js'); The new syntax looks like colors.setTheme(require(__dirname + '/../themes/generic-logging.js'));");
+          return;
+        } else {
+          applyTheme(theme);
+        }
+      };
+    };
+  }
+});
+
+// node_modules/colors/lib/index.js
+var require_lib = __commonJS({
+  "node_modules/colors/lib/index.js"(exports, module2) {
+    var colors = require_colors();
+    module2["exports"] = colors;
+    require_extendStringPrototype()();
+  }
+});
+
+// lib/commands/processor.js
+var require_processor = __commonJS({
+  "lib/commands/processor.js"(exports, module2) {
+    "use strict";
+    var { exec } = require("child_process");
+    var C_EVENT = require("events");
+    var commander = new C_EVENT();
+    commander.on("exit", (args) => {
+      if (!args[1])
+        args[1] = 1;
+      process.exit(args[1]);
+    });
+    commander.on("list", (type) => {
+      if (type[1] === "peers") {
+        console.log("\nconnected peers:");
+        if (Object.keys(process.PEERS).length > 0) {
+          for (let peer in process.PEERS) {
+            console.log(`_id: ${process.PEERS[peer]._id}`);
+          }
+        } else {
+          console.log("No peers connected".gray);
+        }
+        console.log("\nRun 'peer PEER_ID' to show all peer info\n".yellow);
+      }
+      if (type[1] === "listeners") {
+        console.log("\nconnected listeners:");
+        if (Object.keys(process.listeners).length > 0) {
+          console.log(process.listeners);
+          console.log("");
+        } else {
+          console.log("No listeners...\n".gray);
+        }
+        console.log("\nRun 'peer PEER_ID' to show all peer info\n".yellow);
+      }
+    });
+    commander.on("clear", (type) => {
+      if (!type[1]) {
+        console.clear();
+      } else if (type[1] === "peers") {
+        process.PEERS = [];
+      } else if (type[1] === "listeners") {
+        process.listeners = {};
+      } else {
+        console.log(`'${type[1]}' is not a valid argument for 'clear'`.red);
+      }
+    });
+    commander.on("peer", (data) => {
+      var peer;
+      var id = data[1];
+      var arg = data[2];
+      Object.keys(process.PEERS).forEach((key) => {
+        var peer_data = process.PEERS[key];
+        if (peer_data._id === id) {
+          peer = peer_data;
+        }
+        ;
+      });
+      if (peer && arg) {
+        var info = peer;
+        arg.split(".").forEach((a) => {
+          if (!info) {
+            console.log(`'${arg}' is not a valid key in the '${id}' peer`);
+          }
+          info = peer[a];
+        });
+        if (!info) {
+          console.log(`'${arg}' is not a valid key in '${id}'`.red);
+        } else {
+          console.log(info);
+        }
+      } else if (peer && !arg) {
+        console.log(peer);
+      } else {
+        console.log(`peer '${id}' not found`.red);
+      }
+    });
+    commander.on("info", (type) => {
+      if (!type[1]) {
+        console.log("port -> ".yellow, `${process.port}`.gray);
+        console.log("storage -> ".yellow, `${process.storage}`.gray);
+        console.log("checkpoint -> ".yellow, `${process.checkpoint}`.gray, "\n");
+      }
+      if (type[1] === "storage") {
+        console.log("storage -> ".yellow, `${process.storage}`.gray);
+      }
+      if (type[1] === "port") {
+        console.log("port -> ".yellow, `${process.port}`.gray);
+      }
+      if (type[1] === "checkpoint") {
+        console.log("checkpoint -> ".yellow, `${process.checkpoint}`.gray);
+      }
+    });
+    commander.on("set", (args) => {
+      if (args[1] === "storage") {
+        args[2] === "true" ? process.storage = true : args[2] === "false" ? process.storage = false : console.log("storage can only be set to true or false".red);
+      }
+      if (args[1] === "checkpoint") {
+        process.checkpoint = Number(args[1]);
+      }
+    });
+    commander.on("run", (args) => {
+      delete args[0];
+      var ex = "";
+      if (args.length > 0) {
+        args.forEach((arg) => {
+          if (arg)
+            ex = ex + ` ${arg}`;
+        });
+        var func = new Function(ex);
+        func();
+      }
+    });
+    module2.exports = commander;
+  }
+});
+
 // dev/peers/emitter.js
 var require_emitter = __commonJS({
   "dev/peers/emitter.js"(exports, module2) {
@@ -18,30 +906,47 @@ var require_emitter = __commonJS({
         return;
       }
       try {
-        peer.socket.send(JSON.stringify(data));
+        process.PEERS[peer].socket.send(JSON.stringify(data));
       } catch (err) {
       }
       ;
     });
-    PE.on("put", (nodes, data) => {
-      var peers = process.PEERS;
-      peers.forEach((peer) => {
-        var listeners = peer.listeners;
-        var mappingNodes;
-        var send = false;
-        if (listeners) {
-          mappingNodes = nodes.length > listeners.length ? nodes : nodes.length < listeners.length ? listeners : nodes;
-          mappingNodes.forEach((node) => {
-            var listenerValue = listeners[nodes.indexOf(node)];
-            send = !listenerValue || listenerValue === node ? true : false;
-          });
-          if (send) {
-            try {
-              peer.socket.send(JSON.stringify(data));
-            } catch (err) {
-            }
+    PE.on("put", function(graph2, data) {
+      var peers = [];
+      var listening_peers = [];
+      var nodes = [];
+      var props;
+      var dynamic_graph;
+      if (graph2.includes(".")) {
+        nodes = graph2.split(".")[0].split("/");
+        props = graph2.split(".")[1];
+      } else {
+        nodes = graph2.split("/");
+      }
+      nodes.forEach((node) => {
+        if (!dynamic_graph) {
+          dynamic_graph = node;
+        } else {
+          dynamic_graph = `${dynamic_graph}/${node}`;
+        }
+        if (process.listeners[dynamic_graph]) {
+          if (listening_peers.indexOf(process.listeners[dynamic_graph])) {
+            listening_peers.push(...process.listeners[dynamic_graph]);
           }
         }
+      });
+      if (props) {
+        dynamic_graph = `${dynamic_graph}.${props}`;
+        if (process.listeners[dynamic_graph]) {
+          listening_peers.push(...process.listeners[dynamic_graph]);
+        }
+      }
+      listening_peers.forEach((peer) => {
+        try {
+          process.PEERS[peer].socket.send(JSON.stringify(data));
+        } catch (err) {
+        }
+        ;
       });
     });
     module2.exports = PE;
@@ -54,7 +959,7 @@ var require_radix = __commonJS({
     "use strict";
     (function() {
       function Radix() {
-        var radix = function(key, val, t) {
+        const radix = function(key, val, t) {
           radix.unit = 0;
           !t && u !== val ? radix.last = "" + key < radix.last ? radix.last : "" + key && delete (radix.$ || {})[_] : null;
           t = t || radix.$ || (radix.$ = {});
@@ -62,13 +967,18 @@ var require_radix = __commonJS({
             return t;
           }
           key = "" + key;
-          var i = 0, l = key.length - 1, k = key[i], at, tmp;
+          let i = 0;
+          const l = key.length - 1;
+          let k = key[i];
+          let at;
+          let tmp;
           while (!(at = t[k]) && i < l) {
             k += key[++i];
           }
           if (!at) {
             if (!each(t, function(r, s) {
-              var ii = 0, kk = "";
+              let ii = 0;
+              let kk = "";
               if ((s || "").length) {
                 while (s[ii] == key[ii]) {
                   kk += s[ii++];
@@ -82,12 +992,12 @@ var require_radix = __commonJS({
                   (tmp || (tmp = {}))[s.slice(ii)] = r;
                   return r;
                 }
-                var __ = {};
+                const __ = {};
                 __[s.slice(ii)] = r;
                 ii = key.slice(ii);
-                "" === ii ? __[""] = val : (__[ii] = {})[""] = val;
+                ii === "" ? __[""] = val : (__[ii] = {})[""] = val;
                 t[kk] = __;
-                if (Radix.debug && "undefined" === "" + kk) {
+                if (Radix.debug && "" + kk === "undefined") {
                   console.log(0, kk);
                   debugger;
                 }
@@ -99,7 +1009,7 @@ var require_radix = __commonJS({
                 return;
               }
               (t[k] || (t[k] = {}))[""] = val;
-              if (Radix.debug && "undefined" === "" + k) {
+              if (Radix.debug && "" + k === "undefined") {
                 console.log(1, k);
                 debugger;
               }
@@ -113,7 +1023,10 @@ var require_radix = __commonJS({
             }
             at[""] = val;
           } else {
-            u !== val ? delete at[_] : null;
+            if (u !== val) {
+              delete at[_];
+            }
+            ;
             return radix(key.slice(++i), val, at || (at = {}));
           }
         };
@@ -123,29 +1036,37 @@ var require_radix = __commonJS({
       Radix.map = function rap(radix, cb, opt2, pre) {
         try {
           pre = pre || [];
-          var t = "function" == typeof radix ? radix.$ || {} : radix;
+          const t = typeof radix === "function" ? radix.$ || {} : radix;
           if (!t) {
             return;
           }
-          if ("string" == typeof t) {
+          if (typeof t === "string") {
             if (Radix.debug) {
               throw ["BUG:", radix, cb, opt2, pre];
             }
             return;
           }
-          var keys = (t[_] || no).sort || (t[_] = function $() {
+          let keys = (t[_] || no).sort || (t[_] = function $() {
             $.sort = Object.keys(t).sort();
             return $;
-          }()).sort, rev;
-          opt2 = true === opt2 ? { branch: true } : opt2 || {};
+          }()).sort;
+          let rev;
+          opt2 = opt2 === true ? { branch: true } : opt2 || {};
           if (rev = opt2.reverse) {
             keys = keys.slice(0).reverse();
           }
-          var start = opt2.start, end = opt2.end, END = "\uFFFF";
-          var i = 0, l = keys.length;
+          const start = opt2.start;
+          const end = opt2.end;
+          const END = "\uFFFF";
+          let i = 0;
+          const l = keys.length;
           for (; i < l; i++) {
-            var key = keys[i], tree = t[key], tmp, p, pt;
-            if (!tree || "" === key || _ === key || "undefined" === key) {
+            const key = keys[i];
+            const tree = t[key];
+            var tmp;
+            var p;
+            var pt;
+            if (!tree || key === "" || _ === key || key === "undefined") {
               continue;
             }
             p = pre.slice(0);
@@ -164,7 +1085,7 @@ var require_radix = __commonJS({
               }
             }
             if (u !== (tmp = tree[""])) {
-              var yes = 1;
+              let yes = 1;
               if (u !== start && pt < (start || "")) {
                 yes = 0;
               }
@@ -196,16 +1117,13 @@ var require_radix = __commonJS({
           console.error(e);
         }
       };
-      if (typeof window !== "undefined") {
-        window.Radix = Radix;
-      } else {
-        try {
-          module2.exports = Radix;
-        } catch (e) {
-        }
+      try {
+        module2.exports = Radix;
+      } catch (e) {
       }
+      ;
       var each = Radix.object = function(o, f, r) {
-        for (var k in o) {
+        for (const k in o) {
           if (!o.hasOwnProperty(k)) {
             continue;
           }
@@ -213,7 +1131,9 @@ var require_radix = __commonJS({
             return r;
           }
         }
-      }, no = {}, u;
+      };
+      var no = {};
+      let u;
       var _ = String.fromCharCode(24);
     })();
   }
@@ -224,9 +1144,11 @@ var require_yson = __commonJS({
   "dev/storage/yson.js"(exports, module2) {
     "use strict";
     (function() {
-      var yson = {}, u, sI = setTimeout.turn || typeof setImmediate != "" + u && setImmediate || setTimeout;
+      const yson = {};
+      let u;
+      const sI = setTimeout.turn || typeof setImmediate !== "" + u && setImmediate || setTimeout;
       yson.parseAsync = function(text, done, revive, M) {
-        if ("string" != typeof text) {
+        if (typeof text !== "string") {
           try {
             done(u, JSON.parse(text));
           } catch (e) {
@@ -234,15 +1156,19 @@ var require_yson = __commonJS({
           }
           return;
         }
-        var ctx = { i: 0, text, done, l: text.length, up: [] };
+        const ctx = { i: 0, text, done, l: text.length, up: [] };
         M = M || 1024 * 32;
         parse();
         function parse() {
-          var s = ctx.text;
-          var i = ctx.i, l = ctx.l, j = 0;
-          var w = ctx.w, b, tmp;
+          const s = ctx.text;
+          let i = ctx.i;
+          const l = ctx.l;
+          let j = 0;
+          let w = ctx.w;
+          let b;
+          let tmp;
           while (j++ < M) {
-            var c = s[i++];
+            let c = s[i++];
             if (i > l) {
               ctx.end = true;
               break;
@@ -251,12 +1177,12 @@ var require_yson = __commonJS({
               i = s.indexOf('"', i - 1);
               c = s[i];
               tmp = 0;
-              while ("\\" == s[i - ++tmp]) {
+              while (s[i - ++tmp] == "\\") {
               }
               ;
               tmp = !(tmp % 2);
               b = b || tmp;
-              if ('"' == c && !tmp) {
+              if (c == '"' && !tmp) {
                 w = u;
                 tmp = ctx.s;
                 if (ctx.a) {
@@ -382,18 +1308,18 @@ var require_yson = __commonJS({
         }
       };
       function value(s) {
-        var n = parseFloat(s);
+        const n = parseFloat(s);
         if (!isNaN(n)) {
           return n;
         }
         s = s.trim();
-        if ("true" == s) {
+        if (s == "true") {
           return true;
         }
-        if ("false" == s) {
+        if (s == "false") {
           return false;
         }
-        if ("null" == s) {
+        if (s == "null") {
           return null;
         }
       }
@@ -403,10 +1329,13 @@ var require_yson = __commonJS({
         ctx.up = [ctx.at = { d: data }];
         ctx.done = done;
         ctx.i = 0;
-        var j = 0;
+        let j = 0;
         ify();
         function ify() {
-          var at = ctx.at, data2 = at.d, add = "", tmp;
+          let at = ctx.at;
+          const data2 = at.d;
+          let add = "";
+          let tmp;
           if (at.i && at.i - at.j > 0) {
             add += ",";
           }
@@ -435,7 +1364,7 @@ var require_yson = __commonJS({
                 ctx.up.push(ctx.at = at);
                 break;
               }
-              if ("function" != typeof (data2 || "").toJSON) {
+              if (typeof (data2 || "").toJSON !== "function") {
                 add += "{";
                 at = { i: -1, ok: Object.keys(data2).sort(), as: data2, up: at, j: 0 };
                 at.l = at.ok.length;
@@ -477,20 +1406,53 @@ var require_yson = __commonJS({
           ctx.done(u, ctx.text);
         }
       };
-      if (typeof window != "" + u) {
+      if (typeof window !== "" + u) {
         window.YSON = yson;
       }
       try {
-        if (typeof module2 != "" + u) {
+        if (typeof module2 !== "" + u) {
           module2.exports = yson;
         }
       } catch (e) {
       }
-      if (typeof JSON != "" + u) {
+      if (typeof JSON !== "" + u) {
         JSON.parseAsync = yson.parseAsync;
         JSON.stringifyAsync = yson.stringifyAsync;
       }
     })();
+  }
+});
+
+// dev/storage/radmigtmp.js
+var require_radmigtmp = __commonJS({
+  "dev/storage/radmigtmp.js"(exports, module2) {
+    "use strict";
+    module2.exports = function(r) {
+      const Radix = require_radix();
+      r.find("a", function() {
+        const l = [];
+        Radix.map(r.list, function(v2, f2) {
+          if (!(f2.indexOf("%1B") + 1)) {
+            return;
+          }
+          if (!v2) {
+            return;
+          }
+          l.push([f2, v2]);
+        });
+        let f, v;
+        l.forEach(function(a) {
+          f = a[0];
+          v = a[1];
+          r.list(decodeURIComponent(f), v);
+          r.list(f, 0);
+        });
+        if (!f) {
+          return;
+        }
+        r.find.bad(f);
+      });
+    };
   }
 });
 
@@ -503,7 +1465,7 @@ var require_radisk = __commonJS({
         opt2 = opt2 || {};
         opt2.log = opt2.log || console.log;
         opt2.file = String(opt2.file || "ddeep_data");
-        var has = (Radisk.has || (Radisk.has = {}))[opt2.file];
+        const has = (Radisk.has || (Radisk.has = {}))[opt2.file];
         if (has) {
           return has;
         }
@@ -518,12 +1480,13 @@ var require_radisk = __commonJS({
           return encodeURIComponent(t).replace(/\*/g, "%2A");
         }
         function atomic(v) {
-          return u !== v && (!v || "object" != typeof v);
+          return u !== v && (!v || typeof v !== "object");
         }
-        var timediate = "" + u === typeof setImmediate ? setTimeout : setImmediate;
-        var puff = setTimeout.turn || timediate, u;
-        var map = Radix.object;
-        var ST = 0;
+        const timediate = "" + u === typeof setImmediate ? setTimeout : setImmediate;
+        const puff = setTimeout.turn || timediate;
+        var u;
+        const map = Radix.object;
+        let ST = 0;
         if (!opt2.store) {
           return opt2.log("ERROR: Radisk needs `opt.store` interface with `{get: fn, put: fn (, list: fn)}`!");
         }
@@ -535,28 +1498,28 @@ var require_radisk = __commonJS({
         }
         if (!opt2.store.list) {
         }
-        if ("" + u != typeof require) {
+        if ("" + u !== typeof require) {
           require_yson();
         }
-        var parse = JSON.parseAsync || function(t, cb, r2) {
-          var u2;
+        const parse = JSON.parseAsync || function(t, cb, r2) {
+          let u2;
           try {
             cb(u2, JSON.parse(t, r2));
           } catch (e) {
             cb(e);
           }
         };
-        var json = JSON.stringifyAsync || function(v, cb, r2, s) {
-          var u2;
+        const json = JSON.stringifyAsync || function(v, cb, r2, s) {
+          let u2;
           try {
             cb(u2, JSON.stringify(v, r2, s));
           } catch (e) {
             cb(e);
           }
         };
-        var r = function(key, data, cb, tag, DBG) {
-          if ("function" === typeof data) {
-            var o = cb || {};
+        const r = function(key, data, cb, tag, DBG) {
+          if (typeof data === "function") {
+            const o = cb || {};
             cb = data;
             r.read(key, cb, o, DBG || tag);
             return;
@@ -564,9 +1527,13 @@ var require_radisk = __commonJS({
           r.save(key, data, cb, tag, DBG);
         };
         r.save = function(key, data, cb, tag, DBG) {
-          var s = { key }, tags, f, d, q;
+          const s = { key };
+          let tags;
+          let f;
+          let d;
+          let q;
           s.find = function(file) {
-            var tmp;
+            let tmp;
             s.file = file || (file = opt2.code.from);
             DBG && (DBG = DBG[file] = DBG[file] || {});
             DBG && (DBG.sf = DBG.sf || +/* @__PURE__ */ new Date());
@@ -583,7 +1550,8 @@ var require_radisk = __commonJS({
               cb(err);
               return;
             }
-            var file = s.file = (disk || "").file || s.file, tmp;
+            const file = s.file = (disk || "").file || s.file;
+            let tmp;
             if (!disk && file !== opt2.code.from) {
               r.find.bad(file);
               r.save(key, data, cb, tag);
@@ -612,7 +1580,8 @@ var require_radisk = __commonJS({
           };
           s.write = function() {
             DBG && (DBG.sto = DBG.sto || +/* @__PURE__ */ new Date());
-            var file = f = s.file, disk = d = s.disk;
+            const file = f = s.file;
+            const disk = d = s.disk;
             q = s.q = disk.Q;
             tags = s.tags = disk.tags;
             delete disk.Q;
@@ -623,19 +1592,19 @@ var require_radisk = __commonJS({
           s.ack = function(err, ok) {
             DBG && (DBG.sa = DBG.sa || +/* @__PURE__ */ new Date());
             DBG && (DBG.sal = q.length);
-            var ack, tmp;
-            for (var id in r.tags) {
+            let ack, tmp;
+            for (const id in r.tags) {
               if (!r.tags.hasOwnProperty(id)) {
                 continue;
               }
-              var tag2 = r.tags[id];
+              const tag2 = r.tags[id];
               if ((tmp = r.disk[f]) && (tmp = tmp.tags) && tmp[tag2]) {
                 continue;
               }
               ack = tag2[f];
               delete tag2[f];
               var ne;
-              for (var k in tag2) {
+              for (const k in tag2) {
                 if (tag2.hasOwnProperty(k)) {
                   ne = true;
                   break;
@@ -648,8 +1617,9 @@ var require_radisk = __commonJS({
               ack && ack(err, ok);
             }
             !q && (q = "");
-            var l = q.length, i = 0;
-            var S = +/* @__PURE__ */ new Date();
+            const l = q.length;
+            let i = 0;
+            const S = +/* @__PURE__ */ new Date();
             for (; i < l; i++) {
               (ack = q[i]) && ack(err, ok);
             }
@@ -658,7 +1628,6 @@ var require_radisk = __commonJS({
           };
           cb || (cb = function(err, ok) {
             if (!err) {
-              return;
             }
           });
           r.find(key, s.find);
@@ -666,15 +1635,17 @@ var require_radisk = __commonJS({
         r.disk = {};
         r.one = {};
         r.tags = {};
-        var RWC = 0;
+        let RWC = 0;
         r.write = function(file, rad, cb, o, DBG) {
           if (!rad) {
             cb("No radix!");
             return;
           }
-          o = "object" == typeof o ? o : { force: o };
-          var f = function Fractal() {
-          }, a, b;
+          o = typeof o === "object" ? o : { force: o };
+          const f = function Fractal() {
+          };
+          let a;
+          let b;
           f.text = "";
           f.file = file = rad.file || (rad.file = file);
           if (!file) {
@@ -682,9 +1653,9 @@ var require_radisk = __commonJS({
             return;
           }
           f.write = function() {
-            var text = rad.raw = f.text;
+            const text = rad.raw = f.text;
             r.disk[file = rad.file || f.file || file] = rad;
-            var S = +/* @__PURE__ */ new Date();
+            const S = +/* @__PURE__ */ new Date();
             DBG && (DBG.wd = S);
             r.find.add(file, function add(err) {
               DBG && (DBG.wa = +/* @__PURE__ */ new Date());
@@ -703,7 +1674,7 @@ var require_radisk = __commonJS({
             });
           };
           f.split = function() {
-            var S = +/* @__PURE__ */ new Date();
+            const S = +/* @__PURE__ */ new Date();
             DBG && (DBG.wf = S);
             f.text = "";
             if (!f.count) {
@@ -714,7 +1685,7 @@ var require_radisk = __commonJS({
             }
             DBG && (DBG.wfc = f.count);
             f.limit = Math.ceil(f.count / 2);
-            var SC = f.count;
+            const SC = f.count;
             f.count = 0;
             DBG && (DBG.wf1 = +/* @__PURE__ */ new Date());
             f.sub = Radix();
@@ -762,8 +1733,8 @@ var require_radisk = __commonJS({
             if (opt2.max <= (val || "").length) {
               return cb("Data too big!"), true;
             }
-            var enc = Radisk.encode(pre.length) + "#" + Radisk.encode(k) + (u === val ? "" : ":" + Radisk.encode(val)) + "\n";
-            if (opt2.chunk < f.text.length + enc.length && 1 < f.count && !o.force) {
+            const enc = Radisk.encode(pre.length) + "#" + Radisk.encode(k) + (u === val ? "" : ":" + Radisk.encode(val)) + "\n";
+            if (opt2.chunk < f.text.length + enc.length && f.count > 1 && !o.force) {
               return f.split();
             }
             f.text += enc;
@@ -777,8 +1748,8 @@ var require_radisk = __commonJS({
           }
         };
         r.write.jsonify = function(f, rad, cb, o, DBG) {
-          var raw;
-          var S = +/* @__PURE__ */ new Date();
+          let raw;
+          const S = +/* @__PURE__ */ new Date();
           DBG && (DBG.w = S);
           try {
             raw = JSON.stringify(rad.$);
@@ -789,7 +1760,7 @@ var require_radisk = __commonJS({
           DBG && (DBG.ws = +/* @__PURE__ */ new Date());
           console.STAT && console.STAT(S, +/* @__PURE__ */ new Date() - S, "rad stringified JSON");
           if (opt2.chunk < raw.length && !o.force) {
-            var c = 0;
+            let c = 0;
             Radix.map(rad, function() {
               if (c++) {
                 return true;
@@ -812,7 +1783,7 @@ var require_radisk = __commonJS({
           if (atomic(tree)) {
             return tree;
           }
-          var sub = Radix();
+          const sub = Radix();
           Radix.map(tree, function(v, k) {
             sub(k, v);
           }, o);
@@ -821,9 +1792,9 @@ var require_radisk = __commonJS({
         (function() {
           r.read = function(key, cb, o, DBG) {
             o = o || {};
-            var g = { key };
+            const g = { key };
             g.find = function(file) {
-              var tmp;
+              let tmp;
               g.file = file || (file = opt2.code.from);
               DBG && (DBG = DBG[file] = DBG[file] || {});
               DBG && (DBG.rf = DBG.rf || +/* @__PURE__ */ new Date());
@@ -840,7 +1811,7 @@ var require_radisk = __commonJS({
                 cb(err);
                 return;
               }
-              var file = g.file = (disk || "").file || g.file;
+              const file = g.file = (disk || "").file || g.file;
               if (!disk && file !== opt2.code.from) {
                 r.find.bad(file);
                 r.read(key, cb, o);
@@ -852,7 +1823,7 @@ var require_radisk = __commonJS({
                 return;
               }
               disk.file || (disk.file = file);
-              var data = r.range(disk(key), o);
+              const data = r.range(disk(key), o);
               DBG && (DBG.rr = +/* @__PURE__ */ new Date());
               o.unit = disk.unit;
               o.chunks = (o.chunks || 0) + 1;
@@ -871,10 +1842,10 @@ var require_radisk = __commonJS({
                 o.more = 0;
               }
               if (o.next) {
-                if (!o.reverse && (key < o.next && 0 != o.next.indexOf(key) || u !== o.end && (o.end || "\uFFFF") < o.next)) {
+                if (!o.reverse && (key < o.next && o.next.indexOf(key) != 0 || u !== o.end && (o.end || "\uFFFF") < o.next)) {
                   o.more = 0;
                 }
-                if (o.reverse && (key > o.next && 0 != key.indexOf(o.next) || u !== o.start && (o.start || "") > o.next && file <= o.start)) {
+                if (o.reverse && (key > o.next && key.indexOf(o.next) != 0 || u !== o.start && (o.start || "") > o.next && file <= o.start)) {
                   o.more = 0;
                 }
               }
@@ -888,9 +1859,9 @@ var require_radisk = __commonJS({
               if (o.parsed >= o.limit) {
                 return;
               }
-              var S = +/* @__PURE__ */ new Date();
+              const S = +/* @__PURE__ */ new Date();
               DBG && (DBG.rm = S);
-              var next = o.next;
+              const next = o.next;
               timediate(function() {
                 console.STAT && console.STAT(S, +/* @__PURE__ */ new Date() - S, "rad more");
                 r.parse(next, g.check);
@@ -902,14 +1873,14 @@ var require_radisk = __commonJS({
                 return;
               }
               disk.check = 1;
-              var S = +/* @__PURE__ */ new Date();
+              const S = +/* @__PURE__ */ new Date();
               (info || (info = {})).file || (info.file = g.file);
               Radix.map(disk, function(val, key2) {
                 r.find(key2, function(file) {
                   if ((file || (file = opt2.code.from)) === info.file) {
                     return;
                   }
-                  var id = ("" + Math.random()).slice(-3);
+                  const id = ("" + Math.random()).slice(-3);
                   puff(function() {
                     r.save(key2, val, function ack(err2, ok) {
                       if (err2) {
@@ -928,14 +1899,14 @@ var require_radisk = __commonJS({
           function rev(a, b) {
             return b;
           }
-          var revo = { reverse: true };
+          const revo = { reverse: true };
         })();
-        ;
         (function() {
-          var RPC = 0;
-          var Q = {}, s = String.fromCharCode(31);
+          let RPC = 0;
+          const Q = {};
+          const s = String.fromCharCode(31);
           r.parse = function(file, cb, raw, DBG) {
-            var q;
+            let q;
             if (!file) {
               return cb();
             }
@@ -944,11 +1915,12 @@ var require_radisk = __commonJS({
               return;
             }
             q = Q[file] = [cb];
-            var p = function Parse() {
-            }, info = { file };
+            const p = function Parse() {
+            };
+            const info = { file };
             (p.disk = Radix()).file = file;
             p.read = function(err, data) {
-              var tmp;
+              let tmp;
               DBG && (DBG.rpg = +/* @__PURE__ */ new Date());
               console.STAT && console.STAT(S, +/* @__PURE__ */ new Date() - S, "read disk", JSON.stringify(file), ++RPC, "total all parses.");
               if ((p.err = err) || (p.not = !data)) {
@@ -956,7 +1928,7 @@ var require_radisk = __commonJS({
                 p.map(q, p.ack);
                 return;
               }
-              if ("string" !== typeof data) {
+              if (typeof data !== "string") {
                 try {
                   if (opt2.max <= data.length) {
                     p.err = "Chunk too big!";
@@ -976,7 +1948,7 @@ var require_radisk = __commonJS({
               DBG && (DBG.rpl = info.parsed);
               DBG && (DBG.rpa = q.length);
               S = +/* @__PURE__ */ new Date();
-              if (!(opt2.jsonify || "{" === data[0])) {
+              if (!(opt2.jsonify || data[0] === "{")) {
                 p.radec(err, data);
                 return;
               }
@@ -989,7 +1961,7 @@ var require_radisk = __commonJS({
                   p.map(q, p.ack);
                   return;
                 }
-                if ("{" === data[0]) {
+                if (data[0] === "{") {
                   delete Q[file];
                   p.err = tmp || "JSON error!";
                   p.map(q, p.ack);
@@ -1002,9 +1974,11 @@ var require_radisk = __commonJS({
               if (!q || !q.length) {
                 return;
               }
-              var S2 = +/* @__PURE__ */ new Date();
-              var err = p.err, data = p.not ? u : p.disk;
-              var i = 0, ack;
+              const S2 = +/* @__PURE__ */ new Date();
+              const err = p.err;
+              const data = p.not ? u : p.disk;
+              let i = 0;
+              let ack;
               while (i < 9 && (ack = q[i++])) {
                 ack(err, data, info);
               }
@@ -1028,8 +2002,12 @@ var require_radisk = __commonJS({
             p.radec = function(err, data) {
               delete Q[file];
               S = +/* @__PURE__ */ new Date();
-              var tmp = p.split(data), pre = [], i, k, v;
-              if (!tmp || 0 !== tmp[1]) {
+              let tmp = p.split(data);
+              let pre = [];
+              let i;
+              let k;
+              let v;
+              if (!tmp || tmp[1] !== 0) {
                 p.err = "File '" + file + "' does not have root radix! ";
                 p.map(q, p.ack);
                 return;
@@ -1038,7 +2016,7 @@ var require_radisk = __commonJS({
                 k = v = u;
                 i = tmp[1];
                 tmp = p.split(tmp[2]) || "";
-                if ("#" == tmp[0]) {
+                if (tmp[0] == "#") {
                   k = tmp[1];
                   pre = pre.slice(0, i);
                   if (i <= pre.length) {
@@ -1046,10 +2024,10 @@ var require_radisk = __commonJS({
                   }
                 }
                 tmp = p.split(tmp[2]) || "";
-                if ("\n" == tmp[0]) {
+                if (tmp[0] == "\n") {
                   continue;
                 }
-                if ("=" == tmp[0] || ":" == tmp[0]) {
+                if (tmp[0] == "=" || tmp[0] == ":") {
                   v = tmp[1];
                 }
                 if (u !== k && u !== v) {
@@ -1064,7 +2042,12 @@ var require_radisk = __commonJS({
               if (!t) {
                 return;
               }
-              var l = [], o = {}, i = -1, a = "", b, c;
+              const l = [];
+              const o = {};
+              let i = -1;
+              let a = "";
+              let b;
+              let c;
               i = t.indexOf(s);
               if (!t[i]) {
                 return;
@@ -1078,7 +2061,9 @@ var require_radisk = __commonJS({
             if (r.disk) {
               raw || (raw = (r.disk[file] || "").raw);
             }
-            var S = +/* @__PURE__ */ new Date(), SM, SL;
+            var S = +/* @__PURE__ */ new Date();
+            let SM;
+            let SL;
             DBG && (DBG.rp = S);
             if (raw) {
               return puff(function() {
@@ -1088,9 +2073,10 @@ var require_radisk = __commonJS({
             opt2.store.get(ename(file), p.read);
           };
         })();
-        ;
         (function() {
-          var dir, f = String.fromCharCode(28), Q;
+          let dir;
+          const f = String.fromCharCode(28);
+          let Q;
           r.find = function(key, cb) {
             if (!dir) {
               if (Q) {
@@ -1109,7 +2095,7 @@ var require_radisk = __commonJS({
             }, { reverse: 1, end: key }) || cb(opt2.code.from);
           };
           r.find.add = function(file, cb) {
-            var has2 = dir(file);
+            const has2 = dir(file);
             if (has2 || file === f) {
               cb(u, 1);
               return;
@@ -1122,7 +2108,7 @@ var require_radisk = __commonJS({
                 return;
               }
               cb.found = (cb.found || 0) - 1;
-              if (0 !== cb.found) {
+              if (cb.found !== 0) {
                 return;
               }
               cb(u, 1);
@@ -1160,50 +2146,58 @@ var require_radisk = __commonJS({
           function drain(rad, tmp) {
             dir = dir || rad;
             dir.file = f;
-            tmp = Q;
+            var tmp2 = Q;
             Q = null;
-            map(tmp, function(arg) {
+            map(tmp2, function(arg) {
               r.find(arg[0], arg[1]);
             });
           }
         })();
         try {
-          !Gun.window && require("./radmigtmp")(r);
+          require_radmigtmp()(r);
         } catch (e) {
         }
         var noop = function() {
-        }, RAD, u;
+        };
+        let RAD;
+        var u;
         Radisk.has[opt2.file] = r;
         return r;
       }
       ;
       (function() {
-        var _ = String.fromCharCode(31), u;
+        const _ = String.fromCharCode(31);
+        let u;
         Radisk.encode = function(d, o, s) {
           s = s || _;
-          var t = s, tmp;
-          if (typeof d == "string") {
-            var i = d.indexOf(s);
+          let t = s;
+          let tmp;
+          if (typeof d === "string") {
+            let i = d.indexOf(s);
             while (i != -1) {
               t += s;
               i = d.indexOf(s, i + 1);
             }
             return t + '"' + d + s;
-          } else if (d && d["#"] && 1 == Object.keys(d).length) {
+          } else if (d && d["#"] && Object.keys(d).length == 1) {
             return t + "#" + tmp + t;
-          } else if ("number" == typeof d) {
+          } else if (typeof d === "number") {
             return t + "+" + (d || 0) + t;
-          } else if (null === d) {
+          } else if (d === null) {
             return t + " " + t;
-          } else if (true === d) {
+          } else if (d === true) {
             return t + "+" + t;
-          } else if (false === d) {
+          } else if (d === false) {
             return t + "-" + t;
           }
         };
         Radisk.decode = function(t, o, s) {
           s = s || _;
-          var d = "", i = -1, n = 0, c, p;
+          let d = "";
+          let i = -1;
+          let n = 0;
+          let c;
+          let p;
           if (s !== t[0]) {
             return;
           }
@@ -1221,18 +2215,18 @@ var require_radisk = __commonJS({
           if (o) {
             o.i = i + 1;
           }
-          if ('"' === p) {
+          if (p === '"') {
             return d;
-          } else if ("#" === p) {
+          } else if (p === "#") {
             return { "#": d };
-          } else if ("+" === p) {
-            if (0 === d.length) {
+          } else if (p === "+") {
+            if (d.length === 0) {
               return true;
             }
             return parseFloat(d);
-          } else if (" " === p) {
+          } else if (p === " ") {
             return null;
-          } else if ("-" === p) {
+          } else if (p === "-") {
             return false;
           }
         };
@@ -1258,25 +2252,25 @@ var require_store = __commonJS({
     "use strict";
     var Radix = require_radix();
     var Radisk = require_radisk();
-    var fs = require("fs");
+    var fs2 = require("fs");
     function Store(opt2) {
       opt2 = opt2 || {};
-      opt2.file = String(opt2.file || "ddeep_data");
-      var store = function Store2() {
+      opt2.file = "ddeep_data";
+      const store = function Store2() {
       };
       store.put = function(file, data, cb) {
-        var random = Math.random().toString(36).slice(-3);
-        fs.writeFile(opt2.file + "-" + random + ".tmp", data, function(err, ok) {
+        const random = Math.random().toString(36).slice(-3);
+        fs2.writeFile(opt2.file + "-" + random + ".tmp", data, function(err, ok) {
           if (err) {
             return cb(err);
           }
-          fs.rename(opt2.file + "-" + random + ".tmp", opt2.file + "/" + file, cb);
+          fs2.rename(opt2.file + "-" + random + ".tmp", opt2.file + "/" + file, cb);
         });
       };
       store.get = function(file, cb) {
-        fs.readFile(opt2.file + "/" + file, (err, data) => {
+        fs2.readFile(opt2.file + "/" + file, (err, data) => {
           if (err) {
-            if ("ENOENT" === (err.code || "").toUpperCase()) {
+            if ((err.code || "").toUpperCase() === "ENOENT") {
               return cb();
             }
             console.log("ERROR:", err);
@@ -1288,13 +2282,13 @@ var require_store = __commonJS({
         });
       };
       store.list = function(cb, match) {
-        fs.readdir(opt2.file, function(err, dir) {
+        fs2.readdir(opt2.file, function(err, dir) {
           dir.forEach(cb);
           cb();
         });
       };
-      if (!fs.existsSync(opt2.file)) {
-        fs.mkdirSync(opt2.file);
+      if (!fs2.existsSync(opt2.file)) {
+        fs2.mkdirSync(opt2.file);
       }
       return store;
     }
@@ -1304,15 +2298,16 @@ var require_store = __commonJS({
       if (!graph2) {
         return;
       }
-      var c = 0;
+      let c = 0;
       Object.keys(graph2).forEach(function(soul) {
-        var node = graph2[soul];
+        const node = graph2[soul];
         Object.keys(node).forEach(function(key) {
-          if ("_" == key) {
+          if (key == "_") {
             return;
           }
           c++;
-          var val = node[key], state = node._[">"][key];
+          const val = node[key];
+          const state = node._[">"][key];
           rad(soul + "." + key, JSON.stringify([val, state]), ack);
         });
       });
@@ -1325,7 +2320,7 @@ var require_store = __commonJS({
           cb(err || "ERROR!");
           return;
         }
-        if (0 < c) {
+        if (c > 0) {
           return;
         }
         cb(ack.err, 1);
@@ -1335,12 +2330,12 @@ var require_store = __commonJS({
       if (!lex) {
         return;
       }
-      var soul = lex["#"];
-      var key = lex["."] || "";
-      var tmp = soul + "." + key;
-      var node;
+      const soul = lex["#"];
+      const key = lex["."] || "";
+      const tmp = soul + "." + key;
+      let node;
       rad(tmp, function(err, val) {
-        var graph2;
+        let graph2;
         if (val) {
           Radix.map(val, each);
           if (!node) {
@@ -1352,7 +2347,7 @@ var require_store = __commonJS({
         cb(err, graph2);
       });
       function each(val, key2) {
-        var data = JSON.parse(val);
+        const data = JSON.parse(val);
         node = node || { _: { "#": soul, ">": {} } };
         node[key2] = data[0];
         node._[">"][key2] = data[1];
@@ -1367,24 +2362,42 @@ var require_dup = __commonJS({
   "dev/dup.js"(exports, module2) {
     "use strict";
     function Dup() {
-      var dup2 = { s: {} }, opt2 = { max: 1e3, age: 1e3 * 9 };
+      const dup2 = { s: {} };
+      const opt2 = { max: 1e3, age: 1e3 * 9 };
+      let cache = {};
+      let tracked = /* @__PURE__ */ new Set();
       dup2.check = function(id) {
-        return dup2.s[id] ? dup2.track(id) : false;
+        if (cache[id]) {
+          return cache[id];
+        }
+        const result = dup2.s[id];
+        cache[id] = result;
+        return result;
       };
       dup2.track = function(id) {
+        if (tracked.has(id)) {
+          return id;
+        }
+        tracked.add(id);
         dup2.s[id] = +/* @__PURE__ */ new Date();
         if (!dup2.to) {
           dup2.to = setTimeout(function() {
-            Object.keys(dup2.s).forEach(function(time, id2) {
+            for (const [id2, time] of Object.entries(dup2.s)) {
               if (opt2.age > +/* @__PURE__ */ new Date() - Number(time)) {
-                return;
+                continue;
               }
+              tracked.delete(id2);
               delete dup2.s[id2];
-            });
+            }
             dup2.to = null;
           }, opt2.age);
         }
         return id;
+      };
+      dup2.destroy = function() {
+        clearTimeout(dup2.to);
+        cache = {};
+        tracked.clear();
       };
       return dup2;
     }
@@ -2173,18 +3186,36 @@ var require_ddeep_config = __commonJS({
   "ddeep.config.js"(exports, module2) {
     "use strict";
     module2.exports = {
-      // Set storage to false to disable persistent data storage
-      "storage": true,
-      // Set the port you want to run the peer on
+      /* Set storage to true to enable persistent data storage */
+      "storage": false,
+      /* Set the port you want to run the peer on */
       "port": 9999,
-      // set logs to false if you don't want to see real-tiem logs in your peer
-      "logs": true,
-      // Add your huggingFace token to be used with AI smart policies
+      /*
+          Set a list of IP adresses (of peers, servers, or websites) that are able to connect to this core
+          this can help prevent cross-site connections to your core
+      */
+      "whitelist": [],
+      /* Add your huggingFace token to be used with AI smart policies */
       "hf": null,
-      // Set a checkpoint interval timer in ms to make a recovery checkpoint of the database
-      // example: setting "checkpoint" to 60000 will make a point of recover every 1 minute
-      // this works onyl with persistent storage enabled
-      "checkpoint": null
+      /*
+          Set a checkpoint interval timer in ms to make a recovery checkpoint of the database
+          example: setting "checkpoint" to 60000 will make a point of recover every minute
+          this works onyl with persistent storage enabled
+      */
+      "checkpoint": null,
+      /*
+          Set a reset_graph interval timer in ms to clear the core's cached graph
+          example: setting "reset_graph" to 60000 will clear the graph data cache every minute
+      */
+      "reset_graph": null,
+      /*
+          Set a reset_listeners interval timers in ms to clear the core's lisetners
+          Listeners record all nodes being listened to with all peer's IDs listeting to them
+          and while a peer is removed from the listeners when It's disconnected,
+          It's "strongly recommended" to use 'resset_listeners' to keep things clear and avoid possible issues
+          you can disable this option by setting it to null or 0
+      */
+      "reset_listeners": 6e6
     };
   }
 });
@@ -2233,7 +3264,7 @@ var require_classes_model = __commonJS({
 });
 
 // dev/policies/processor.ts
-var require_processor = __commonJS({
+var require_processor2 = __commonJS({
   "dev/policies/processor.ts"(exports, module2) {
     "use strict";
     var getAIClasses = require_classes_model();
@@ -2261,93 +3292,29 @@ var require_processor = __commonJS({
   }
 });
 
-// dev/policies/scanner.ts
-var require_scanner = __commonJS({
-  "dev/policies/scanner.ts"(exports, module2) {
+// dev/policies/policy_builder.ts
+var require_policy_builder = __commonJS({
+  "dev/policies/policy_builder.ts"(exports, module2) {
     "use strict";
-    var processPolicy = require_processor();
-    function scanPolicies(nodes, operation, policies, data, cb) {
-      let res = true;
-      let processedPolicies = [];
-      var anyApplied = false;
-      !policies ? policies = {} : null;
-      for (let policy in policies) {
-        let policyValue = policies[policy];
-        let policyOperations = policyValue.operations;
-        let policyNodes = policyValue.graph;
-        if (policyOperations.indexOf(operation) > -1 && policyNodes[0] === nodes[0]) {
-          let isAppiled = false;
-          let mappingNodes = [];
-          mappingNodes = nodes.length > policyNodes.length ? nodes : nodes.length < policyNodes.length ? policyNodes : nodes;
-          for (let node in mappingNodes) {
-            let nodeValue = nodes[node];
-            let polNodeValue = policyNodes[node];
-            isAppiled = !polNodeValue ? true : polNodeValue === nodeValue ? true : false;
-            if (polNodeValue && polNodeValue !== nodeValue)
-              break;
-            nodeValue === processedPolicies[node] && processedPolicies.length < mappingNodes.length ? isAppiled = false : processedPolicies[node] = nodeValue;
-          }
-          isAppiled === true ? anyApplied = true : null;
-          isAppiled === true ? perform(nodes, policyValue, data, cb) : null;
-        }
+    function build_policy(type, operations, graph2, cb) {
+      if (operations.indexOf("all") > -1) {
+        operations = ["get", "put", "delete"];
       }
-      !anyApplied ? cb() : null;
+      var pol = {
+        type,
+        operations,
+        graph: graph2,
+        check: cb
+      };
+      return pol;
     }
-    var perform = async (soul, policy, data, cb) => {
-      var res = await processPolicy(policy, data);
-      res !== true && res !== false ? console.error("Error processing policy. you are not returning a valid true|false as a check") : null;
-      res === true ? cb() : null;
-    };
-    module2.exports = scanPolicies;
+    module2.exports = build_policy;
   }
 });
 
-// dev/storage/get_from_graph.js
-var require_get_from_graph = __commonJS({
-  "dev/storage/get_from_graph.js"(exports, module2) {
-    "use strict";
-    var get_from_graph = (lex, graph2) => {
-      var soul = lex["#"];
-      var key = lex["."];
-      var node = graph2[soul];
-      var ack = {};
-      if (!node) {
-        return null;
-      }
-      ;
-      if (key) {
-        var tmp = node[key];
-        if (!tmp) {
-          return null;
-        }
-        ;
-        (node = { _: node._ })[key] = tmp;
-        tmp = node._[">"];
-        (node._[">"] = {})[key] = tmp[key];
-      }
-      ack[soul] = node;
-      return ack;
-    };
-    module2.exports = get_from_graph;
-  }
-});
-
-// dev/peers/listen.js
-var require_listen = __commonJS({
-  "dev/peers/listen.js"(exports, module2) {
-    "use strict";
-    function listen(soul, peer) {
-      if (peer && soul) {
-        process.PEERS[process.PEERS.indexOf(peer)].listeners.push(...soul);
-      }
-    }
-    module2.exports = listen;
-  }
-});
-
-// ext/built-in/check.js
+// lib/ext/built-in/check.js
 var require_check = __commonJS({
-  "ext/built-in/check.js"(exports, module2) {
+  "lib/ext/built-in/check.js"(exports, module2) {
     "use strict";
     function conditionCheck(condition) {
       var conditionProp = condition[0];
@@ -2358,25 +3325,29 @@ var require_check = __commonJS({
   }
 });
 
-// ext/built-in/check_with_function.js
+// lib/ext/built-in/check_with_function.js
 var require_check_with_function = __commonJS({
-  "ext/built-in/check_with_function.js"(exports, module2) {
+  "lib/ext/built-in/check_with_function.js"(exports, module2) {
     "use strict";
     function conditionCheckWithAction(condition, action, args) {
       var conditionProp = condition[0];
       var conditionValue = condition[1];
-      conditionValue === true && conditionProp ? action(args) : conditionValue === false && !conditionProp ? action(args) : conditionProp === conditionValue ? action(args) : null;
+      if (conditionValue === true && conditionProp) {
+        action(args);
+      } else if (conditionValue === false && !conditionProp) {
+        action(args);
+      } else if (conditionValue === conditionProp) {
+        action(args);
+      }
     }
     module2.exports = conditionCheckWithAction;
   }
 });
 
-// ext/built-in/smart_checker.js
+// lib/ext/built-in/smart_checker.js
 var require_smart_checker = __commonJS({
-  "ext/built-in/smart_checker.js"(exports, module2) {
+  "lib/ext/built-in/smart_checker.js"(exports, module2) {
     "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.smartChecker = void 0;
     function smartChecker(data, rules) {
       let res;
       var ao = ["<", ">"];
@@ -2386,15 +3357,24 @@ var require_smart_checker = __commonJS({
       }
       for (var rule in rules) {
         var ruleValue = rules[rule];
-        !ruleValue || typeof ruleValue !== "object" || ruleValue.length !== 3 ? console.error("Invalid rule in smart check") : null;
+        if (!ruleValue || typeof ruleValue !== "object" || ruleValue.length !== 3) {
+          console.error("Invalid rule in smart check");
+          return void 0;
+        }
         var ruleLabel = ruleValue[0];
         var ruleFullScore = ruleValue[1];
         var ruleScore = Number(ruleFullScore.substring(1, 100));
         var ruleScoreOperator = ruleFullScore.substring(0, 1);
         var ruleRes = ruleValue[2];
-        ao.indexOf(ruleScoreOperator) === -1 ? console.error("Opeartor '".concat(ruleScoreOperator, "' is not valid in smart check")) : null;
+        if (ao.indexOf(ruleScoreOperator) === -1) {
+          console.error("Opeartor '".concat(ruleScoreOperator, "' is not valid in smart check"));
+          return void 0;
+        }
         var ruleClassScore = data[ruleLabel];
-        !ruleClassScore ? console.error("Rule label '".concat(ruleLabel, "' is not valid. valid labels:").concat(JSON.stringify(Object.keys(data)))) : null;
+        if (!ruleClassScore) {
+          console.error("Rule label '".concat(ruleLabel, "' is not valid. valid labels:").concat(JSON.stringify(Object.keys(data))));
+          return void 0;
+        }
         if (ruleScoreOperator === "<" && Number(ruleClassScore) < Number(ruleScore)) {
           res = ruleRes;
         } else if (ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore)) {
@@ -2403,17 +3383,19 @@ var require_smart_checker = __commonJS({
           res = false;
         }
       }
-      res !== true && res !== false ? console.error("Error processing a smart check. you are not returning a valid true|false") : null;
+      if (res !== true && res !== false) {
+        console.error("Error processing a smart check. you are not returning a valid true|false");
+        res = void 0;
+      }
       return res;
     }
-    exports.smartChecker = smartChecker;
     module2.exports = smartChecker;
   }
 });
 
-// ext/built-in/index.js
+// lib/ext/built-in/index.js
 var require_built_in = __commonJS({
-  "ext/built-in/index.js"(exports, module2) {
+  "lib/ext/built-in/index.js"(exports, module2) {
     "use strict";
     module2.exports = [
       {
@@ -2441,22 +3423,17 @@ var require_built_in = __commonJS({
   }
 });
 
-// extensions.config.js
-var require_extensions_config = __commonJS({
-  "extensions.config.js"(exports, module2) {
-    "use strict";
-    module2.exports = [
-      // Add your extensions here
-    ];
-  }
-});
-
-// ext/require.ts
+// lib/ext/require.ts
 var require_require = __commonJS({
-  "ext/require.ts"(exports, module2) {
+  "lib/ext/require.ts"(exports, module2) {
     "use strict";
     var builtin = require_built_in();
-    var ext = require_extensions_config();
+    try {
+      ext = require("../extensions.config");
+    } catch (err) {
+      console.log("extensions.config not found");
+    }
+    var ext;
     var extensions = builder([...ext, ...builtin]);
     var root = {
       load: (extName) => {
@@ -2482,10 +3459,155 @@ var require_require = __commonJS({
 var require_policies_config = __commonJS({
   "policies.config.js"(exports, module2) {
     "use strict";
-    var ddeepExt = require_require();
+    var POLICY = require_policy_builder();
+    var extensions = require_require();
     module2.exports = [
-      // your policies goes here
+      // your policies go here
     ];
+  }
+});
+
+// dev/policies/policies_builder.ts
+var require_policies_builder = __commonJS({
+  "dev/policies/policies_builder.ts"(exports, module2) {
+    "use strict";
+    function policies_builder(data) {
+      var policies = {
+        "get": {},
+        "put": {},
+        "delete": {}
+      };
+      data.forEach((pol) => {
+        pol.operations.forEach((op) => {
+          policies[op][pol.graph] = {
+            type: pol.type,
+            check: pol.check
+          };
+        });
+      });
+      return policies;
+    }
+    module2.exports = policies_builder;
+  }
+});
+
+// dev/policies/scanner2.ts
+var require_scanner2 = __commonJS({
+  "dev/policies/scanner2.ts"(exports, module2) {
+    "use strict";
+    var _processPolicy = require_processor2();
+    var policies = require_policies_config();
+    var _policies_builder = require_policies_builder();
+    policies = _policies_builder(policies);
+    function _scanPolicies(graph2, operation, data, cb) {
+      let processedPolicies = [];
+      var anyApplied = false;
+      var applied_policy;
+      if (!policies) {
+        policies = {};
+      }
+      var scoped_policies = policies[operation];
+      if (!scoped_policies) {
+        return;
+      }
+      ;
+      var nodes = [];
+      var props;
+      var dynamic_node;
+      if (graph2.includes(".")) {
+        nodes = graph2.split(".")[0].split("/");
+        props = graph2.split(".")[1];
+      } else {
+        nodes = graph2.split("/");
+      }
+      nodes.forEach((node) => {
+        if (!dynamic_node) {
+          dynamic_node = node;
+        } else {
+          dynamic_node = `${dynamic_node}/${node}`;
+        }
+        if (scoped_policies[dynamic_node]) {
+          applied_policy = scoped_policies[dynamic_node];
+        }
+      });
+      if (props) {
+        dynamic_node = `${dynamic_node}.${props}`;
+        if (scoped_policies[dynamic_node]) {
+          applied_policy = scoped_policies[dynamic_node];
+        }
+      }
+      if (applied_policy) {
+        perform(nodes, applied_policy, data, cb);
+      } else if (!applied_policy) {
+        cb();
+      }
+    }
+    var perform = async (soul, policy, data, cb) => {
+      var res = await _processPolicy(policy, data);
+      if (res !== true && res !== false) {
+        console.error("Error processing policy. you are not returning a valid true|false as a check");
+        return void 0;
+      }
+      if (res === true) {
+        cb();
+      }
+    };
+    module2.exports = _scanPolicies;
+  }
+});
+
+// dev/storage/get_from_graph.js
+var require_get_from_graph = __commonJS({
+  "dev/storage/get_from_graph.js"(exports, module2) {
+    "use strict";
+    var get_from_graph = (lex, graph2) => {
+      const soul = lex["#"];
+      const key = lex["."];
+      let node = graph2[soul];
+      const ack = {};
+      if (!node) {
+        return null;
+      }
+      ;
+      if (key) {
+        let tmp = node[key];
+        if (!tmp) {
+          return null;
+        }
+        ;
+        (node = { _: node._ })[key] = tmp;
+        tmp = node._[">"];
+        (node._[">"] = {})[key] = tmp[key];
+      }
+      ack[soul] = node;
+      return ack;
+    };
+    module2.exports = get_from_graph;
+  }
+});
+
+// dev/peers/listen.js
+var require_listen = __commonJS({
+  "dev/peers/listen.js"(exports, module2) {
+    "use strict";
+    function listen(graph2, peer) {
+      if (!peer || !graph2) {
+        return;
+      }
+      ;
+      if (!process.PEERS[peer]) {
+        return;
+      }
+      ;
+      if (process.listeners[graph2]) {
+        if (process.listeners[graph2].indexOf(peer) === -1) {
+          process.listeners[graph2].push(peer);
+        }
+      } else if (!process.listeners[graph2]) {
+        process.listeners[graph2] = [peer];
+      }
+    }
+    module2.exports = listen;
   }
 });
 
@@ -2497,21 +3619,19 @@ var require_get = __commonJS({
     var store = require_store();
     var Dup = require_dup();
     var dup2 = Dup();
-    var SCANNER = require_scanner();
+    var SCANNER = require_scanner2();
     var RFG = require_get_from_graph();
     var listen = require_listen();
-    var policies = require_policies_config();
-    var get = async function(peer, msg, graph2) {
+    var get = function(peer, msg, graph2, storage2) {
       var soul = msg?.get["#"];
       var prop = msg?.get["."];
+      if (prop)
+        soul = `${soul}.${prop}`;
       try {
-        soul ? soul = soul.split("/") : null;
-        prop ? soul.push(prop) : null;
         var ack = RFG(msg.get, graph2);
         if (ack) {
-          SCANNER(soul, "get", policies, ack, () => {
-            if (peer)
-              listen(soul, peer);
+          SCANNER(soul, "get", ack, () => {
+            listen(soul, peer);
             PE.emit("get", peer, {
               "#": dup2.track(Dup.random()),
               "@": msg["#"],
@@ -2520,11 +3640,10 @@ var require_get = __commonJS({
             });
           });
         }
-        if (!ack) {
-          store.get(msg.get, async (err, ack2) => {
-            SCANNER(soul, "get", policies, ack2, () => {
-              if (peer)
-                listen(soul, peer);
+        if (!ack && storage2) {
+          store.get(msg.get, (err, ack2) => {
+            SCANNER(soul, "get", ack2, () => {
+              listen(soul, peer);
               PE.emit("get", peer, {
                 "#": dup2.track(Dup.random()),
                 "@": msg["#"],
@@ -2547,14 +3666,17 @@ var require_ham = __commonJS({
   "dev/ham.js"(exports, module2) {
     "use strict";
     function HAM(machineState, incomingState, currentState, incomingValue, currentValue) {
-      if (machineState < incomingState)
+      if (machineState < incomingState) {
         return { defer: true };
-      if (incomingState < currentState)
+      }
+      if (incomingState < currentState) {
         return { historical: true };
-      if (currentState < incomingState)
+      }
+      if (currentState < incomingState) {
         return { converge: true, incoming: true };
+      }
       if (incomingState === currentState) {
-        var res;
+        let res;
         incomingValue = JSON.stringify(incomingValue) || "";
         currentValue = JSON.stringify(currentValue) || "";
         incomingValue === currentValue ? res = { state: true } : incomingValue < currentValue ? res = { converge: true, current: true } : currentValue < incomingValue ? res = { converge: true, incoming: true } : res = false;
@@ -2566,20 +3688,22 @@ var require_ham = __commonJS({
       return { err: "Invalid CRDT Data: " + incomingValue + " to " + currentValue + " at " + incomingState + " to " + currentState };
     }
     HAM.mix = (change, graph2) => {
-      var machine = +/* @__PURE__ */ new Date(), diff;
+      const machine = +/* @__PURE__ */ new Date();
+      let diff;
       Object.keys(change).forEach((soul) => {
-        var node = change[soul];
+        const node = change[soul];
         Object.keys(node).forEach((key) => {
-          var val = node[key];
-          if ("_" == key)
+          const val = node[key];
+          if (key === "_") {
             return;
-          var state = node._[">"][key];
-          var was = (graph2[soul] || { _: { ">": {} } })._[">"][key] || -Infinity;
-          var known = (graph2[soul] || {})[key];
-          var ham = HAM(machine, state, was, val, known);
-          if (!ham.incoming) {
-            if (ham.defer)
-              console.log("DEFER", key, val);
+          }
+          ;
+          const state = node._[">"][key];
+          const was = (graph2[soul] || { _: { ">": {} } })._[">"][key] || -Infinity;
+          const known = (graph2[soul] || {})[key];
+          const ham = HAM(machine, state, was, val, known);
+          if (!ham.incoming && ham.defer) {
+            console.error("DEFER", key, val);
             return;
           }
           (diff || (diff = {}))[soul] = diff[soul] || node;
@@ -2591,10 +3715,7 @@ var require_ham = __commonJS({
       process.graph = diff;
       return diff;
     };
-    try {
-      module2.exports = HAM;
-    } catch (e) {
-    }
+    module2.exports = HAM;
   }
 });
 
@@ -2607,24 +3728,30 @@ var require_put = __commonJS({
     var Dup = require_dup();
     var dup2 = Dup();
     var HAM = require_ham();
-    var SCANNER = require_scanner();
-    var policies = require_policies_config();
-    var put = async function(msg, graph2, storage2) {
+    var SCANNER = require_scanner2();
+    var put = function(msg, graph2, storage2) {
       try {
-        var soul = msg.put[Object.keys(msg.put)[0]]._["#"];
-        soul ? soul = soul.split("/") : null;
-        SCANNER(soul, "put", policies, msg.put, () => {
+        var soul;
+        for (var key in msg.put) {
+          var node = msg.put[key]._["#"];
+          soul = node;
+        }
+        SCANNER(soul, "put", msg.put, () => {
           var change = HAM.mix(msg.put, graph2);
-          storage2 ? store.put(change, function(err, ok) {
-            err ? console.log(err.red) : null;
-            PE.emit("put", soul, {
-              "#": dup2.track(Dup.random()),
-              "@": msg["#"],
-              err,
-              ok,
-              put: msg.put
+          if (storage2) {
+            store.put(change, function(err, ok) {
+              if (err) {
+                console.log(err.red);
+              }
             });
-          }) : null;
+          }
+          PE.emit("put", soul, {
+            "#": dup2.track(Dup.random()),
+            "@": msg["#"],
+            err: null,
+            ok: 1,
+            put: msg.put
+          });
         });
       } catch (err) {
       }
@@ -2638,13 +3765,13 @@ var require_put = __commonJS({
 var require_checkpoint = __commonJS({
   "dev/storage/checkpoint.ts"(exports, module2) {
     "use strict";
-    var fs = require("fs");
+    var fs2 = require("fs");
     var make_recovery = function(checkpoint2) {
       setTimeout(async () => {
         var source = "./ddeep_data";
         var paste = "./recovery";
         var point = Date.now();
-        await fs.cp(source, `${paste}/${point}`, { recursive: true }, (err) => {
+        await fs2.cp(source, `${paste}/${point}`, { recursive: true }, (err) => {
           if (err) {
             console.error(err);
             return;
@@ -3581,7 +4708,7 @@ var require_browser = __commonJS({
 });
 
 // node_modules/has-flag/index.js
-var require_has_flag = __commonJS({
+var require_has_flag2 = __commonJS({
   "node_modules/has-flag/index.js"(exports, module2) {
     "use strict";
     module2.exports = (flag, argv) => {
@@ -3599,7 +4726,7 @@ var require_supports_color = __commonJS({
   "node_modules/supports-color/index.js"(exports, module2) {
     "use strict";
     var os = require("os");
-    var hasFlag = require_has_flag();
+    var hasFlag = require_has_flag2();
     var env = process.env;
     var forceColor;
     if (hasFlag("no-color") || hasFlag("no-colors") || hasFlag("color=false")) {
@@ -7589,7 +8716,7 @@ var require_atomic_sleep = __commonJS({
 var require_sonic_boom = __commonJS({
   "node_modules/sonic-boom/index.js"(exports, module2) {
     "use strict";
-    var fs = require("fs");
+    var fs2 = require("fs");
     var EventEmitter = require("events");
     var inherits = require("util").inherits;
     var path = require("path");
@@ -7641,21 +8768,21 @@ var require_sonic_boom = __commonJS({
       if (sonic.sync) {
         try {
           if (sonic.mkdir)
-            fs.mkdirSync(path.dirname(file), { recursive: true });
-          const fd = fs.openSync(file, flags, mode);
+            fs2.mkdirSync(path.dirname(file), { recursive: true });
+          const fd = fs2.openSync(file, flags, mode);
           fileOpened(null, fd);
         } catch (err) {
           fileOpened(err);
           throw err;
         }
       } else if (sonic.mkdir) {
-        fs.mkdir(path.dirname(file), { recursive: true }, (err) => {
+        fs2.mkdir(path.dirname(file), { recursive: true }, (err) => {
           if (err)
             return fileOpened(err);
-          fs.open(file, flags, mode, fileOpened);
+          fs2.open(file, flags, mode, fileOpened);
         });
       } else {
-        fs.open(file, flags, mode, fileOpened);
+        fs2.open(file, flags, mode, fileOpened);
       }
     }
     function SonicBoom(opts) {
@@ -7693,16 +8820,16 @@ var require_sonic_boom = __commonJS({
         this.flush = flushBuffer;
         this.flushSync = flushBufferSync;
         this._actualWrite = actualWriteBuffer;
-        fsWriteSync = () => fs.writeSync(this.fd, this._writingBuf);
-        fsWrite = () => fs.write(this.fd, this._writingBuf, this.release);
+        fsWriteSync = () => fs2.writeSync(this.fd, this._writingBuf);
+        fsWrite = () => fs2.write(this.fd, this._writingBuf, this.release);
       } else if (contentMode === void 0 || contentMode === kContentModeUtf8) {
         this._writingBuf = "";
         this.write = write;
         this.flush = flush;
         this.flushSync = flushSync;
         this._actualWrite = actualWrite;
-        fsWriteSync = () => fs.writeSync(this.fd, this._writingBuf, "utf8");
-        fsWrite = () => fs.write(this.fd, this._writingBuf, "utf8", this.release);
+        fsWriteSync = () => fs2.writeSync(this.fd, this._writingBuf, "utf8");
+        fsWrite = () => fs2.write(this.fd, this._writingBuf, "utf8", this.release);
       } else {
         throw new Error(`SonicBoom supports "${kContentModeUtf8}" and "${kContentModeBuffer}", but passed ${contentMode}`);
       }
@@ -7759,7 +8886,7 @@ var require_sonic_boom = __commonJS({
           }
         }
         if (this._fsync) {
-          fs.fsyncSync(this.fd);
+          fs2.fsyncSync(this.fd);
         }
         const len = this._len;
         if (this._reopening) {
@@ -7903,7 +9030,7 @@ var require_sonic_boom = __commonJS({
       const fd = this.fd;
       this.once("ready", () => {
         if (fd !== this.fd) {
-          fs.close(fd, (err) => {
+          fs2.close(fd, (err) => {
             if (err) {
               return this.emit("error", err);
             }
@@ -7952,7 +9079,7 @@ var require_sonic_boom = __commonJS({
           buf = this._bufs[0];
         }
         try {
-          const n = fs.writeSync(this.fd, buf, "utf8");
+          const n = fs2.writeSync(this.fd, buf, "utf8");
           buf = buf.slice(n);
           this._len = Math.max(this._len - n, 0);
           if (buf.length <= 0) {
@@ -7984,7 +9111,7 @@ var require_sonic_boom = __commonJS({
           buf = mergeBuf(this._bufs[0], this._lens[0]);
         }
         try {
-          const n = fs.writeSync(this.fd, buf);
+          const n = fs2.writeSync(this.fd, buf);
           buf = buf.subarray(n);
           this._len = Math.max(this._len - n, 0);
           if (buf.length <= 0) {
@@ -8012,13 +9139,13 @@ var require_sonic_boom = __commonJS({
       this._writingBuf = this._writingBuf || this._bufs.shift() || "";
       if (this.sync) {
         try {
-          const written = fs.writeSync(this.fd, this._writingBuf, "utf8");
+          const written = fs2.writeSync(this.fd, this._writingBuf, "utf8");
           release(null, written);
         } catch (err) {
           release(err);
         }
       } else {
-        fs.write(this.fd, this._writingBuf, "utf8", release);
+        fs2.write(this.fd, this._writingBuf, "utf8", release);
       }
     }
     function actualWriteBuffer() {
@@ -8027,13 +9154,13 @@ var require_sonic_boom = __commonJS({
       this._writingBuf = this._writingBuf.length ? this._writingBuf : mergeBuf(this._bufs.shift(), this._lens.shift());
       if (this.sync) {
         try {
-          const written = fs.writeSync(this.fd, this._writingBuf);
+          const written = fs2.writeSync(this.fd, this._writingBuf);
           release(null, written);
         } catch (err) {
           release(err);
         }
       } else {
-        fs.write(this.fd, this._writingBuf, release);
+        fs2.write(this.fd, this._writingBuf, release);
       }
     }
     function actualClose(sonic) {
@@ -8044,10 +9171,10 @@ var require_sonic_boom = __commonJS({
       sonic.destroyed = true;
       sonic._bufs = [];
       sonic._lens = [];
-      fs.fsync(sonic.fd, closeWrapped);
+      fs2.fsync(sonic.fd, closeWrapped);
       function closeWrapped() {
         if (sonic.fd !== 1 && sonic.fd !== 2) {
-          fs.close(sonic.fd, done);
+          fs2.close(sonic.fd, done);
         } else {
           done();
         }
@@ -18808,12 +19935,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name}"`);
       return f;
     };
-    function addFormats(ajv, list, fs, exportName) {
+    function addFormats(ajv, list, fs2, exportName) {
       var _a;
       var _b;
       (_a = (_b = ajv.opts.code).formats) !== null && _a !== void 0 ? _a : _b.formats = codegen_1._`require("ajv-formats/dist/formats").${exportName}`;
       for (const f of list)
-        ajv.addFormat(f, fs[f]);
+        ajv.addFormat(f, fs2[f]);
     }
     module2.exports = exports = formatsPlugin;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -29999,7 +31126,7 @@ var require_stringify = __commonJS({
 });
 
 // node_modules/fast-querystring/lib/index.js
-var require_lib = __commonJS({
+var require_lib2 = __commonJS({
   "node_modules/fast-querystring/lib/index.js"(exports, module2) {
     "use strict";
     var parse = require_parse4();
@@ -30154,7 +31281,7 @@ var require_positions = __commonJS({
 });
 
 // node_modules/ret/lib/index.js
-var require_lib2 = __commonJS({
+var require_lib3 = __commonJS({
   "node_modules/ret/lib/index.js"(exports, module2) {
     var util = require_util2();
     var types = require_types3();
@@ -30348,7 +31475,7 @@ var require_lib2 = __commonJS({
 var require_safe_regex2 = __commonJS({
   "node_modules/safe-regex2/index.js"(exports, module2) {
     "use strict";
-    var parse = require_lib2();
+    var parse = require_lib3();
     var types = parse.types;
     module2.exports = function(re, opts) {
       if (!opts)
@@ -31276,7 +32403,7 @@ var require_find_my_way = __commonJS({
   "node_modules/find-my-way/index.js"(exports, module2) {
     "use strict";
     var assert = require("assert");
-    var querystring = require_lib();
+    var querystring = require_lib2();
     var isRegexSafe = require_safe_regex2();
     var deepEqual = require_fast_deep_equal();
     var { prettyPrintTree } = require_pretty_print();
@@ -39688,27 +40815,74 @@ var require_websocket2 = __commonJS({
 });
 
 // dev/serve.js
+require_lib();
+var fs = require("fs");
+var readline = require("readline");
+var CP = require_processor();
 var GET = require_get();
 var PUT = require_put();
+var recovery = require_checkpoint();
 var DUP = require_dup();
 var dup = DUP();
-var recovery = require_checkpoint();
 var opt = require_ddeep_config();
-process.PEERS = [];
+var { listeners } = require("process");
+var interface_prompt = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 var graph = {};
 var port = opt.port || 9999;
 var storage = opt.storage || false;
 var checkpoint = opt.checkpoint || false;
-var logs = opt.logs || false;
+var graph_timer = opt.reset_graph || 0;
+var listeners_timer = opt.reset_listeners || 0;
+var whitelist = opt.whitelist || [];
+process.PEERS = {};
+process.storage = storage;
+process.port = port;
+process.checkpoint = checkpoint;
+process.listeners = {};
 var fastify = require_fastify()();
 fastify.register(require_websocket2());
-storage && checkpoint ? recovery(checkpoint) : null;
-logs ? console.log({ listening: true, port, storage }) : null;
-fastify.register(async function(fastify2) {
-  fastify2.get("/", { websocket: true }, (peer) => {
+if (storage && checkpoint) {
+  recovery(checkpoint);
+}
+if (Number(graph_timer) > 0) {
+  clear_graph(graph_timer);
+}
+if (Number(listeners_timer) > 0) {
+  clear_listeners(listeners_timer);
+}
+fastify.register(async function(fastify_socket) {
+  try {
+    fs.readFile("./lib/entry/ascii.txt", {}, (error, content) => {
+      console.clear();
+      if (error) {
+        return;
+      } else if (content) {
+        content = content.toString();
+        console.log("\n", `${content}`.blue, "\n");
+      }
+      console.log("port -> ".yellow, `${port}`.gray);
+      console.log("storage -> ".yellow, `${storage}`.gray, "\n");
+      receive_command();
+    });
+  } catch (err) {
+  }
+  ;
+  fastify_socket.get("/", (req, reply) => {
+    reply.send(`open socket connections to /ddeep`);
+  });
+  fastify_socket.get("/ddeep", { websocket: true }, (peer, req) => {
+    var peer_ip = req.socket.remoteAddress;
+    if (whitelist.length > 0 && whitelist.indexOf(peer_ip) === -1) {
+      peer.socket.send("ACCESS DENIED: you are not allowed to connect to this core...");
+      peer.socket.close();
+    }
     peer.listeners = [];
-    peer._id = (Date.now() * Math.random()).toString(36);
-    process.PEERS.push(peer);
+    var _id = "peer:" + (Date.now() * Math.random()).toString(36);
+    peer._id = _id;
+    process.PEERS[_id] = peer;
     peer.socket.on("message", (data) => {
       var msg = JSON.parse(data);
       if (dup.check(msg["#"])) {
@@ -39716,19 +40890,61 @@ fastify.register(async function(fastify2) {
       }
       ;
       dup.track(msg["#"]);
-      msg.put ? PUT(msg, graph, storage) : msg.get ? GET(peer, msg, graph) : null;
+      if (msg.put) {
+        PUT(msg, graph, process.storage);
+      } else if (msg.get) {
+        GET(peer._id, msg, graph, process.storage);
+      }
     });
     peer.socket.on("close", () => {
-      process.PEERS.pop(process.PEERS.indexOf(peer));
+      try {
+        delete process.PEERS[peer._id];
+        peer.listeners.forEach((listener) => {
+          console.log(listener);
+          delete process.listeners[listener][process.listeners[listener].indexOf(peer._id)];
+          process.listeners[listener] = process.listeners.pop(process.listeners[listener].indexOf(peer._id));
+        });
+      } catch (err) {
+      }
     });
   });
 });
 fastify.listen({ port }, (err) => {
   if (err) {
-    fastify.log.error(err);
+    console.error(err);
+    process.exit(1);
   }
 });
-//!opt && console.log("WHAT IS T?", JSON.stringify(t).length);
+function receive_command() {
+  interface_prompt.question("ddeep > ", async (command) => {
+    if (command) {
+      command = command.split(" ");
+      await CP.emit(command[0], command);
+    }
+    receive_command();
+  });
+}
+function clear_graph(timer) {
+  if (timer < 1e3) {
+    console.log("\nCancelling clear_graph as it is less than 1000ms and would cause issues\n".red);
+    return;
+  }
+  setTimeout(() => {
+    graph = {};
+    clear_graph(timer);
+  }, timer);
+}
+function clear_listeners(timer) {
+  if (timer < 1e3) {
+    console.log("\nCancelling clear_listeners as it is less than 1000ms and would cause issues\n".red);
+    return;
+  }
+  setTimeout(() => {
+    process.listeners = {};
+    clear_listeners(timer);
+  }, timer);
+}
+//! opt && console.log("WHAT IS T?", JSON.stringify(t).length);
 /*! Bundled license information:
 
 uri-js/dist/es5/uri.all.js:

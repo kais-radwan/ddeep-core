@@ -7,47 +7,51 @@ PE.on('get', (peer, data) => {
     if (!peer) { return; }
 
     try {
-        peer.socket.send(JSON.stringify(data));
-    } catch (err) {}; // we don't really need to do anything here. but we don't want any errors if there are problems sending data to peers
+        process.PEERS[peer].socket.send(JSON.stringify(data));
+    } catch (err) {}; // we don't really need to do anything here.
 
 });
 
-PE.on('put', (nodes, data) => {
+PE.on('put', function (graph, data) {
 
-    var peers = process.PEERS;
+    var peers = [];
+    var listening_peers = [];
+    var nodes = [];
+    var props;
+    var dynamic_graph;
 
-    peers.forEach(peer => {
+    if (graph.includes('.')) {
+        nodes = graph.split('.')[0].split('/');
+        props = graph.split('.')[1];
+    } else {
+        nodes = graph.split('/');
+    }
 
-        var listeners = peer.listeners;
-        var mappingNodes;
-        var send = false;
-
-        if (listeners){
-
-            mappingNodes = (nodes.length > listeners.length) ? nodes
-            : (nodes.length < listeners.length) ? listeners
-            : nodes;
-
-            mappingNodes.forEach( (node) => {
-
-                var listenerValue = listeners[nodes.indexOf(node)];
-
-                send = (!listenerValue || listenerValue === node) ? true
-                : false;
-            
-            });
-
-            if (send) {
-
-                try {
-                    peer.socket.send(JSON.stringify(data))
-                } catch (err) {} // we don't really need to do anything here. but we don't want any errors if there are problems sending data to peers
-
-            }
-
+    nodes.forEach(node => {
+        if (!dynamic_graph) {
+            dynamic_graph = node;
+        }else {
+            dynamic_graph = `${dynamic_graph}/${node}`;
         }
-
+        if (process.listeners[dynamic_graph]) {
+            if (listening_peers.indexOf(process.listeners[dynamic_graph])) {
+                listening_peers.push(...process.listeners[dynamic_graph]);
+            }
+        }
     });
+
+    if (props) {
+        dynamic_graph = `${dynamic_graph}.${props}`;
+        if (process.listeners[dynamic_graph]) {
+            listening_peers.push(...process.listeners[dynamic_graph]);
+        }
+    }
+
+    listening_peers.forEach(peer => {
+        try {
+            process.PEERS[peer].socket.send(JSON.stringify(data));
+        } catch (err) {};
+    })
 
 });
 

@@ -11,12 +11,15 @@
         "node": ">=16.13.0 || >=18.0.0"
     },
     "scripts": {
+        "build-start": "./node_modules/.bin/esbuild dev/serve.js --bundle --outfile=dist/build.js --platform=node && node ./dist/build.js",
         "start": "node ./dist/build.js",
         "init": "node ./init/init.js",
-        "build": "./node_modules/.bin/esbuild dev/serve.js --bundle --outfile=dist/build.js --platform=node"
+        "build": "./node_modules/.bin/esbuild dev/serve.js --bundle --outfile=dist/build.js --platform=node",
+        "bytenode-build": "bytenode --compile ./dist/build.js",
+        "bytenode-start": "bytenode ./dist/build.jsc"
     },
     "bin": {
-        "ddeep-init": "./init/init.js"
+        "ddeep-init": "./lib/init/init.js"
     },
     "main": "./dist/build.js",
     "preferGlobal": true,
@@ -27,10 +30,11 @@
         "typescript": "^5.2.2"
     },
     "dependencies": {
+        "@fastify/static": "^6.11.2",
         "@fastify/websocket": "^8.2.0",
         "@huggingface/inference": "^2.6.1",
+        "bytenode": "^1.5.1",
         "colors": "^1.4.0",
-        "directory-tree": "^3.5.1",
         "esbuild": "^0.19.4",
         "fastify": "^4.23.2"
     },
