@@ -1,9 +1,11 @@
 /*
     This file was modified. for license see https://github.com/amark/gun/blob/master/LICENSE.md
 */
-const Radix = require('./radix');
-const Radisk = require('./radisk');
-const fs = require('fs');
+
+let Radix = require('./radix');
+let Radisk = require('./radisk');
+let fs = require('fs');
+let crypto = require('crypto');
 
 function Store (opt) {
   opt = opt || {}
@@ -12,7 +14,7 @@ function Store (opt) {
   const store = function Store () { }
 
   store.put = function (file, data, cb) {
-    const random = Math.random().toString(36).slice(-3)
+    const random = crypto.randomBytes(32).toString('hex').slice(-3);
     fs.writeFile(opt.file + '-' + random + '.tmp', data, function (err, ok) {
       if (err) { return cb(err) }
       fs.rename(opt.file + '-' + random + '.tmp', opt.file + '/' + file, cb)
