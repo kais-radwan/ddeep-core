@@ -16,12 +16,6 @@ var DUP = require('./dup'), dup = DUP(); // check and track data
 var opt = require('../ddeep.config'); // ddeep configurations
 const { listeners } = require('process');
 
-// create command interface inputs
-var interface_prompt = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-})
-
 // Setup opt
 let graph = {};
 var port = opt.port || 9999;
@@ -30,6 +24,7 @@ var checkpoint = opt.checkpoint || false;
 var graph_timer = opt.reset_graph || 0;
 var listeners_timer = opt.reset_listeners || 0;
 var whitelist = opt.whitelist || [];
+let interface_prompt;
 
 // add options to the process
 process.PEERS = {};
@@ -75,6 +70,13 @@ fastify.register(async function (fastify_socket) {
 
             console.log("port -> ".yellow, `${port}`.gray);
             console.log("storage -> ".yellow, `${storage}`.gray, "\n");
+            
+            // create command interface inputs
+            interface_prompt = readline.createInterface({
+                input: process.stdin,
+                output: process.stdout,
+            })
+
             receive_command();
 
         })
@@ -156,6 +158,10 @@ fastify.listen({ port }, err => {
 });
 
 function receive_command () {
+
+    if (!interface_prompt) {
+        return undefined;
+    }
 
     interface_prompt.question('ddeep > ', async (command) => {
 
