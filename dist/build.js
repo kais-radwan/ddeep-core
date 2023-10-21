@@ -3189,7 +3189,7 @@ var require_ddeep_config = __commonJS({
       /* Set storage to true to enable persistent data storage */
       "storage": false,
       /* Set the port you want to run the peer on */
-      "port": 9999,
+      "port": 8080,
       /*
           Set a list of IP adresses (of peers, servers, or websites) that are able to connect to this core
           this can help prevent cross-site connections to your core
