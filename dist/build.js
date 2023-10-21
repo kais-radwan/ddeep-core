@@ -2166,9 +2166,9 @@ var require_radisk = __commonJS({
           function drain(rad, tmp) {
             dir = dir || rad;
             dir.file = f;
-            tmp = Q;
+            var tmp2 = Q;
             Q = null;
-            map(tmp, function(arg) {
+            map(tmp2, function(arg) {
               r.find(arg[0], arg[1]);
             });
           }
@@ -3212,7 +3212,7 @@ var require_ddeep_config = __commonJS({
       "port": 9999,
       /*
           Set a list of IP adresses (of peers, servers, or websites) that are able to connect to this core
-          this could help you prevent cross-site connections to your core
+          this can help prevent cross-site connections to your core
       */
       "whitelist": [],
       /* Add your huggingFace token to be used with AI smart policies */
@@ -3362,8 +3362,6 @@ var require_check_with_function = __commonJS({
 var require_smart_checker = __commonJS({
   "lib/ext/built-in/smart_checker.js"(exports, module2) {
     "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.smartChecker = void 0;
     function smartChecker(data, rules) {
       let res;
       var ao = ["<", ">"];
@@ -3373,7 +3371,10 @@ var require_smart_checker = __commonJS({
       }
       for (var rule in rules) {
         var ruleValue = rules[rule];
-        !ruleValue || typeof ruleValue !== "object" || ruleValue.length !== 3 ? console.error("Invalid rule in smart check") : null;
+        if (!ruleValue || typeof ruleValue !== "object" || ruleValue.length !== 3) {
+          console.error("Invalid rule in smart check");
+          return void 0;
+        }
         var ruleLabel = ruleValue[0];
         var ruleFullScore = ruleValue[1];
         var ruleScore = Number(ruleFullScore.substring(1, 100));
@@ -3390,10 +3391,12 @@ var require_smart_checker = __commonJS({
           res = false;
         }
       }
-      res !== true && res !== false ? console.error("Error processing a smart check. you are not returning a valid true|false") : null;
+      if (res !== true && res !== false) {
+        console.error("Error processing a smart check. you are not returning a valid true|false");
+        res = void 0;
+      }
       return res;
     }
-    exports.smartChecker = smartChecker;
     module2.exports = smartChecker;
   }
 });
@@ -3467,15 +3470,7 @@ var require_policies_config = __commonJS({
     var POLICY = require_policy_builder();
     var extensions = require_require();
     module2.exports = [
-      // your policies goes here
-      POLICY(
-        "check",
-        ["get"],
-        "people",
-        (data) => {
-          return true;
-        }
-      )
+      // your policies go here
     ];
   }
 });
@@ -3557,8 +3552,13 @@ var require_scanner2 = __commonJS({
     }
     var perform = async (soul, policy, data, cb) => {
       var res = await _processPolicy(policy, data);
-      res !== true && res !== false ? console.error("Error processing policy. you are not returning a valid true|false as a check") : null;
-      res === true ? cb() : null;
+      if (res !== true && res !== false) {
+        console.error("Error processing policy. you are not returning a valid true|false as a check");
+        return void 0;
+      }
+      if (res === true) {
+        cb();
+      }
     };
     module2.exports = _scanPolicies;
   }
@@ -3674,12 +3674,15 @@ var require_ham = __commonJS({
   "dev/ham.js"(exports, module2) {
     "use strict";
     function HAM(machineState, incomingState, currentState, incomingValue, currentValue) {
-      if (machineState < incomingState)
+      if (machineState < incomingState) {
         return { defer: true };
-      if (incomingState < currentState)
+      }
+      if (incomingState < currentState) {
         return { historical: true };
-      if (currentState < incomingState)
+      }
+      if (currentState < incomingState) {
         return { converge: true, incoming: true };
+      }
       if (incomingState === currentState) {
         let res;
         incomingValue = JSON.stringify(incomingValue) || "";
@@ -3699,15 +3702,16 @@ var require_ham = __commonJS({
         const node = change[soul];
         Object.keys(node).forEach((key) => {
           const val = node[key];
-          if (key === "_")
+          if (key === "_") {
             return;
+          }
+          ;
           const state = node._[">"][key];
           const was = (graph2[soul] || { _: { ">": {} } })._[">"][key] || -Infinity;
           const known = (graph2[soul] || {})[key];
           const ham = HAM(machine, state, was, val, known);
-          if (!ham.incoming) {
-            if (ham.defer)
-              console.log("DEFER", key, val);
+          if (!ham.incoming && ham.defer) {
+            console.error("DEFER", key, val);
             return;
           }
           (diff || (diff = {}))[soul] = diff[soul] || node;
@@ -3719,10 +3723,7 @@ var require_ham = __commonJS({
       process.graph = diff;
       return diff;
     };
-    try {
-      module2.exports = HAM;
-    } catch (e) {
-    }
+    module2.exports = HAM;
   }
 });
 

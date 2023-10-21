@@ -49,7 +49,7 @@
           if (u === val) { return (u === (tmp = at[''])) ? at : ((radix.unit = 1) && tmp) } // temporary help??
           at[''] = val
         } else {
-          (u !== val) ? delete at[_] : null
+          if (u !== val) { delete at[_] };
           return radix(key.slice(++i), val, at || (at = {}))
         }
     }

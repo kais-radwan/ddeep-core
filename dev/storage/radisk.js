@@ -522,8 +522,8 @@
       function drain (rad, tmp) {
         dir = dir || rad
         dir.file = f
-        tmp = Q; Q = null
-        map(tmp, function (arg) {
+        var tmp2 = Q; Q = null
+        map(tmp2, function (arg) {
           r.find(arg[0], arg[1])
         })
       }

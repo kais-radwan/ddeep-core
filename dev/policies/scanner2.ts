@@ -64,11 +64,15 @@ var perform = async (soul:any, policy:any, data:any, cb:Function) => {
     var res = await _processPolicy(policy, data);
 
     // Throw error if res is not a valid (true || false)
-    (res !== true && res !== false) ?
-        console.error("Error processing policy. you are not returning a valid true|false as a check")
-        : null;
 
-    (res === true) ? cb() : null;
+    if (res !== true && res !== false) {
+        console.error("Error processing policy. you are not returning a valid true|false as a check");
+        return undefined;
+    }
+
+    if (res === true) {
+        cb();
+    }
 
 }
 
