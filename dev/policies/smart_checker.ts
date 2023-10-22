@@ -49,12 +49,12 @@ export function smartChecker (data: any, rules: Array<any>) {
         }
 
         // Process the rule operation
-        if (ruleScoreOperator === '<' && Number(ruleClassScore) < Number(ruleScore)) {
-            res = ruleScore;
+        if ( (ruleScoreOperator === '<' && Number(ruleClassScore) < Number(ruleScore)) || (ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore)) ) {
+            res = ruleRes;
         }
 
-        else if (ruleScoreOperator === ">" && Number(ruleClassScore) > Number(ruleScore)) {
-            res = ruleScore;
+        else {
+            res = false;
         }
 
     }
