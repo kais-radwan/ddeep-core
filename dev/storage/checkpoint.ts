@@ -2,15 +2,15 @@
     This simply create a point of recovery evrey amount of time you set in your `ddeep.config.js` file
 */
 
-var fs = require("fs");
+let fs = require("fs");
 
-var make_recovery = function (checkpoint:number) {
+let make_recovery = function (checkpoint:number) {
 
     setTimeout( async () => {
  
-        var source = './ddeep_data';
-        var paste = './recovery';
-        var point = Date.now();
+        let source = './ddeep_data';
+        let paste = './recovery';
+        let point = Date.now();
 
         await fs.cp(source, `${paste}/${point}`, { recursive: true }, (err:any) => {
             if (err) {

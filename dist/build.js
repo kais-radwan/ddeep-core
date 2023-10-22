@@ -900,11 +900,10 @@ var require_emitter = __commonJS({
       ;
     });
     PE.on("put", function(graph2, data) {
-      var peers = [];
-      var listening_peers = [];
-      var nodes = [];
-      var props;
-      var dynamic_graph;
+      let listening_peers = [];
+      let nodes = [];
+      let props;
+      let dynamic_graph;
       if (graph2.includes(".")) {
         nodes = graph2.split(".")[0].split("/");
         props = graph2.split(".")[1];
@@ -1012,7 +1011,11 @@ var require_radix = __commonJS({
             }
           } else if (i == l) {
             if (u === val) {
-              return u === (tmp = at[""]) ? at : (radix.unit = 1) && tmp;
+              if (u === (tmp = at[""])) {
+                return at;
+              } else {
+                return (radix.unit = 1) && tmp;
+              }
             }
             at[""] = val;
           } else {
@@ -1454,6 +1457,7 @@ var require_radisk = __commonJS({
   "dev/storage/radisk.js"(exports, module2) {
     "use strict";
     var crypto2 = require("crypto");
+    var Radix = require_radix();
     (function() {
       function Radisk(opt2) {
         opt2 = opt2 || {};
@@ -1474,7 +1478,7 @@ var require_radisk = __commonJS({
           return encodeURIComponent(t).replace(/\*/g, "%2A");
         }
         function atomic(v) {
-          return u !== v && (!v || typeof v !== "object");
+          return u !== v && (!v || "object" != typeof v);
         }
         const timediate = "" + u === typeof setImmediate ? setTimeout : setImmediate;
         const puff = setTimeout.turn || timediate;
@@ -1489,8 +1493,6 @@ var require_radisk = __commonJS({
         }
         if (!opt2.store.get) {
           return opt2.log("ERROR: Radisk needs `store.get` interface with `(file, cb)`!");
-        }
-        if (!opt2.store.list) {
         }
         if ("" + u !== typeof require) {
           require_yson();
@@ -2225,17 +2227,8 @@ var require_radisk = __commonJS({
           }
         };
       })();
-      if (typeof window !== "undefined") {
-        var Radix = window.Radix;
-        window.Radisk = Radisk;
-      } else {
-        var Radix = require_radix();
-        try {
-          module2.exports = Radisk;
-        } catch (e) {
-        }
-      }
       Radisk.Radix = Radix;
+      module2.exports = Radisk;
     })();
   }
 });
@@ -3243,12 +3236,17 @@ var require_classes_model = __commonJS({
           model: "SamLowe/roberta-base-go_emotions",
           inputs: data
         });
-        !res || typeof res !== "object" ? console.error("Smart policy processing error") : null;
+        if (!res || typeof res !== "object") {
+          console.error("Smart policy processing error");
+          return void 0;
+        }
         for (var classification in res) {
           var value = res[classification];
           var label = value?.label;
           var score = value?.score;
-          label && score ? classes[label] = score : null;
+          if (label && score) {
+            classes[label] = score;
+          }
         }
         return classes;
       } catch (err) {
@@ -3265,24 +3263,33 @@ var require_processor2 = __commonJS({
     "use strict";
     var getAIClasses = require_classes_model();
     async function processPolicy(policy, data) {
-      let res = false;
-      if (typeof policy !== "object")
+      if (typeof policy !== "object") {
+        console.error("Illegal policy");
         return false;
-      !data ? data = {} : null;
+      }
+      ;
+      if (!data) {
+        data = {};
+      }
       let type = policy.type;
       let name = policy.name;
       let check = policy.check;
-      if (!check || typeof check !== "function")
-        throw new Error(`Check action is invalid in policy ${name}`);
-      type === "check" || !type ? res = await check(data) : null;
-      if (type === "smart") {
-        var classes = await getAIClasses(data);
-        if (!classes || typeof classes !== "object")
-          console.log("Unable to process data classes");
-        var result = await check(classes);
-        res = result;
+      if (!check || typeof check !== "function") {
+        console.error(`Check action is invalid in policy ${name}`);
+        return void 0;
       }
-      return res;
+      if (type === "check") {
+        return await check(data);
+      } else if (type === "smart") {
+        let classes = await getAIClasses(data);
+        if (!classes || typeof classes !== "object") {
+          console.error("Unable to process data classes");
+          return void 0;
+        }
+        return await check(classes);
+      } else {
+        return void 0;
+      }
     }
     module2.exports = processPolicy;
   }
@@ -3296,7 +3303,7 @@ var require_policy_builder = __commonJS({
       if (operations.indexOf("all") > -1) {
         operations = ["get", "put", "delete"];
       }
-      var pol = {
+      let pol = {
         type,
         operations,
         graph: graph2,
@@ -3434,19 +3441,19 @@ var require_require = __commonJS({
   "lib/ext/require.ts"(exports, module2) {
     "use strict";
     var builtin = require_built_in();
+    var ext;
     try {
       ext = require_extensions_config();
     } catch (err) {
       console.log("extensions.config not found");
     }
-    var ext;
     if (!ext) {
       ext = [];
     }
     var extensions = builder([...ext, ...builtin]);
     var root = {
       load: (extName) => {
-        var ext2 = extensions[extName];
+        let ext2 = extensions[extName];
         if (ext2)
           return ext2;
         if (!ext2)
@@ -3481,7 +3488,7 @@ var require_policies_builder = __commonJS({
   "dev/policies/policies_builder.ts"(exports, module2) {
     "use strict";
     function policies_builder(data) {
-      var policies = {
+      let policies = {
         "get": {},
         "put": {},
         "delete": {}
@@ -3510,19 +3517,19 @@ var require_scanner2 = __commonJS({
     policies = _policies_builder(policies);
     function _scanPolicies(graph2, operation, data, cb) {
       let processedPolicies = [];
-      var anyApplied = false;
-      var applied_policy;
+      let anyApplied = false;
+      let applied_policy;
       if (!policies) {
         policies = {};
       }
-      var scoped_policies = policies[operation];
+      let scoped_policies = policies[operation];
       if (!scoped_policies) {
         return void 0;
       }
       ;
-      var nodes = [];
-      var props;
-      var dynamic_node;
+      let nodes = [];
+      let props;
+      let dynamic_node;
       if (graph2.includes(".")) {
         nodes = graph2.split(".")[0].split("/");
         props = graph2.split(".")[1];
@@ -3552,7 +3559,7 @@ var require_scanner2 = __commonJS({
       }
     }
     var perform = async (soul, policy, data, cb) => {
-      var res = await _processPolicy(policy, data);
+      let res = await _processPolicy(policy, data);
       if (res !== true && res !== false) {
         console.error("Error processing policy. you are not returning a valid true|false as a check");
         return void 0;
@@ -3578,16 +3585,18 @@ var require_get_from_graph = __commonJS({
         return null;
       }
       ;
-      if (key) {
-        let tmp = node[key];
-        if (!tmp) {
-          return null;
-        }
-        ;
-        (node = { _: node._ })[key] = tmp;
-        tmp = node._[">"];
-        (node._[">"] = {})[key] = tmp[key];
+      if (!key) {
+        ack[soul] = node;
+        return ack;
       }
+      let tmp = node[key];
+      if (!tmp) {
+        return null;
+      }
+      ;
+      (node = { _: node._ })[key] = tmp;
+      tmp = node._[">"];
+      (node._[">"] = {})[key] = tmp[key];
       ack[soul] = node;
       return ack;
     };
@@ -3632,13 +3641,13 @@ var require_get = __commonJS({
     var RFG = require_get_from_graph();
     var listen = require_listen();
     var get = function(peer, msg, graph2, storage2) {
-      var soul = msg?.get["#"];
-      var prop = msg?.get["."];
+      let soul = msg?.get["#"];
+      let prop = msg?.get["."];
       if (prop) {
         soul = `${soul}.${prop}`;
       }
       try {
-        var ack = RFG(msg.get, graph2);
+        let ack = RFG(msg.get, graph2);
         if (ack) {
           SCANNER(soul, "get", ack, () => {
             listen(soul, peer);
@@ -3679,24 +3688,24 @@ var require_ham = __commonJS({
     function HAM(machineState, incomingState, currentState, incomingValue, currentValue) {
       if (machineState < incomingState) {
         return { defer: true };
-      }
-      if (incomingState < currentState) {
+      } else if (incomingState < currentState) {
         return { historical: true };
-      }
-      if (currentState < incomingState) {
+      } else if (currentState < incomingState) {
         return { converge: true, incoming: true };
-      }
-      if (incomingState === currentState) {
-        let res;
+      } else if (incomingState === currentState) {
         incomingValue = JSON.stringify(incomingValue) || "";
         currentValue = JSON.stringify(currentValue) || "";
-        incomingValue === currentValue ? res = { state: true } : incomingValue < currentValue ? res = { converge: true, current: true } : currentValue < incomingValue ? res = { converge: true, incoming: true } : res = false;
-        if (res) {
-          return res;
+        if (incomingValue === currentValue) {
+          return { state: true };
+        } else if (incomingValue < currentValue) {
+          return { converge: true, current: true };
+        } else if (currentValue < incomingValue) {
+          return { converge: true, incoming: true };
         }
-        ;
       }
-      return { err: "Invalid CRDT Data: " + incomingValue + " to " + currentValue + " at " + incomingState + " to " + currentState };
+      return {
+        err: `Invalid CRDT Data: ${incomingValue} to ${currentValue} at ${incomingState} to ${currentState}`
+      };
     }
     HAM.mix = (change, graph2) => {
       const machine = +/* @__PURE__ */ new Date();
@@ -3711,7 +3720,12 @@ var require_ham = __commonJS({
           ;
           const state = node._[">"][key];
           const was = (graph2[soul] || { _: { ">": {} } })._[">"][key] || -Infinity;
-          const known = (graph2[soul] || {})[key];
+          let known = {};
+          if (graph2[soul]) {
+            known = graph2[soul][key];
+          } else {
+            known = known[key];
+          }
           const ham = HAM(machine, state, was, val, known);
           if (!ham.incoming && ham.defer) {
             console.error("DEFER", key, val);
@@ -3742,17 +3756,17 @@ var require_put = __commonJS({
     var SCANNER = require_scanner2();
     var put = function(msg, graph2, storage2) {
       try {
-        var soul;
-        for (var key in msg.put) {
-          var node = msg.put[key]._["#"];
+        let soul;
+        for (let key in msg.put) {
+          let node = msg.put[key]._["#"];
           soul = node;
         }
         SCANNER(soul, "put", msg.put, () => {
-          var change = HAM.mix(msg.put, graph2);
+          let change = HAM.mix(msg.put, graph2);
           if (storage2) {
             store.put(change, function(err, ok) {
               if (err) {
-                console.log(err.red);
+                console.error(`${err}`.red);
               }
             });
           }
@@ -3779,9 +3793,9 @@ var require_checkpoint = __commonJS({
     var fs2 = require("fs");
     var make_recovery = function(checkpoint2) {
       setTimeout(async () => {
-        var source = "./ddeep_data";
-        var paste = "./recovery";
-        var point = Date.now();
+        let source = "./ddeep_data";
+        let paste = "./recovery";
+        let point = Date.now();
         await fs2.cp(source, `${paste}/${point}`, { recursive: true }, (err) => {
           if (err) {
             console.error(err);
@@ -40758,17 +40772,17 @@ fastify.register(async (fastify_server) => {
     reply.send(`open socket connections to /ddeep`);
   });
   fastify_server.get("/ddeep", { websocket: true }, (peer, req) => {
-    var peer_ip = req.socket.remoteAddress;
+    let peer_ip = req.socket.remoteAddress;
     if (whitelist.length > 0 && whitelist.indexOf(peer_ip) === -1) {
       peer.socket.send("ACCESS DENIED: you are not allowed to connect to this core...");
       peer.socket.close();
     }
     peer.listeners = [];
-    var _id = "peer:" + crypto.randomBytes(10).toString("hex");
+    let _id = "peer:" + crypto.randomBytes(10).toString("hex");
     peer._id = _id;
     process.PEERS[_id] = peer;
     peer.socket.on("message", (data) => {
-      var msg = JSON.parse(data);
+      let msg = JSON.parse(data);
       if (dup.check(msg["#"])) {
         return;
       }

@@ -6,32 +6,37 @@ function HAM (machineState, incomingState, currentState, incomingValue, currentV
     return { defer: true };
   }
   
-  if (incomingState < currentState) {
+  else if (incomingState < currentState) {
     return { historical: true };
   }
 
-  if (currentState < incomingState) {
+  else if (currentState < incomingState) {
     return { converge: true, incoming: true };
   }
 
-  if (incomingState === currentState) {
-    let res
+  else if (incomingState === currentState) {
 
     incomingValue = JSON.stringify(incomingValue) || ''
     currentValue = JSON.stringify(currentValue) || '';
 
-    (incomingValue === currentValue)
-      ? res = { state: true }
-      : (incomingValue < currentValue)
-          ? res = { converge: true, current: true }
-          : (currentValue < incomingValue)
-              ? res = { converge: true, incoming: true }
-              : res = false
+    if (incomingValue === currentValue) {
+      return { state: true }
+    }
 
-    if (res) { return res };
+    else if (incomingValue < currentValue) {
+      return { converge: true, current: true }
+    }
+
+    else if (currentValue < incomingValue) {
+      return { converge: true, incoming: true }
+    }
+
   }
 
-  return { err: 'Invalid CRDT Data: ' + incomingValue + ' to ' + currentValue + ' at ' + incomingState + ' to ' + currentState }
+  return {
+    err: `Invalid CRDT Data: ${incomingValue} to ${currentValue} at ${incomingState} to ${currentState}`
+  }
+
 }
 
 HAM.mix = (change, graph) => {
@@ -46,8 +51,13 @@ HAM.mix = (change, graph) => {
 
       const state = node._['>'][key]
       const was = (graph[soul] || { _: { '>': {} } })._['>'][key] || -Infinity
-      const known = (graph[soul] || {})[key]
-      const ham = HAM(machine, state, was, val, known)
+      let known = {};
+      if (graph[soul]) {
+        known = graph[soul][key];
+      }else {
+        known = known[key]
+      }
+      const ham = HAM(machine, state, was, val, known);
 
       if (!ham.incoming && ham.defer) {
         console.error('DEFER', key, val);

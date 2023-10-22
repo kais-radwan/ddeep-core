@@ -3,6 +3,7 @@
 */
 
 let crypto = require('crypto');
+let Radix = require('./radix');
 
 ; (function () {
   function Radisk (opt) {
@@ -20,43 +21,64 @@ let crypto = require('crypto');
     opt.code.from = opt.code.from || '!'
     opt.jsonify = true
 
-    function ename (t) { return encodeURIComponent(t).replace(/\*/g, '%2A') } // TODO: Hash this also, but allow migration!
-    function atomic (v) { return u !== v && (!v || typeof v !== 'object') }
-    const timediate = ('' + u === typeof setImmediate) ? setTimeout : setImmediate
-    const puff = setTimeout.turn || timediate; var u
+    function ename(t) { 
+      return encodeURIComponent(t).replace(/\*/g, '%2A');
+    }
+
+    function atomic(v) {
+      return u !== v && (!v || 'object' != typeof v);
+    }
+
+    const timediate = ('' + u === typeof setImmediate) ? setTimeout : setImmediate;
+    const puff = setTimeout.turn || timediate;
+    var u;
     const map = Radix.object
     let ST = 0
 
     if (!opt.store) {
       return opt.log('ERROR: Radisk needs `opt.store` interface with `{get: fn, put: fn (, list: fn)}`!')
     }
+    
     if (!opt.store.put) {
       return opt.log('ERROR: Radisk needs `store.put` interface with `(file, data, cb)`!')
     }
+
     if (!opt.store.get) {
       return opt.log('ERROR: Radisk needs `store.get` interface with `(file, cb)`!')
     }
-    if (!opt.store.list) {
-      // opt.log("WARNING: `store.list` interface might be needed!");
+
+    if ('' + u !== typeof require) {
+      require('./yson');
     }
 
-    if ('' + u !== typeof require) { require('./yson') }
-    const parse = JSON.parseAsync || function (t, cb, r) { let u; try { cb(u, JSON.parse(t, r)) } catch (e) { cb(e) } }
-    const json = JSON.stringifyAsync || function (v, cb, r, s) { let u; try { cb(u, JSON.stringify(v, r, s)) } catch (e) { cb(e) } }
-    /*
-			Any and all storage adapters should...
-			1. Because writing to disk takes time, we should batch data to disk. This improves performance, and reduces potential disk corruption.
-			2. If a batch exceeds a certain number of writes, we should immediately write to disk when physically possible. This caps total performance, but reduces potential loss.
-		*/
+    const parse = JSON.parseAsync || function (t, cb, r) {
+      let u;
+      try {
+        cb(u, JSON.parse(t, r));
+      } catch (e) { 
+        cb(e);
+      }
+    }
+
+    const json = JSON.stringifyAsync || function (v, cb, r, s) {
+      let u;
+      try {
+        cb(u, JSON.stringify(v, r, s));
+      } catch (e) {
+        cb(e);
+      }
+    }
+
     const r = function (key, data, cb, tag, DBG) {
       if (typeof data === 'function') {
-        const o = cb || {}
-        cb = data
-        r.read(key, cb, o, DBG || tag)
-        return
+        const o = cb || {};
+        cb = data;
+        r.read(key, cb, o, DBG || tag);
+        return;
       }
       r.save(key, data, cb, tag, DBG)
     }
+
     r.save = function (key, data, cb, tag, DBG) {
       const s = { key }; let tags; let f; let d; let q
       s.find = function (file) {
@@ -120,12 +142,6 @@ let crypto = require('crypto');
         !q && (q = '')
         const l = q.length; let i = 0
         // TODO: PERF: Why is acks so slow, what work do they do??? CHECK THIS!!
-        // TODO: PERF: Why is acks so slow, what work do they do??? CHECK THIS!!
-        // TODO: PERF: Why is acks so slow, what work do they do??? CHECK THIS!!
-        // TODO: PERF: Why is acks so slow, what work do they do??? CHECK THIS!!
-        // TODO: PERF: Why is acks so slow, what work do they do??? CHECK THIS!!
-        // TODO: PERF: Why is acks so slow, what work do they do??? CHECK THIS!!
-        // TODO: PERF: Why is acks so slow, what work do they do??? CHECK THIS!!
         const S = +new Date()
         for (; i < l; i++) { (ack = q[i]) && ack(err, ok) }
         console.STAT && console.STAT(S, +new Date() - S, 'rad acks', ename(s.file))
@@ -134,7 +150,6 @@ let crypto = require('crypto');
       cb || (cb = function (err, ok) { // test delete!
         if (!err) { }
       })
-      // console.only.i && console.log('save', key);
       r.find(key, s.find)
     }
     r.disk = {}
@@ -597,13 +612,6 @@ let crypto = require('crypto');
     }
   }())
 
-  if (typeof window !== 'undefined') {
-    var Radix = window.Radix
-    window.Radisk = Radisk
-  } else {
-    var Radix = require('./radix')
-    try { module.exports = Radisk } catch (e) { }
-  }
-
   Radisk.Radix = Radix
+  module.exports = Radisk
 }())

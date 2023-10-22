@@ -1,30 +1,30 @@
 // just basics
 require('colors');
-var fs = require('fs');
-var crypto = require('crypto');
+let fs = require('fs');
+let crypto = require('crypto');
 
 // commands interface
-var readline = require('readline'); // process inputs
-var CP = require('../lib/commands/processor'); // Commands processor
+let readline = require('readline'); // process inputs
+let CP = require('../lib/commands/processor'); // Commands processor
 
 // storage and data operations
-var GET = require('./get');
-var PUT = require('./put');
-var recovery = require('./storage/checkpoint'); // build recover checkpoints
-var DUP = require('./dup'), dup = DUP(); // check and track data
+let GET = require('./get');
+let PUT = require('./put');
+let recovery = require('./storage/checkpoint'); // build recover checkpoints
+let DUP = require('./dup'), dup = DUP(); // check and track data
 
 // configurations
-var opt = require('../ddeep.config'); // ddeep configurations
+let opt = require('../ddeep.config'); // ddeep configurations
 const { listeners } = require('process');
 
 // Setup opt
 let graph = {};
-var port = opt.port || 9999;
-var storage = opt.storage || false;
-var checkpoint = opt.checkpoint || false;
-var graph_timer = opt.reset_graph || 0;
-var listeners_timer = opt.reset_listeners || 0;
-var whitelist = opt.whitelist || [];
+let port = opt.port || 9999;
+let storage = opt.storage || false;
+let checkpoint = opt.checkpoint || false;
+let graph_timer = opt.reset_graph || 0;
+let listeners_timer = opt.reset_listeners || 0;
+let whitelist = opt.whitelist || [];
 let interface_prompt;
 
 // add options to the process
@@ -64,7 +64,7 @@ fastify.register(async (fastify_server) => {
     fastify_server.get('/ddeep', { websocket: true }, (peer, req) => {
 
         // get the IP address of the peer connecting to the core
-        var peer_ip = req.socket.remoteAddress;
+        let peer_ip = req.socket.remoteAddress;
 
         // check if ip address is in the whitelist to be able to connect
         if (whitelist.length > 0 && whitelist.indexOf(peer_ip) === -1) {
@@ -74,7 +74,7 @@ fastify.register(async (fastify_server) => {
 
         // push the new peer
         peer.listeners = [];
-        var _id = 'peer:' + crypto.randomBytes(10).toString('hex');
+        let _id = 'peer:' + crypto.randomBytes(10).toString('hex');
         peer._id = _id;
         process.PEERS[_id] = peer;
 
@@ -82,7 +82,7 @@ fastify.register(async (fastify_server) => {
         peer.socket.on('message', (data) => {
 
             // parse message to JSON
-            var msg = JSON.parse(data);
+            let msg = JSON.parse(data);
 
             // check message's ID. return if already tracked, and track it if new
             if (dup.check(msg['#'])) { return };

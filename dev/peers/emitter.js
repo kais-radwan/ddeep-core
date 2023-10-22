@@ -1,6 +1,6 @@
-var EVENTS = require('events');
+let EVENTS = require('events');
 
-var PE = new EVENTS();
+let PE = new EVENTS();
 
 PE.on('get', (peer, data) => {
 
@@ -14,11 +14,10 @@ PE.on('get', (peer, data) => {
 
 PE.on('put', function (graph, data) {
 
-    var peers = [];
-    var listening_peers = [];
-    var nodes = [];
-    var props;
-    var dynamic_graph;
+    let listening_peers = [];
+    let nodes = [];
+    let props;
+    let dynamic_graph;
 
     if (graph.includes('.')) {
         nodes = graph.split('.')[0].split('/');

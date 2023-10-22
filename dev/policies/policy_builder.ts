@@ -1,5 +1,5 @@
 
-interface policy {
+interface Policy {
     type: "check"|"smart",
     operations: Array<"get"|"put"|"delete"|"all">,
     graph: string,
@@ -7,10 +7,10 @@ interface policy {
 }
 
 function build_policy (
-    type:"check"|"smart", 
-    operations:Array<"get"|"put"|"delete"|"all">, 
-    graph:string, 
-    cb:Function
+    type: "check"|"smart", 
+    operations: Array<"get"|"put"|"delete"|"all">, 
+    graph: string, 
+    cb: Function
 )
 {
 
@@ -18,7 +18,7 @@ function build_policy (
         operations = ["get", "put", "delete"];
     }
 
-    var pol:policy = {
+    let pol: Policy = {
         type,
         operations,
         graph,

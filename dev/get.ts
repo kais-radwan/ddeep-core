@@ -1,9 +1,9 @@
-var PE = require('./peers/emitter'); // peers emitter
-var store = require('./storage/store'); // read and write data to storage
-var Dup = require('./dup'), dup = Dup(); // check and track data
-var SCANNER = require('./policies/scanner2.ts'); // scan and process policies
-var RFG = require('./storage/get_from_graph'); // read data from pooling graph
-var listen = require('./peers/listen'); // add listeners to peers
+let PE = require('./peers/emitter'); // peers emitter
+let store = require('./storage/store'); // read and write data to storage
+let Dup = require('./dup'), dup = Dup(); // check and track data
+let SCANNER = require('./policies/scanner2.ts'); // scan and process policies
+let RFG = require('./storage/get_from_graph'); // read data from pooling graph
+let listen = require('./peers/listen'); // add listeners to peers
 
 type msg = {
     '#': string,
@@ -13,17 +13,17 @@ type msg = {
     },
 }
 
-var get = function (peer: any, msg: msg, graph: any, storage: true|false) {
+let get = function (peer: any, msg: msg, graph: any, storage: true|false) {
 
-    var soul:string = msg?.get["#"];
-    var prop = msg?.get["."];
+    let soul:string = msg?.get["#"];
+    let prop = msg?.get["."];
     if (prop) {
         soul = `${soul}.${prop}`;
     }
 
     try {
 
-        var ack = RFG(msg.get, graph);
+        let ack = RFG(msg.get, graph);
 
         if (ack) {
             SCANNER(soul, "get", ack, () => {

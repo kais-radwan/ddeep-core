@@ -1,14 +1,14 @@
 
-interface policy {
+interface Policy {
     type: "check"|"smart",
     operations: Array<"get"|"put"|"delete"|"all">,
     graph: string,
     check: Function
 }
 
-function policies_builder (data:Array<policy>) {
+function policies_builder (data: Array<Policy>) {
 
-    var policies:any = {
+    let policies: any = {
         "get": {},
         "put": {},
         "delete": {}

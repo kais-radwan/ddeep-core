@@ -51,7 +51,14 @@
         }
       } else
         if (i == l) {
-          if (u === val) { return (u === (tmp = at[''])) ? at : ((radix.unit = 1) && tmp) } // temporary help??
+          // if (u === val) { return (u === (tmp = at[''])) ? at : ((radix.unit = 1) && tmp) } // temporary help??
+          if (u === val) {
+            if (u === (tmp = at[''])) {
+              return at;
+            } else {
+              return ((radix.unit = 1) && tmp);
+            }
+          }
           at[''] = val
         } else {
           if (u !== val) { delete at[_] };
