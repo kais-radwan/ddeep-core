@@ -1,6 +1,6 @@
-var _processPolicy = require("./processor.ts");
-var policies = require('../../policies.config');
-var _policies_builder = require('./policies_builder');
+let _processPolicy = require("./processor.ts");
+let policies = require('../../policies.config');
+let _policies_builder = require('./policies_builder');
 policies = _policies_builder(policies);
 
 // scan policies for a specific node path and operation and process valid policies
@@ -8,8 +8,8 @@ function _scanPolicies (graph:string, operation:string, data:any, cb:Function) {
 
     // Define the res that will change and be returned later
     let processedPolicies:Array<string> = [];
-    var anyApplied:true|false = false;
-    var applied_policy:any;
+    let anyApplied:true|false = false;
+    let applied_policy:any;
 
     // Make policies an empty object if no policies exist
     if (!policies) {
@@ -17,12 +17,12 @@ function _scanPolicies (graph:string, operation:string, data:any, cb:Function) {
     }
 
     // get the scoped set of policies for the current operation type
-    var scoped_policies = policies[operation];
+    let scoped_policies = policies[operation];
     if (!scoped_policies) { return undefined };
 
-    var nodes:Array<string> = [];
-    var props:any;
-    var dynamic_node:any;
+    let nodes:Array<string> = [];
+    let props:any;
+    let dynamic_node:any;
 
     if (graph.includes('.')) {
         nodes = graph.split('.')[0].split('/');
@@ -59,9 +59,9 @@ function _scanPolicies (graph:string, operation:string, data:any, cb:Function) {
 
 }
 
-var perform = async (soul:any, policy:any, data:any, cb:Function) => {
+let perform = async (soul:any, policy:any, data:any, cb:Function) => {
 
-    var res = await _processPolicy(policy, data);
+    let res = await _processPolicy(policy, data);
 
     // Throw error if res is not a valid (true || false)
 

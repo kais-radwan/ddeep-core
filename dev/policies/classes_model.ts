@@ -33,7 +33,10 @@ async function getAIClasses (data:any) {
         });
 
         // Throw an error if the result is invalid
-        (!res || typeof res !== "object") ? console.error("Smart policy processing error") : null;
+        if (!res || typeof res !== 'object') {
+            console.error("Smart policy processing error");
+            return undefined;
+        }
 
         // Loop over the classes and build the classes object
         for (var classification in res) {
@@ -44,7 +47,9 @@ async function getAIClasses (data:any) {
             var score = value?.score;
 
             // If the values are valid add the class to classes
-            (label && score) ? classes[label] = score : null;
+            if (label && score) {
+                classes[label] = score;
+            }
 
         }
 

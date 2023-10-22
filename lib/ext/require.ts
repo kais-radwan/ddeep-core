@@ -1,7 +1,9 @@
-var builtin = require("./built-in/index");
+let builtin = require("./built-in/index");
+
+let ext;
 
 try {
-    var ext = require("../../extensions.config.js");
+    ext = require("../../extensions.config.js");
 } catch(err) {
     console.log('extensions.config not found');
 }
@@ -17,10 +19,10 @@ if (!ext) {
 
 let extensions = builder([...ext, ...builtin]);
 
-var root = {
+let root = {
 
     load: (extName:string) => {
-        var ext = extensions[extName];
+        let ext = extensions[extName];
         if (ext) return ext;
         if (!ext) throw new Error(`Extension ${extName} not found`);
     }

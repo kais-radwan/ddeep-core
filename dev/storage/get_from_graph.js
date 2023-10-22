@@ -6,17 +6,20 @@ const get_from_graph = (lex, graph) => {
 
   if (!node) { return null };
 
-  if (key) {
-    let tmp = node[key]
-    if (!tmp) { return null };
-
-    (node = { _: node._ })[key] = tmp
-    tmp = node._['>'];
-    (node._['>'] = {})[key] = tmp[key]
+  if (!key) {
+    ack[soul] = node;
+    return ack;
   }
 
-  ack[soul] = node
-  return ack
+  let tmp = node[key]
+  if (!tmp) { return null };
+
+  (node = { _: node._ })[key] = tmp
+  tmp = node._['>'];
+  (node._['>'] = {})[key] = tmp[key]
+
+  ack[soul] = node;
+  return ack;
 }
 
 module.exports = get_from_graph

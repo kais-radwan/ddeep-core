@@ -1,37 +1,35 @@
-var PE = require('./peers/emitter'); // peers emitter
-var store = require('./storage/store'); // read and write data to storage
-var Dup = require('./dup'), dup = Dup(); // check and track data
-var HAM = require('./ham'); // conflict resolution algorithm
-var SCANNER = require('./policies/scanner2.ts'); // scan and process policies
+let PE = require('./peers/emitter'); // peers emitter
+let store = require('./storage/store'); // read and write data to storage
+let Dup = require('./dup'), dup = Dup(); // check and track data
+let HAM = require('./ham'); // conflict resolution algorithm
+let SCANNER = require('./policies/scanner2.ts'); // scan and process policies
 
 type putMsg = {
     '#': string,
     'put': any
 }
 
-var put = function (msg: putMsg, graph: any, storage: true|false) {
+let put = function (msg: putMsg, graph: any, storage: true|false) {
 
     try {
 
-        var soul: any;
-        // var prop = msg.put[Object.keys(msg.put)[0]]._["."];
-        // if (prop) soul = `${soul}.${prop}`;
+        let soul: any;
 
-        for (var key in msg.put) {
-            var node = msg.put[key]._['#'];
+        for (let key in msg.put) {
+            let node = msg.put[key]._['#'];
             soul = node;
         }
 
         SCANNER(soul, "put", msg.put, () => {
 
-            var change = HAM.mix(msg.put, graph);
+            let change = HAM.mix(msg.put, graph);
 
             // if storage is enabled, save data and stream it
             if (storage) {
                 store.put(change, function (err:any, ok:any) {
 
                     if (err) {
-                        console.log(err.red);
+                        console.error(`${err}`.red);
                     }
 
                 })

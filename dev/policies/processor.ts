@@ -11,34 +11,46 @@ type policySchema = {
     "rules": Array<string>
 }
 
-async function processPolicy (policy:policySchema, data:any) {
+async function processPolicy (policy: policySchema, data: any) {
 
-    let res:true|false = false;
+    if (typeof policy !== "object") {
+        console.error('Illegal policy');
+        return false;
+    };
 
-    if (typeof policy !== "object") return false;
-    (!data) ? data = {} : null;
+    if (!data) {
+        data = {};
+    }
 
     let type = policy.type;
     let name = policy.name;
     let check = policy.check;
 
-    if (!check || typeof check !== "function") 
-        throw new Error(`Check action is invalid in policy ${name}`);
+    if (!check || typeof check !== "function") {
+        console.error(`Check action is invalid in policy ${name}`);
+        return undefined;
+    }
 
-    (type === "check" || !type) ? res = await check(data) : null;
+    if (type === 'check') {
+        return await check(data);
+    }
 
-    if (type === "smart") {
+    else if (type === "smart") {
 
-        var classes = await getAIClasses(data);
-        if (!classes || typeof classes !== "object") console.log("Unable to process data classes");
+        let classes = await getAIClasses(data);
+        
+        if (!classes || typeof classes !== "object") {
+            console.error("Unable to process data classes");
+            return undefined;
+        }
 
-        var result:true|false = await check(classes);
-
-        res = result;
+        return await check(classes);
 
     }
 
-    return res;
+    else {
+        return undefined;
+    }
 
 }
 
