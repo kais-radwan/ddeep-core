@@ -952,7 +952,7 @@ var require_radix = __commonJS({
             if ("" + key > radix.last) {
               radix.last = "" + key;
             }
-            delete (radix?.$ || {})[_];
+            delete (radix.$ || {})[_];
           }
           t = t || radix.$ || (radix.$ = {});
           if (!key && Object.keys(t).length) {
@@ -1038,7 +1038,7 @@ var require_radix = __commonJS({
           }
           if (typeof t === "string") {
             if (Radix.debug) {
-              throw ["BUG:", radix, cb, opt2, pre];
+              throw new Error(["BUG:", radix, cb, opt2, pre]);
             }
             return;
           }
