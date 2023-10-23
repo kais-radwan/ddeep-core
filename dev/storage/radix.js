@@ -9,7 +9,7 @@
         if ('' + key > radix.last) {
           radix.last = '' + key;
         }
-        delete (radix?.$ || {})[_]
+        delete (radix.$||{})[_];
       }
       t = t || radix.$ || (radix.$ = {})
       if (!key && Object.keys(t).length) { return t }
@@ -73,7 +73,7 @@
       const t = (typeof radix === 'function') ? radix.$ || {} : radix
       //! opt && console.log("WHAT IS T?", JSON.stringify(t).length);
       if (!t) { return }
-      if (typeof t === 'string') { if (Radix.debug) { throw ['BUG:', radix, cb, opt, pre] } return }
+      if (typeof t === 'string') { if (Radix.debug) { throw new Error(['BUG:', radix, cb, opt, pre]) } return }
       let keys = (t[_] || no).sort || (t[_] = (function $ () { $.sort = Object.keys(t).sort(); return $ }())).sort; let rev // ONLY 17% of ops are pre-sorted!
       // var keys = Object.keys(t).sort();
       opt = (opt === true) ? { branch: true } : (opt || {})

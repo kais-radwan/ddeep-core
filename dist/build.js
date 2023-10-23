@@ -1038,7 +1038,7 @@ var require_radix = __commonJS({
           }
           if (typeof t === "string") {
             if (Radix.debug) {
-              throw ["BUG:", radix, cb, opt2, pre];
+              throw new Error(["BUG:", radix, cb, opt2, pre]);
             }
             return;
           }
