@@ -952,7 +952,7 @@ var require_radix = __commonJS({
             if ("" + key > radix.last) {
               radix.last = "" + key;
             }
-            delete (radix?.$ || {})[_];
+            delete (radix.$ || {})[_];
           }
           t = t || radix.$ || (radix.$ = {});
           if (!key && Object.keys(t).length) {
