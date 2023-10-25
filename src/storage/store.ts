@@ -1,6 +1,6 @@
 
 let crypto = require('crypto');
-let fs  = require('fs');
+let fs  = require('node:fs');
 
 interface StoreOpt {
     file: string,

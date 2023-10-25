@@ -1,7 +1,7 @@
 let Radix = require('./radix');
 let Radisk = require('./radisk');
 let Store = require('./store');
-let rad = Radisk({ store: Store() })
+let rad = Radisk({ store: Store });
 
 interface APIType {
     put: Function,
@@ -70,9 +70,9 @@ let API: APIType = {
             c--;
             if (err = err) {
                 cb(err || 'ERROR!');
-                return;
+                return undefined;
             }
-            if (c > 0) { return };
+            if (c > 0) { return undefined };
             cb(null, 1);
         }
 
@@ -80,4 +80,4 @@ let API: APIType = {
 
 };
 
-module.exports = API
+export default API;

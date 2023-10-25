@@ -2,7 +2,7 @@
     This file was modified. for license see https://github.com/amark/gun/blob/master/LICENSE.md
 */
 
-let crypto = require('crypto');
+let crypto = require('node:crypto');
 let Radix = require('./radix');
 
 ; (function () {
