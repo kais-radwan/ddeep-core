@@ -6,7 +6,7 @@ let policies:Array<Policy> = [
         type: 'check',
         operations: ['get'],
         graph: 'people',
-        
+
         check: function (): true | false {
             return true;
         }

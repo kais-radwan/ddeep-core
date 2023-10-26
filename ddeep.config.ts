@@ -12,7 +12,7 @@ interface OPT {
 const options: OPT = {
 
     /* Set storage to true to enable persistent data storage */
-    "storage": false,
+    "storage": true,
 
     /* Set the port you want to run the peer on */
     "port": 3000,

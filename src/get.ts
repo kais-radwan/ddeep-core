@@ -1,7 +1,8 @@
 import dup from './dup'; // just to generate some random IDs
-import store from './storage/store_api'; // read and write data to storage
+import store from './storage/store'; // read and write data to storage
 import scanner from './policies/scanner';
 import read_graph from './storage/read_graph';
+import ham from './ham';
 
 interface GetData {
     '#': string,
@@ -15,8 +16,13 @@ const get = (ws: any, data: GetData, graph: any, storage: true | false) => {
 
     let soul: string = data?.get["#"] || '';
     let prop = data?.get["."];
+
     if (prop) {
-        soul = `${soul}.${prop}`;
+        if (soul.includes('/')) {
+            soul = `${soul}.${prop}`;
+        } else {
+            soul = `${soul}/${prop}`;
+        }
     }
 
     try {
@@ -24,14 +30,16 @@ const get = (ws: any, data: GetData, graph: any, storage: true | false) => {
         let ack = read_graph(data.get, graph);
         
         if (ack) {
-            scanner(ws.data._id, soul, 'get', ack, () => {
+            scanner(soul, 'get', ack, () => {
                 let res: any = {
                     '#': dup.track(dup.random()),
                     '@': data['#'],
                     put: ack,
                     err: null
                 }
-                ws.publish(soul, JSON.stringify(res));
+                ham.mix(ack, graph);
+                ws.subscribe(soul);
+                ws.send(JSON.stringify(res));
             })
         }
 
@@ -40,14 +48,16 @@ const get = (ws: any, data: GetData, graph: any, storage: true | false) => {
 
                 if (err) { return undefined };
 
-                scanner(ws.data._id, soul, 'get', ack, () => {
+                scanner(soul, 'get', ack, () => {
                     let res = {
                         '#': dup.track(dup.random()),
                         '@': data['#'],
                         put: ack,
                         err: err
                     }
-                    ws.publish(soul, JSON.stringify(res));
+                    ham.mix(ack, graph);
+                    ws.subscribe(soul);
+                    ws.send(JSON.stringify(res));
                 })
 
             })

@@ -1,5 +1,5 @@
 import dup from './dup'; // just to generate some random IDs
-import store from './storage/store_api'; // read and write data to storage
+import store from './storage/store'; // read and write data to storage
 import scanner from './policies/scanner';
 import ham from './ham';
 
@@ -19,7 +19,7 @@ const put = (ws: any, data: PutData, graph: any, storage: true | false) => {
             soul = node;
         }
 
-        scanner(ws.data._id, soul, "put", data.put, () => {
+        scanner(soul, "put", data.put, () => {
 
             let change = ham.mix(data.put, graph);
 
@@ -46,7 +46,7 @@ const put = (ws: any, data: PutData, graph: any, storage: true | false) => {
 
         });
 
-    } catch (err) {}; // no need to do anything here...
+    } catch (err) {}; // no need to do anything here
 
 }
 

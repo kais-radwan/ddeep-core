@@ -2,7 +2,7 @@
     This file was modified. for license see https://github.com/amark/gun/blob/master/LICENSE.md
 */
 
-let crypto = require('node:crypto');
+let crypto = require('crypto');
 let Radix = require('./radix');
 
 ; (function () {
@@ -13,13 +13,13 @@ let Radix = require('./radix');
     const has = (Radisk.has || (Radisk.has = {}))[opt.file]
     if (has) { return has }
 
-    opt.max = opt.max || (opt.memory ? (opt.memory * 999 * 999) : 300000000) * 0.3;
-    opt.until = opt.until || opt.wait || 250;
-    opt.batch = opt.batch || (10 * 1000);
-    opt.chunk = opt.chunk || (1024 * 1024 * 1); // 1MB
-    opt.code = opt.code || {};
-    opt.code.from = opt.code.from || '!';
-    opt.jsonify = true;
+    opt.max = opt.max || (opt.memory ? (opt.memory * 999 * 999) : 300000000) * 0.3
+    opt.until = opt.until || opt.wait || 250
+    opt.batch = opt.batch || (10 * 1000)
+    opt.chunk = opt.chunk || (1024 * 1024 * 1) // 1MB
+    opt.code = opt.code || {}
+    opt.code.from = opt.code.from || '!'
+    opt.jsonify = true
 
     function ename(t) { 
       return encodeURIComponent(t).replace(/\*/g, '%2A');

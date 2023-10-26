@@ -44,9 +44,7 @@ const server = Bun.serve<Options>({
     websocket: {
 
         open: (ws) => {
-
-            ws.subscribe('demo');
-
+            console.log(ws);
         },
 
         message: (ws, message: string) => {
@@ -54,18 +52,18 @@ const server = Bun.serve<Options>({
             let data = JSON.parse(message);
 
             // check if message ID already tracked
-            if (dup.check(data['#'])) { return };
+            if (dup.check(data['#'])) { return undefined };
             dup.track(data['#']);
 
-            if (data.get) {
+            if (data.put) {
 
-                get(ws, data, graph, storage);
+                put(ws, data, graph, storage);
 
             }
 
-            else if (data.put) {
+            else if (data.get) {
 
-                put(ws, data, graph, storage);
+                get(ws, data, graph, storage);
 
             }
 
@@ -86,12 +84,11 @@ if (Number(graph_timer) > 0) {
 }
 
 // clear graph every ms
-function clear_graph (timer: number) {
+async function clear_graph (timer: number) {
     if (timer < 1000) { return undefined };
-    setTimeout( () => {
-        graph = {};
-        clear_graph(timer);
-    }, timer);
+    Bun.sleep(timer);
+    graph = {};
+    clear_graph(timer);
 }
 
 console.log(`ddeep-core is listening on ${server.hostname}:${server.port}`);
