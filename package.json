@@ -32,7 +32,7 @@
     "dependencies": {
         "@fastify/static": "^6.11.2",
         "@fastify/websocket": "^8.2.0",
-        "@huggingface/inference": "^2.6.1",
+        "@huggingface/inference": "^2.6.3",
         "bytenode": "^1.5.1",
         "colors": "^1.4.0",
         "esbuild": "^0.19.4",
