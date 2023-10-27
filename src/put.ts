@@ -8,7 +8,7 @@ type PutData = {
     'put': any
 }
 
-const put = (ws: any, data: PutData, graph: any, storage: true | false) => {
+const put = (ws: any, data: PutData, graph: any, storage: true | false): void => {
 
     try {
 
@@ -25,13 +25,7 @@ const put = (ws: any, data: PutData, graph: any, storage: true | false) => {
 
             // if storage is enabled, save data and stream it
             if (storage) {
-                store.put(change, (err:any, ok:any) => {
-
-                    if (err) {
-                        console.error(`${err}`);
-                    }
-
-                })
+                store.put(change); // we won't do anything here. we'll just ignore it
             }
 
             let res = {

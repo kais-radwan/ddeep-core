@@ -1,8 +1,12 @@
 import dup from './dup'; // just to generate some random IDs
 import recover from './storage/checkpoint';
 import opt from '../ddeep.config'; // ddeep configurations
+
 import get from './get';
 import put from './put';
+import unsubscribe from './unsubscribe';
+import create_user from './auth/create_user';
+import verify_user from './auth/verify';
 
 interface Options {
     _id: string
@@ -11,15 +15,9 @@ interface Options {
 // globals
 let graph: any = {};
 
-// options
-let storage: true | false = opt.storage;
-let checkpoint = opt.checkpoint;
-let graph_timer = opt.reset_graph || 0;
-let whitelist = opt.whitelist || [];
-
 const server = Bun.serve<Options>({
 
-    fetch(req, server) {
+    fetch(req, server): void | any {
 
         // create a unquie id for this peer
         let _id = dup.random();
@@ -43,11 +41,9 @@ const server = Bun.serve<Options>({
 
     websocket: {
 
-        open: (ws) => {
-            console.log(ws);
-        },
+        open: (ws): void => {},
 
-        message: (ws, message: string) => {
+        message: (ws, message: string): void => {
 
             let data = JSON.parse(message);
 
@@ -56,15 +52,24 @@ const server = Bun.serve<Options>({
             dup.track(data['#']);
 
             if (data.put) {
-
-                put(ws, data, graph, storage);
-
+                put(ws, data, graph, opt.storage);
             }
 
-            else if (data.get) {
+            if (data.get) {
+                get(ws, data, graph, opt.storage, true);
+            }
 
-                get(ws, data, graph, storage);
+            if (data.unsubscribe) {
+                unsubscribe(ws, data);
+            }
 
+            if (data.auth) {
+                if (data.auth.new) {
+                    create_user(ws, data.auth, opt.encryption_cost, graph, opt.storage);
+                }
+                else {
+                    verify_user(ws, data.auth, graph, opt.storage);
+                }
             }
 
         },
@@ -74,13 +79,13 @@ const server = Bun.serve<Options>({
 })
 
 // start recovery function if a checkpoint timer is in palce and storage enabled
-if (storage && checkpoint) {
-    recover(checkpoint);
+if (opt.storage && opt.checkpoint) {
+    recover(opt.checkpoint);
 }
 
 // clear graph based on the reset_graph timer
-if (Number(graph_timer) > 0) {
-    clear_graph(graph_timer);
+if (Number(opt.reset_graph) > 0) {
+    clear_graph(Number(opt.reset_graph));
 }
 
 // clear graph every ms

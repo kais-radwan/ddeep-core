@@ -6,7 +6,7 @@ interface OPT {
     hf: string | undefined,
     checkpoint: number | undefined,
     reset_graph: number | undefined,
-    reset_listeners: number | undefined
+    encryption_cost: number
 }
 
 const options: OPT = {
@@ -40,13 +40,10 @@ const options: OPT = {
     "reset_graph": undefined,
 
     /*
-        Set a reset_listeners interval timers in ms to clear the core's lisetners
-        Listeners record all nodes being listened to with all peer's IDs listeting to them
-        and while a peer is removed from the listeners when It's disconnected,
-        It's "strongly recommended" to use 'resset_listeners' to keep things clear and avoid possible issues
-        you can disable this option by setting it to undefined or 0
+        Set the number of cycles to use in the password hashing algorithm (bcrypt).
+        set a number between 4 to 31
     */
-    "reset_listeners": 6000000,
+    "encryption_cost": 7
 
 }
 

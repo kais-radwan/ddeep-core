@@ -2,7 +2,7 @@
 import AI from './classes_calssifier';
 import { Policy } from './builder';
 
-async function process_policy (policy: Policy, data: any) {
+async function process_policy (policy: Policy, data: any):Promise<true | false | undefined> {
 
     if (typeof policy !== "object") {
         console.error('Illegal policy');
@@ -36,9 +36,7 @@ async function process_policy (policy: Policy, data: any) {
 
     }
 
-    else {
-        return undefined;
-    }
+    else { return undefined };
 
 }
 

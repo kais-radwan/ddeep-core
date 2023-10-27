@@ -16,7 +16,7 @@ interface Builder {
 
 let builder: Builder = {
 
-    build: (data: Array<Policy>) => {
+    build: (data: Array<Policy>): any => {
 
         let policies: any = {
             "get": {},
@@ -37,8 +37,8 @@ let builder: Builder = {
 
     },
 
-    one: (type: PolicyType, operations: Array<Operation>, graph: string, cb: Function) => {
-        
+    one: (type: PolicyType, operations: Array<Operation>, graph: string, cb: Function): Policy => {
+
         if (operations.indexOf("all") > -1) {
             operations = ["get", "put", "delete"];
         }

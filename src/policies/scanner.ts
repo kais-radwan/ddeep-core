@@ -1,22 +1,11 @@
-import builder from './builder';
-import policies_data from "../../policies.config";
 import process_policy from "./processor";
-
-let policies = builder.build(policies_data);
+import policies from "./serve.ts";
 
 // scan policies for a specific node path and operation and process valid policies
 function scan_policies (graph: string, operation: string, data: any, cb: Function) {
 
     // Define the res that will change and be returned later
     let applied_policy:any;
-
-    // Make policies an empty object if no policies exist
-    if (!policies) {
-        policies = {
-            get: {},
-            put: {}
-        };
-    }
 
     // get the scoped set of policies for the current operation type
     let scoped_policies = policies[operation];

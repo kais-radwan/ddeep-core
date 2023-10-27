@@ -1,25 +1,29 @@
 let fs = require("node:fs");
 
-let make_recovery = function (checkpoint_timer:number) {
+const recover = async (timer: number): Promise<void> => {
 
-    setTimeout( async () => {
- 
+    try {
         let source = './ddeep_data';
-        let paste = './recovery';
-        let point = Date.now();
+        let destination = `./recovery/${Date.now()}`;
 
-        await fs.cp(source, `${paste}/${point}`, { recursive: true }, (err:any) => {
-            if (err) {
-              console.error(err);
-              return undefined;
-            }
+        let data = Bun.file(source);
+        let paste = Bun.file(destination);
+        let value = await data.text();
 
-            console.log({success: `checkpoint '${point}' created!`});
-        });
+        await Bun.write(paste, value);
+        make_recovery(timer);
+    }
 
-        make_recovery(checkpoint_timer);
+    catch (err: any) {
+        make_recovery(timer);
+    }
 
-    }, checkpoint_timer);
+}
+
+const make_recovery = async (timer: number): Promise<void> => {
+
+    await Bun.sleep(timer);
+    recover(timer);
 
 }
 

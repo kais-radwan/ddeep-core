@@ -1,4 +1,6 @@
 
+/* Not used as for now */
+
 process.PERMISSIONS = {};
 
 let Permissions = {

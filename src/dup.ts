@@ -17,7 +17,7 @@ const dup: DUP = {
     s: {},
     to: undefined,
 
-    check(id: string) {
+    check: (id: string) => {
 
         if (cache[id]) {
             return cache[id];
@@ -25,7 +25,7 @@ const dup: DUP = {
 
     },
 
-    track(id: string) {
+    track: (id: string): string => {
 
         if (tracked.has(id)) {
             return id;
@@ -52,13 +52,13 @@ const dup: DUP = {
 
     },
 
-    destroy() {
+    destroy: (): void => {
         clearTimeout(dup.to);
         cache = {};
         tracked.clear();
     },
 
-    random() {
+    random: (): number => {
         return (Date.now() * crypto.randomInt(0, 10000)) - crypto.randomInt(0, 199);
     }
 

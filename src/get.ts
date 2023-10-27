@@ -12,10 +12,14 @@ interface GetData {
     },
 }
 
-const get = (ws: any, data: GetData, graph: any, storage: true | false) => {
+const get = (ws: any, data: GetData, graph: any, storage: true | false, subscribe: true | false): void => {
+
+    if (typeof data.get !== 'object' || data.get === null) { return undefined };
 
     let soul: string = data?.get["#"] || '';
     let prop = data?.get["."];
+
+    if (soul.substring(0, 2) == '~~') { return undefined };
 
     if (prop) {
         if (soul.includes('/')) {
@@ -28,7 +32,7 @@ const get = (ws: any, data: GetData, graph: any, storage: true | false) => {
     try {
 
         let ack = read_graph(data.get, graph);
-        
+
         if (ack) {
             scanner(soul, 'get', ack, () => {
                 let res: any = {
@@ -38,7 +42,9 @@ const get = (ws: any, data: GetData, graph: any, storage: true | false) => {
                     err: null
                 }
                 ham.mix(ack, graph);
-                ws.subscribe(soul);
+                if (subscribe) {
+                    ws.subscribe(soul);
+                }
                 ws.send(JSON.stringify(res));
             })
         }
@@ -56,7 +62,9 @@ const get = (ws: any, data: GetData, graph: any, storage: true | false) => {
                         err: err
                     }
                     ham.mix(ack, graph);
-                    ws.subscribe(soul);
+                    if (subscribe) {
+                        ws.subscribe(soul);
+                    }
                     ws.send(JSON.stringify(res));
                 })
 

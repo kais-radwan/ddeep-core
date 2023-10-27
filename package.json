@@ -1,13 +1,14 @@
 {
   "name": "ddeep-core",
-  "module": "index.ts",
+  "scripts": {
+    "start": "bun ./src/serve"
+  },
   "devDependencies": {
     "bun-types": "latest"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
-  "type": "module",
   "dependencies": {
     "@huggingface/inference": "^2.6.4"
   }

@@ -24,7 +24,7 @@ const store: StoreType = {
 
   file: 'ddeep_data',
 
-  put: async (file: string, data: any, cb: Function) => {
+  put: async (file: string, data: any, cb: Function): Promise<void> => {
 
     // generate a random tmp file name
     const random = crypto.randomBytes(32).toString('hex').slice(-3);
@@ -37,7 +37,7 @@ const store: StoreType = {
 
   },
 
-  get: async (file: string, cb: Function) => {
+  get: async (file: string, cb: Function): Promise<void> => {
 
     try {
 
@@ -58,7 +58,7 @@ const store: StoreType = {
 
   },
 
-  list: (cb: Function) => {
+  list: (cb: Function): void => {
 
     fs.readdir(store.file, (err: any, dir: any) => {
       dir.forEach(cb)
@@ -69,7 +69,7 @@ const store: StoreType = {
 
 }
 
-function Store() {
+function Store(): StoreType {
 
   if (!fs.existsSync(store.file)) { fs.mkdirSync(store.file) }
   return store;
@@ -80,7 +80,7 @@ const rad = Radisk({ store: Store() });
 
 const API: APIType = {
 
-  put: (graph: any, cb: Function) => {
+  put: (graph: any): void => {
 
     if (!graph) { return undefined };
     let c = 0;
@@ -100,17 +100,15 @@ const API: APIType = {
     function ack(err: any, ok: number) {
       c--;
       if (err) {
-        cb(err || 'ERROR!');
         return undefined;
       }
 
       if (c > 0) { return undefined };
-      cb(err, 1);
     }
 
   },
 
-  get: (lex: LexData, cb: Function) => {
+  get: (lex: LexData, cb: Function): void => {
 
     if (!lex || typeof lex !== 'object') { return undefined };
 
