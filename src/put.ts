@@ -25,7 +25,7 @@ const put = (ws: any, data: PutData, graph: any, storage: true | false): void =>
 
             // if storage is enabled, save data and stream it
             if (storage) {
-                store.put(change); // we won't do anything here. we'll just ignore it
+                store.put(change, () => {}); // we won't do anything here. we'll just ignore it
             }
 
             let res = {

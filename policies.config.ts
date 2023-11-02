@@ -1,4 +1,5 @@
 import { Policy } from './src/policies/builder';
+import smartChecker from './src/smart_checker';
 
 let policies:Array<Policy> = [
 
@@ -7,12 +8,12 @@ let policies:Array<Policy> = [
         operations: ['get'],
         graph: 'people',
 
-        check: function (): true | false {
+        check: function (): Boolean {
             return true;
         }
 
     }
 
-]
+];
 
 export default policies;

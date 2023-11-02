@@ -1,7 +1,6 @@
 
 interface OPT {
     storage: true | false,
-    port: number | undefined,
     whitelist: Array<string> | undefined,
     hf: string | undefined,
     checkpoint: number | undefined,
@@ -13,9 +12,6 @@ const options: OPT = {
 
     /* Set storage to true to enable persistent data storage */
     "storage": true,
-
-    /* Set the port you want to run the peer on */
-    "port": 3000,
 
     /*
         Set a list of IP adresses (of peers, servers, or websites) that are able to connect to this core

@@ -61,7 +61,6 @@ const get = (ws: any, data: GetData, graph: any, storage: true | false, subscrib
                         put: ack,
                         err: err
                     }
-                    ham.mix(ack, graph);
                     if (subscribe) {
                         ws.subscribe(soul);
                     }

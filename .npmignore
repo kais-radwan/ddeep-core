@@ -4,5 +4,6 @@
 **/.git
 **/test
 **/test2
-/dev/policies/*.js
-/dev/assets
+/src/policies/*.js
+/src/assets
+/src/auth

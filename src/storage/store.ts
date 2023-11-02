@@ -71,7 +71,7 @@ const store: StoreType = {
 
 function Store(): StoreType {
 
-  if (!fs.existsSync(store.file)) { fs.mkdirSync(store.file) }
+  if (!fs.existsSync(store.file)) { fs.mkdirSync(store.file) };
   return store;
 
 }
