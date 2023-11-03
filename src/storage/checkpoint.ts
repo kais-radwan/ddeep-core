@@ -1,17 +1,22 @@
 let fs = require("node:fs");
 
-const recover = async (timer: number): Promise<void> => {
+const recover = async function (timer: number): Promise<void> {
 
     try {
-        let source = './ddeep_data';
-        let destination = `./recovery/${Date.now()}`;
 
-        let data = Bun.file(source);
-        let paste = Bun.file(destination);
-        let value = await data.text();
+        let source = `${import.meta.dir}/../../ddeep_data`;
+        let destination = `${import.meta.dir}/../../recovery`;
+        let point = Date.now();
 
-        await Bun.write(paste, value);
+        await fs.cp(source, `${destination}/${point}`, { recursive: true }, (err:any) => {
+            if (err) {
+              console.error(err);
+              return undefined;
+            }
+        });
+
         make_recovery(timer);
+
     }
 
     catch (err: any) {
@@ -22,8 +27,9 @@ const recover = async (timer: number): Promise<void> => {
 
 const make_recovery = async (timer: number): Promise<void> => {
 
-    await Bun.sleep(timer);
-    recover(timer);
+    setTimeout( () => {
+        recover(timer);
+    }, timer);
 
 }
 

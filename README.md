@@ -26,6 +26,7 @@
     - [Using Github](#using-github)
     - [Using Docker](#using-docker)
 - [Configurations](#configurations)
+- [Cloud hosted](#cloud-hosted)
 - [Policies](#policies)
     - [Schema](#schema)
     - [Check policies](#check-policies)
@@ -116,6 +117,14 @@ docker run -d ddeep-core
 
 Your core configurations are defined in the `ddeep.config.ts` found in your working directory, everything is explained with comments in the file itself.
 
+## Cloud hosted
+
+If you are willing to run `ddeep-core` using a cloud hosting service (like [FL0](https://www.fl0.com/)), we recommend you fork this repository, edit the configurations file, and then deploy it.
+
+anyway we recommend you check the default options in the `ddeep.config.ts` file, and if it's okay for you just use this repository to deploy your core.
+
+> `ddeep-core` will listen on port `3000` by default.
+
 ## Policies
 
 Policies are used to control access to data by applying conditions to specific nodes in the graph network.
@@ -202,7 +211,7 @@ function (data) {
 
 so you have the freedom to build your own `check` functions and policies.
 
-## Smart policies
+### Smart policies
 
 > WARNING: Smart policies's AI is giving bad results in some cases, has some bugs, and causing latency so be careful using it
 

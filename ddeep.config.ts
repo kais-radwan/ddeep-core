@@ -11,7 +11,7 @@ interface OPT {
 const options: OPT = {
 
     /* Set storage to true to enable persistent data storage */
-    "storage": true,
+    "storage": false,
 
     /*
         Set a list of IP adresses (of peers, servers, or websites) that are able to connect to this core
@@ -37,7 +37,7 @@ const options: OPT = {
 
     /*
         Set the number of cycles to use in the password hashing algorithm (bcrypt).
-        set a number between 4 to 31
+        set a number between 4 to 31 (NOT USED AS FOR NOW)
     */
     "encryption_cost": 7
 
