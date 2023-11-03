@@ -1,8 +1,30 @@
 {
   "name": "ddeep-core",
+  "version": "1.1.0",
   "scripts": {
-    "start": "bun ./src/serve"
+    "start": "bun ./src/serve",
+    "build": "bun build --outdir=dist ./src/serve.ts"
   },
+  "bin": {
+    "ddeep-init": "./init/init.js"
+  },
+  "preferGlobal": true,
+  "keywords": [
+    "decentralized",
+    "realtime",
+    "synchronization",
+    "database",
+    "peer-to-peer",
+    "websocket",
+    "P2P",
+    "distributed",
+    "bun",
+    "network"
+  ],
+  "bugs": {
+    "url": "https://matrix.to/#/@multineon:gitter.im"
+  },
+  "license": "(MIT OR Zlib OR Apache-2.0)",
   "devDependencies": {
     "bun-types": "latest"
   },
@@ -11,5 +33,10 @@
   },
   "dependencies": {
     "@huggingface/inference": "^2.6.4"
+  },
+  "author": {
+    "name": "Kais Radwan",
+    "email": "kais.radwan.personal@gmail.com",
+    "url": "https://matrix.to/#/@multineon:gitter.im"
   }
 }
