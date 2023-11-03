@@ -4,9 +4,8 @@
 **/.git
 **/test
 **/test2
-/dev/policies/*.js
-/dev/get.js
-/dev/put.js
+/src/policies/*.js
 **/lib/builder
 **/policies.ddeep
 /package-lock.json
+/src/auth/
