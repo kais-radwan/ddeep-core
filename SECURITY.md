@@ -4,8 +4,7 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| >=1.0.4 (github)  | :white_check_mark: |
-| >=1.0.8-e (npm)   | :white_check_mark:  |
+| >=1.1.0  | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
